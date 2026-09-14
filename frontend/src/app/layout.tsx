@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 
 const poppins = Poppins({
-  weight: ["400", "700"],
+  weight: ["400", "500", "700"],
   style: "normal",
   subsets: ["latin"],
   display: "swap",
