@@ -46,3 +46,4 @@ __pycache__/
 venv/
 .pytest_cache/
 *.sqlite3
+/frontend/mockups

@@ -1,0 +1,29 @@
+.section { padding: 70px 48px; background: #fff; color: #050505; font-family: var(--font-poppins), Arial, sans-serif; }
+.card { position: relative; isolation: isolate; display: grid; grid-template-columns: 225px minmax(0, 1fr); gap: 30px; max-width: 1280px; margin: 0 auto; padding: 34px 28px; overflow: hidden; border-radius: 16px; background: #fff; box-shadow: 0 5px 10px #0005; }
+.artwork { z-index: 0; pointer-events: none; object-fit: cover; object-position: center 43%; opacity: .3; filter: sepia(1) saturate(.6) hue-rotate(75deg); }
+.portrait { position: relative; z-index: 1; display: block; width: 225px; height: auto; border-radius: 10px; }
+.message { position: relative; z-index: 1; padding-top: 16px; }
+.quote { margin: 0; font-size: 20px; font-weight: 400; line-height: 1.5; }
+.quote p { margin: 0; }
+.quote strong { color: #064914; font-size: 36px; font-weight: 700; line-height: 1.2; }
+.attribution { display: flex; flex-direction: column; gap: 2px; margin-top: 12px; }
+.name { font-size: 14px; font-weight: 700; line-height: 1.5; }
+.role { font-size: 10px; line-height: 1.5; }
+@media (max-width: 1023px) {
+  .section { padding: 48px 32px; }
+  .card { grid-template-columns: 190px minmax(0, 1fr); gap: 24px; padding: 28px; }
+  .portrait { width: 190px; }
+  .message { padding-top: 0; }
+  .quote { font-size: 17px; }
+  .quote strong { font-size: 28px; }
+  .role { font-size: 11px; }
+}
+@media (max-width: 639px) {
+  .section { padding: 32px 24px 48px; }
+  .card { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 24px; }
+  .portrait { width: 190px; max-width: 100%; justify-self: center; }
+  .artwork { object-position: center; }
+  .quote { font-size: 16px; line-height: 1.6; }
+  .quote strong { font-size: 26px; }
+  .attribution { margin-top: 18px; }
+}

@@ -1,0 +1,28 @@
+.section { padding: 70px 48px 50px; background: #fff; font-family: var(--font-poppins), Arial, sans-serif; }
+.banner { position: relative; isolation: isolate; display: flex; align-items: center; min-height: 240px; max-width: 1280px; margin-inline: auto; overflow: hidden; border-radius: 16px; background: #402719; color: #fff; box-shadow: 0 5px 10px #0005; }
+.background { z-index: -3; object-fit: cover; object-position: center 45%; }
+.overlay { position: absolute; inset: 0; z-index: -2; background: linear-gradient(90deg, #3c2417 0%, #3c2417f0 26%, #45291ebd 55%, #45291eb3 100%); }
+.soundwave { position: absolute; z-index: -1; bottom: 0; left: 40px; width: 340px; height: 114px; color: #b79563; opacity: .3; }
+.watermark { position: absolute; z-index: -1; right: 24px; top: 20px; width: 290px; height: auto; opacity: .32; }
+.content { width: 100%; padding: 48px 44px; }
+.message { line-height: 1.6; }
+.message h2 { display: inline; margin: 0; font-size: 30px; font-weight: 700; line-height: 1.3; }
+.message p { display: inline; margin: 0; font-size: 17px; font-weight: 400; }
+.submit { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; margin-top: 12px; padding: 7px 16px; border: 0; border-radius: 999px; background: #ffb322; color: #050505; font-family: inherit; font-size: 14px; line-height: 1.4; cursor: not-allowed; }
+@media (max-width: 1023px) {
+  .section { padding: 48px 32px; }
+  .content { padding: 36px 32px; }
+  .message h2 { display: block; margin-bottom: 10px; font-size: 28px; }
+  .message p { display: block; max-width: 620px; font-size: 16px; }
+  .submit { min-height: 44px; margin-top: 20px; }
+}
+@media (max-width: 639px) {
+  .section { padding: 32px 24px 40px; }
+  .content { padding: 32px 24px; }
+  .message h2 { font-size: 26px; }
+  .message p { font-size: 14px; }
+  .background { object-position: 65% center; }
+  .overlay { background: #3c2417d9; }
+  .watermark { top: auto; bottom: 12px; right: 12px; width: 220px; opacity: .2; }
+  .soundwave { left: 12px; width: 240px; opacity: .18; }
+}
