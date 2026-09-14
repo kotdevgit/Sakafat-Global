@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import styles from "./pillars-section.module.css";
 
 const pillars = [
@@ -11,7 +12,7 @@ const pillars = [
 
 export function PillarsSection() {
   return (
-    <section className={styles.section} aria-labelledby="pillars-heading">
+    <section id="pillars" className={styles.section} aria-labelledby="pillars-heading">
       <div className={styles.inner}>
         <header className={styles.header}>
           <Image className={styles.artwork} src="/images/pillars/Pillars-artwork.png" alt="" width={276} height={81} />
@@ -30,10 +31,10 @@ export function PillarsSection() {
                   <p className={styles.question}>{pillar.question}</p>
                   <div className={styles.description}><h3>{pillar.name}</h3>{" "}{pillar.description}<br />Flagship: {pillar.flagship}</div>
                 </div>
-                <button className={styles.explore} type="button" disabled title={`${pillar.name} page coming soon`}>
+                <Link className={styles.explore} href={`/pillars/${pillar.theme}`}>
                   {pillar.action}
                   <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m6 3 5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                </button>
+                </Link>
               </article>
             </li>
           ))}

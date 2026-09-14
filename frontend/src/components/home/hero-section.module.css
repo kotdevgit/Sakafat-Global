@@ -17,7 +17,7 @@
 .content { position: relative; z-index: 1; }
 .eyebrow { margin: 0 0 26px; color: #84232e; font-size: 20px; line-height: 1.4; font-weight: 700; }
 .heading { margin: 0; font-family: var(--font-montserrat), Arial, sans-serif; font-size: 36px; line-height: 1; letter-spacing: 0.01em; font-weight: 800; font-style: normal; }
-.description { max-width: 570px; margin: 28px 0 0; font-size: 14px; line-height: 1.55; font-weight: 400; }
+.description { max-width: 570px; margin: 28px 0 0;    }
 .actions { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 52px; }
 .primary, .secondary { display: inline-flex; justify-content: center; align-items: center; min-height: 52px; padding: 12px 20px; border-radius: 999px; font: inherit; font-family: var(--font-poppins), Arial, sans-serif; font-size: 16px; line-height: 1; letter-spacing: 0; font-weight: 700; font-style: normal; text-align: center; text-decoration: none; }
 .primary { min-width: 196px; border: 1px solid #ffb322; background: #ffb322; color: #70212a; }
@@ -42,7 +42,6 @@
   .copy { padding-top: 100px; padding-bottom: 64px; }
   .eyebrow { font-size: 16px; margin-bottom: 20px; }
   .heading { font-size: 28px; }
-  .description { font-size: 13px; }
   .visual { align-self: center; margin: 36px 0 0; }
 }
 @media (max-width: 767px) {
@@ -51,7 +50,7 @@
   .artwork { top: -22px; left: -12px; width: calc(100% + 24px); opacity: 0.6; }
   .eyebrow { font-size: 15px; margin-bottom: 20px; }
   .heading { font-size: clamp(27px, 5.8vw, 36px); }
-  .description { max-width: 520px; margin-top: 22px; font-size: 14px; line-height: 1.65; }
+  .description { max-width: 520px; margin-top: 22px;   }
   .actions { gap: 12px; margin-top: 28px; }
   .primary, .secondary { min-width: 0; min-height: 48px; padding: 12px 16px; }
   .visual { align-self: center; width: calc(100% - 32px); max-width: 430px; margin: 8px 12px 0 0; }
@@ -62,3 +61,6 @@
   .actions { flex-direction: column; align-items: stretch; }
   .heading { font-size: 25px; }
 }
+
+/* Shared typography roles; responsive sizes are defined in globals.css. */
+.description { font: var(--type-body); letter-spacing: 0; }

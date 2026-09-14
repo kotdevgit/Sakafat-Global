@@ -8,7 +8,7 @@ import { ProgramsSection } from "@/components/home/programs-section";
 export default function Home() {
   return (
     <main id="main-content" tabIndex={-1}>
-      <HeroSection />
+      <HeroSection pillarsHref="/#pillars" participateHref="/get-involved" />
       <FeaturedSection />
       <PillarsSection />
       <ProgramsSection />

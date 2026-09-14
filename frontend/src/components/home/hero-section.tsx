@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { PillarsLink } from "@/components/layout/pillars-link";
 import styles from "./hero-section.module.css";
 
 type HeroSectionProps = {
@@ -22,6 +23,7 @@ export function HeroSection({ pillarsHref, participateHref, episodeHref }: HeroS
             height={402}
             sizes="(max-width: 767px) 100vw, 733px"
             aria-hidden="true"
+            loading="eager"
           />
           <div className={styles.content}>
             <p className={styles.eyebrow}>SAKAFAT GLOBAL</p>
@@ -32,7 +34,9 @@ export function HeroSection({ pillarsHref, participateHref, episodeHref }: HeroS
               A Pakistan-rooted media and production house Storytelling. Dialogue. Creative Production. Opportunity.
             </p>
             <div className={styles.actions}>
-              {pillarsHref ? (
+              {pillarsHref === "/#pillars" ? (
+                <PillarsLink className={styles.primary}>Explore 5 Pillar</PillarsLink>
+              ) : pillarsHref ? (
                 <Link className={styles.primary} href={pillarsHref}>Explore 5 Pillar</Link>
               ) : (
                 <button className={styles.primary} type="button" disabled title="Pillars — coming soon">Explore 5 Pillar</button>

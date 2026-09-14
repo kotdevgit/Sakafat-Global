@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import styles from "./programs-hero.module.css";
 
 export function ProgramsHero() {
@@ -10,7 +11,7 @@ export function ProgramsHero() {
         <div className={styles.copy}>
           <h1 id="programs-hero-heading">Programmes for a stronger cultural tomorrow</h1>
           <p>Ideas become opportunities through clearly governed programmes, open calls and participation pathways.</p>
-          <button type="button" className={styles.join} disabled title="Join the conversation — coming soon">Join The Conversation</button>
+          <Link className={styles.join} href="/get-involved">Join The Conversation</Link>
         </div>
       </div>
     </section>

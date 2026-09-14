@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import styles from "./programs-section.module.css";
 
 const programs = [
@@ -69,7 +70,7 @@ export function ProgramsSection() {
           ))}
         </ul>
         <div className={styles.footer}>
-          <button className={styles.explore} type="button" disabled title="All programs — coming soon">Explore All Programs<ArrowIcon /></button>
+          <Link className={styles.explore} href="/programs">Explore All Programs<ArrowIcon /></Link>
         </div>
       </div>
     </section>

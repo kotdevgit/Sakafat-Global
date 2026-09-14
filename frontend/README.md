@@ -78,3 +78,9 @@ The existing `public/images/sakafat-logo.png` remains the header's current logo.
 `src/components/home/featured-section.tsx` renders the three featured cards using assets from `public/images/featured/`. It uses three columns on desktop, two on tablet, and one on mobile. Card copy follows `mockups/Featured by Sakafat.pdf`; typography uses the established Poppins family pending section-specific specs.
 
 Episode play buttons and View All Episodes are inactive by request. Add `href` values to the typed episode data and pass `allEpisodesHref` when destinations are ready. No video player or API integration has been added.
+
+## Shared typography
+
+Typography roles live in `src/app/globals.css`. Use the `--type-*` font tokens in component styles instead of adding independent sizes or breakpoint overrides. Section headings use Montserrat 700 at 42px/60px on desktop, 34px on tablet, and 28px on mobile. Page heroes use Montserrat 700 at 52px/65px on desktop. Poppins is used for body copy (16px), card descriptions (14px), card titles (18px bold), labels (14px medium), captions (12px), primary actions (16px bold), and compact actions (12px medium).
+
+Approved exceptions: the homepage hero retains Montserrat 800 at 36px with 1% letter spacing; its buttons retain 16px bold with 100% line height. Contact’s Get Started keeps Poppins 500 at 17.39px with 161% line height. Navigation retains Poppins 400 at 16px with 100% line height. The small Featured by Sakafat heading is treated as a section label.

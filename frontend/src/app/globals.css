@@ -5,4 +5,33 @@
   color: #24251f;
   font-family: Arial, Helvetica, sans-serif;
 }
-body { margin: 0; }
+body {
+  margin: 0;
+  font-family: var(--font-poppins), Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.61;
+  --section-size: 42px;
+  --section-leading: 60px;
+  --hero-size: 52px;
+  --hero-leading: 65px;
+  --quote-heading-size: 36px;
+  --type-hero: normal 700 var(--hero-size)/var(--hero-leading) var(--font-montserrat), Arial, sans-serif;
+  --type-section: normal 700 var(--section-size)/var(--section-leading) var(--font-montserrat), Arial, sans-serif;
+  --type-card: normal 700 18px/1.4 var(--font-poppins), Arial, sans-serif;
+  --type-body: normal 400 16px/1.61 var(--font-poppins), Arial, sans-serif;
+  --type-small: normal 400 14px/1.61 var(--font-poppins), Arial, sans-serif;
+  --type-smallBold: normal 700 14px/1.5 var(--font-poppins), Arial, sans-serif;
+  --type-label: normal 500 14px/1.5 var(--font-poppins), Arial, sans-serif;
+  --type-caption: normal 400 12px/1.5 var(--font-poppins), Arial, sans-serif;
+  --type-button: normal 700 16px/1.4 var(--font-poppins), Arial, sans-serif;
+  --type-compact: normal 500 12px/1.5 var(--font-poppins), Arial, sans-serif;
+  --type-quote: normal 400 20px/1.5 var(--font-poppins), Arial, sans-serif;
+  --type-quoteHeading: normal 700 var(--quote-heading-size)/1.25 var(--font-montserrat), Arial, sans-serif;
+}
+@media (max-width: 1023px) {
+  body { --section-size: 34px; --section-leading: 1.4; --hero-size: 44px; --hero-leading: 1.25; --quote-heading-size: 28px; }
+}
+@media (max-width: 639px) {
+  body { --section-size: 28px; --section-leading: 1.4; --hero-size: clamp(30px, 8vw, 40px); --hero-leading: 1.25; --quote-heading-size: 26px; }
+}

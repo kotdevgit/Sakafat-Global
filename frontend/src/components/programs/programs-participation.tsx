@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styles from "./programs-content.module.css";
 
 const steps = [
@@ -36,7 +37,7 @@ export function ProgramsStatusNote() {
           <h2 id="status-heading">Some details aren’t published yet</h2>
           <p className={styles.statusText}>Dates, eligibility, participation requirements and fees are released only after approval.</p>
         </div>
-        <button type="button" className={styles.ask} disabled title="Questions — coming soon">Ask a Question</button>
+        <Link className={styles.ask} href="/contact">Ask a Question</Link>
       </div>
     </section>
   );

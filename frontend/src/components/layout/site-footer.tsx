@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { PillarsLink } from "./pillars-link";
 import styles from "./site-footer.module.css";
 
 const groups = [
@@ -40,7 +41,7 @@ export function SiteFooter() {
               <h2>{group.title}</h2>
               <ul>
                 {group.links.map((label) => (
-                  <li key={label}>{label === "Programmes" ? <Link href="/programs">{label}</Link> : <span aria-disabled="true" title={`${label} — coming soon`}>{label}</span>}</li>
+                  <li key={label}>{label === "Pillars" ? <PillarsLink>{label}</PillarsLink> : label === "Open pathways" ? <Link href="/get-involved">{label}</Link> : label === "Partner with us" ? <Link href="/contact">{label}</Link> : (label === "Programmes" || label === "About") ? <Link href={label === "About" ? "/about" : "/programs"}>{label}</Link> : <span aria-disabled="true" title={`${label} — coming soon`}>{label}</span>}</li>
                 ))}
               </ul>
             </nav>

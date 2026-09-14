@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { PillarsLink } from "./pillars-link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import styles from "./site-header.module.css";
@@ -15,10 +16,10 @@ export type NavigationItem = {
 // Enable each destination when its page is implemented.
 const navigation: NavigationItem[] = [
   { label: "Home", href: "/", available: true },
-  { label: "Pillars", href: "/pillars", available: false },
+  { label: "Pillars", href: "/#pillars", available: true },
   { label: "Programs", href: "/programs", available: true },
-  { label: "About", href: "/about", available: false },
-  { label: "Get involved", href: "/get-involved", available: false },
+  { label: "About", href: "/about", available: true },
+  { label: "Get involved", href: "/get-involved", available: true },
   { label: "Contact", href: "/contact", available: true },
 ];
 
@@ -89,7 +90,9 @@ export function SiteHeader({ items = navigation }: { items?: NavigationItem[] })
                 const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
                   <li key={item.href}>
-                    {item.available ? (
+                    {item.href === "/#pillars" ? (
+                      <PillarsLink className={styles.navItem} onClick={() => setIsOpen(false)}>{item.label}</PillarsLink>
+                    ) : item.available ? (
                       <Link href={item.href} aria-current={active ? "page" : undefined} className={styles.navItem} onClick={() => setIsOpen(false)}>
                         {item.label}
                       </Link>
