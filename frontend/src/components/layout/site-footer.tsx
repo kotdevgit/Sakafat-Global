@@ -40,7 +40,7 @@ export function SiteFooter() {
               <h2>{group.title}</h2>
               <ul>
                 {group.links.map((label) => (
-                  <li key={label}><span aria-disabled="true" title={`${label} — coming soon`}>{label}</span></li>
+                  <li key={label}>{label === "Programmes" ? <Link href="/programs">{label}</Link> : <span aria-disabled="true" title={`${label} — coming soon`}>{label}</span>}</li>
                 ))}
               </ul>
             </nav>

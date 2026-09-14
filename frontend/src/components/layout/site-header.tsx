@@ -16,7 +16,7 @@ export type NavigationItem = {
 const navigation: NavigationItem[] = [
   { label: "Home", href: "/", available: true },
   { label: "Pillars", href: "/pillars", available: false },
-  { label: "Programs", href: "/programs", available: false },
+  { label: "Programs", href: "/programs", available: true },
   { label: "About", href: "/about", available: false },
   { label: "Get involved", href: "/get-involved", available: false },
   { label: "Contact", href: "/contact", available: false },

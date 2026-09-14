@@ -1,0 +1,21 @@
+.hero { position: relative; background: #172d50; color: #fff; font-family: var(--font-poppins), Arial, sans-serif; }
+.background { object-fit: cover; object-position: center; }
+.overlay { position: absolute; inset: 0; background: linear-gradient(90deg, #122b52ed 0%, #29324ac9 42%, #633a3d99 100%); }
+.inner { position: relative; display: flex; align-items: center; max-width: 1280px; min-height: 700px; margin-inline: auto; padding: 80px 60px; }
+.copy { max-width: 680px; }
+.copy h1 { margin: 0; font-family: var(--font-montserrat), Arial, sans-serif; font-size: 52px; font-weight: 800; line-height: 1.12; letter-spacing: 0; text-transform: uppercase; }
+.copy p { max-width: 620px; margin: 24px 0 40px; font-size: 16px; line-height: 1.65; }
+.join { display: inline-flex; justify-content: center; align-items: center; min-height: 46px; padding: 12px 24px; border: 0; border-radius: 999px; background: #ffb322; color: #050505; font: inherit; font-size: 16px; line-height: 1.4; cursor: not-allowed; }
+@media (max-width: 1023px) {
+  .inner { min-height: 600px; padding: 64px 48px; }
+  .copy { max-width: 590px; }
+  .copy h1 { font-size: 44px; }
+}
+@media (max-width: 639px) {
+  .inner { min-height: 520px; padding: 56px 24px; }
+  .background { object-position: 60% center; }
+  .overlay { background: linear-gradient(90deg, #122b52ed, #29324ac9); }
+  .copy h1 { font-size: clamp(30px, 8vw, 40px); line-height: 1.18; }
+  .copy p { margin: 22px 0 28px; font-size: 14px; }
+  .join { font-size: 14px; }
+}
