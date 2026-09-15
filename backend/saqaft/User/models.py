@@ -15,6 +15,7 @@ class OTPVerification(models.Model):
         return f"{self.user.username} - {self.otp}"
 
 class PasswordResetOTP(models.Model):
+    attempts = models.PositiveSmallIntegerField(default=0)
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import (AllowAny,)
 from rest_framework.views import APIView
@@ -18,6 +19,16 @@ from django.db import transaction
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 User = get_user_model()
+
+OTP_TTL_MINUTES = 10
+MAX_OTP_ATTEMPTS = 5
+INVALID_RESET_CODE = "Invalid or expired reset code."
+
+
+def _revoke_refresh_tokens(user):
+    """Signs the account out everywhere; a stolen token must not survive a reset."""
+    for token in OutstandingToken.objects.filter(user=user):
+        BlacklistedToken.objects.get_or_create(token=token)
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -130,40 +141,62 @@ class ForgotPasswordView(APIView):
         serializer.is_valid(raise_exception=True)
 
         email = serializer.validated_data["email"]
+        user = User.objects.filter(email__iexact=email).first()
 
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return Response(
-                {"error": "No account found with this email."},
-                status=status.HTTP_404_NOT_FOUND
-            )
+        if user:
+            recent = PasswordResetOTP.objects.filter(
+                user=user, created_at__gte=timezone.now() - timedelta(seconds=60)
+            ).exists()
+            if not recent:
+                try:
+                    with transaction.atomic():
+                        PasswordResetOTP.objects.filter(user=user, is_verified=False).delete()
+                        otp = str(secrets.randbelow(900000) + 100000)
+                        PasswordResetOTP.objects.create(user=user, otp=otp)
+                        send_mail(
+                            subject="Password Reset OTP",
+                            message=f"Your password reset code is: {otp}\nThis code expires in {OTP_TTL_MINUTES} minutes.",
+                            from_email=None,
+                            recipient_list=[user.email],
+                        )
+                except (OSError, SMTPException):
+                    return Response(
+                        {"error": "We couldn’t send your reset email. Please try again."},
+                        status=503,
+                    )
 
-        otp = str(secrets.randbelow(900000) + 100000)
-
-        PasswordResetOTP.objects.filter(
-            user=user,
-            is_verified=False
-        ).delete()
-
-        PasswordResetOTP.objects.create(
-            user=user,
-            otp=otp
-        )
-
-        send_mail(
-            subject="Password Reset OTP",
-            message=f"Your password reset OTP is: {otp}",
-            from_email=None,
-            recipient_list=[user.email],
-        )
-
+        # The same reply is sent whether or not the address has an account, so the
+        # endpoint cannot be used to discover which emails are registered.
         return Response(
-            {
-                "message": "Password reset OTP sent to your email."
-            },
-            status=status.HTTP_200_OK
+            {"message": "If an account exists for that email, a reset code has been sent."},
+            status=status.HTTP_200_OK,
         )
+
+
+def _claim_reset_otp(user, supplied_otp):
+    """
+    Returns the matching unexpired reset OTP, or an error response.
+
+    Wrong guesses are counted so a six-digit code cannot be brute forced.
+    """
+    record = (
+        PasswordResetOTP.objects.select_for_update()
+        .filter(user=user, created_at__gte=timezone.now() - timedelta(minutes=OTP_TTL_MINUTES))
+        .order_by("-created_at")
+        .first()
+    )
+    if not record:
+        return None, Response({"error": INVALID_RESET_CODE}, status=400)
+    if record.attempts >= MAX_OTP_ATTEMPTS:
+        return None, Response(
+            {"error": "Too many incorrect codes. Request a new code."}, status=400
+        )
+    if not secrets.compare_digest(record.otp, supplied_otp):
+        record.attempts += 1
+        record.save(update_fields=["attempts"])
+        return None, Response({"error": INVALID_RESET_CODE}, status=400)
+    return record, None
+
 
 class VerifyResetOTPView(APIView):
     permission_classes = [AllowAny]
@@ -172,38 +205,21 @@ class VerifyResetOTPView(APIView):
         serializer = VerifyResetOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        email = serializer.validated_data["email"]
-        otp = serializer.validated_data["otp"]
+        with transaction.atomic():
+            user = User.objects.filter(email__iexact=serializer.validated_data["email"]).first()
+            if not user:
+                # Matches the wrong-code reply so unknown emails are indistinguishable.
+                return Response({"error": INVALID_RESET_CODE}, status=400)
 
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return Response(
-                {"error": "User not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            record, error = _claim_reset_otp(user, serializer.validated_data["otp"])
+            if error:
+                return error
 
-        otp_record = PasswordResetOTP.objects.filter(
-            user=user,
-            otp=otp,
-            is_verified=False
-        ).order_by("-created_at").first()
+            record.is_verified = True
+            record.save(update_fields=["is_verified"])
 
-        if not otp_record:
-            return Response(
-                {"error": "Invalid OTP."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        return Response({"message": "OTP verified successfully."}, status=status.HTTP_200_OK)
 
-        otp_record.is_verified = True
-        otp_record.save()
-
-        return Response(
-            {
-                "message": "OTP verified successfully."
-            },
-            status=status.HTTP_200_OK
-        )
 
 class ResetPasswordView(APIView):
     permission_classes = [AllowAny]
@@ -212,38 +228,20 @@ class ResetPasswordView(APIView):
         serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        email = serializer.validated_data["email"]
-        new_password = serializer.validated_data["new_password"]
+        with transaction.atomic():
+            user = User.objects.filter(email__iexact=serializer.validated_data["email"]).first()
+            if not user:
+                return Response({"error": INVALID_RESET_CODE}, status=400)
 
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist: 
-            return Response(
-                {"error": "User not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            # The code is checked here rather than trusting an earlier verify call, so the
+            # single-step form works and a stale "verified" record cannot be replayed.
+            record, error = _claim_reset_otp(user, serializer.validated_data["otp"])
+            if error:
+                return error
 
-        otp_record = PasswordResetOTP.objects.filter(
-            user=user,
-            is_verified=True,
-            otp=serializer.validated_data["otp"],
-            created_at__gte=timezone.now() - timedelta(minutes=10),
-        ).order_by("-created_at").first()
+            user.set_password(serializer.validated_data["new_password"])
+            user.save(update_fields=["password"])
+            PasswordResetOTP.objects.filter(user=user).delete()
+            _revoke_refresh_tokens(user)
 
-        if not otp_record:
-            return Response(
-                {"error": "Please verify OTP first."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        user.set_password(new_password)
-        user.save()
-
-        otp_record.delete()
-
-        return Response(
-            {
-                "message": "Password reset successfully."
-            },
-            status=status.HTTP_200_OK
-        )
+        return Response({"message": "Password reset successfully."}, status=status.HTTP_200_OK)

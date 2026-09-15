@@ -97,6 +97,14 @@ Approved exceptions: the homepage hero retains Montserrat 800 at 36px with 1% le
 
 Run isolated route checks with `npm test`. These mock Django responses and never create accounts, store enquiries, or send emails. `tests/auth-routes.test.mjs` covers secure cookie handling, origin checks, field errors, offline responses, email verification, registration, expiry, and logout. `tests/contact-route.test.mjs` covers the enquiry form.
 
+## Password reset
+
+- `/forgot-password` collects the email, then the code and the new password on one step. The browser calls same-origin `/api/auth/forgot-password` and `/api/auth/reset-password`; Next forwards both to Django.
+- Django validates the code at the reset step itself, so the single-step form works without a separate verify call. `verify-reset-otp/` still exists for API clients and is validated the same way.
+- Reset codes expire after 10 minutes and allow 5 wrong attempts before the code is burned. A new code cannot be requested more than once a minute.
+- `forgot-password` replies identically whether or not the email has an account, so it cannot be used to discover registered addresses. Wrong codes and unknown emails return the same message.
+- A successful reset blacklists the account's outstanding refresh tokens, signing other sessions out.
+
 ## Programmes
 
 - Programmes are managed in the Django admin at `/admin/Programme/programme/`. Create a superuser with `python manage.py createsuperuser` in `backend/saqaft/`.

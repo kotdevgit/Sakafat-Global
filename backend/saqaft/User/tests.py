@@ -6,7 +6,10 @@ from django.core import mail
 from django.test import override_settings
 from django.utils import timezone
 from rest_framework.test import APITestCase
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
 from .models import OTPVerification, PasswordResetOTP
+from .views import OTP_TTL_MINUTES
 
 
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
@@ -68,3 +71,131 @@ class AuthenticationFlowTests(APITestCase):
         self.assertEqual(response.status_code, 400)
         user.refresh_from_db()
         self.assertTrue(user.check_password(self.credentials['password']))
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class PasswordResetSecurityTests(APITestCase):
+    """Covers the reset flow: it must work, and must not leak or be brute forced."""
+
+    forgot_url = "/api/forgot-password/"
+    verify_url = "/api/verify-reset-otp/"
+    reset_url = "/api/reset-password/"
+    email = "victim@example.test"
+    old_password = "old-example-password"
+    new_password = "new-example-password"
+
+    def setUp(self):
+        self.user = User.objects.create_user("victim", self.email, self.old_password)
+
+    def request_code(self):
+        self.client.post(self.forgot_url, {"email": self.email})
+        return PasswordResetOTP.objects.filter(user=self.user).latest("created_at").otp
+
+    def test_reset_works_in_the_single_step_the_form_uses(self):
+        otp = self.request_code()
+
+        response = self.client.post(self.reset_url, {
+            "email": self.email, "otp": otp, "new_password": self.new_password,
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(self.new_password))
+
+    def test_reset_still_works_after_a_separate_verify_call(self):
+        otp = self.request_code()
+
+        self.assertEqual(self.client.post(self.verify_url, {"email": self.email, "otp": otp}).status_code, 200)
+        response = self.client.post(self.reset_url, {
+            "email": self.email, "otp": otp, "new_password": self.new_password,
+        })
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_unknown_email_is_indistinguishable_from_a_known_one(self):
+        known = self.client.post(self.forgot_url, {"email": self.email})
+        unknown = self.client.post(self.forgot_url, {"email": "nobody@example.test"})
+
+        self.assertEqual(known.status_code, unknown.status_code)
+        self.assertEqual(known.json(), unknown.json())
+
+    def test_unknown_email_on_verify_matches_a_wrong_code(self):
+        self.request_code()
+        unknown = self.client.post(self.verify_url, {"email": "nobody@example.test", "otp": "000000"})
+        wrong = self.client.post(self.verify_url, {"email": self.email, "otp": "000000"})
+
+        self.assertEqual(unknown.status_code, wrong.status_code)
+        self.assertEqual(unknown.json(), wrong.json())
+
+    def test_wrong_codes_are_capped(self):
+        otp = self.request_code()
+        wrong = "000000" if otp != "000000" else "111111"
+
+        statuses = [
+            self.client.post(self.verify_url, {"email": self.email, "otp": wrong}).json()["error"]
+            for _ in range(6)
+        ]
+
+        self.assertIn("Too many incorrect codes. Request a new code.", statuses)
+        # The correct code is refused too once the cap is hit.
+        blocked = self.client.post(self.reset_url, {
+            "email": self.email, "otp": otp, "new_password": self.new_password,
+        })
+        self.assertEqual(blocked.status_code, 400)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(self.old_password))
+
+    def test_expired_code_is_refused_at_both_steps(self):
+        otp = self.request_code()
+        PasswordResetOTP.objects.filter(user=self.user).update(
+            created_at=timezone.now() - timedelta(minutes=OTP_TTL_MINUTES + 1)
+        )
+
+        self.assertEqual(self.client.post(self.verify_url, {"email": self.email, "otp": otp}).status_code, 400)
+        self.assertEqual(self.client.post(self.reset_url, {
+            "email": self.email, "otp": otp, "new_password": self.new_password,
+        }).status_code, 400)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(self.old_password))
+
+    def test_codes_cannot_be_requested_in_a_tight_loop(self):
+        self.client.post(self.forgot_url, {"email": self.email})
+        self.client.post(self.forgot_url, {"email": self.email})
+
+        self.assertEqual(PasswordResetOTP.objects.filter(user=self.user).count(), 1)
+
+    def test_used_code_cannot_be_replayed(self):
+        otp = self.request_code()
+        self.client.post(self.reset_url, {"email": self.email, "otp": otp, "new_password": self.new_password})
+
+        replay = self.client.post(self.reset_url, {
+            "email": self.email, "otp": otp, "new_password": "another-example-password",
+        })
+
+        self.assertEqual(replay.status_code, 400)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(self.new_password))
+
+    def test_reset_signs_existing_sessions_out(self):
+        refresh = RefreshToken.for_user(self.user)
+        otp = self.request_code()
+
+        self.client.post(self.reset_url, {"email": self.email, "otp": otp, "new_password": self.new_password})
+
+        with self.assertRaises(TokenError):
+            refresh.check_blacklist()
+
+
+class RefreshRotationTests(APITestCase):
+    """Rotation must actually retire the old refresh token."""
+
+    def test_rotated_refresh_token_is_rejected(self):
+        user = User.objects.create_user("member", "member@example.test", "example-test-password")
+        original = str(RefreshToken.for_user(user))
+
+        rotated = self.client.post("/api/token/refresh/", {"refresh": original}, content_type="application/json")
+        self.assertEqual(rotated.status_code, 200)
+        self.assertIn("refresh", rotated.json())
+
+        reused = self.client.post("/api/token/refresh/", {"refresh": original}, content_type="application/json")
+        self.assertEqual(reused.status_code, 401)

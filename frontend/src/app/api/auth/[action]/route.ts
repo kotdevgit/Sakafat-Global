@@ -277,7 +277,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
           : action === "verify"
           ? "Email verified. You can now log in."
           : action === "forgot-password"
-          ? "Password reset code sent to your email."
+          ? "If an account exists for that email, a reset code has been sent."
           : action === "verify-reset-otp"
           ? "Code verified. Please set your new password."
           : action === "reset-password"

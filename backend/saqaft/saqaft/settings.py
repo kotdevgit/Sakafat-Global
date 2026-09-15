@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'User',
     'Programme',
@@ -61,6 +62,8 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
+    # Without this a rotated refresh token stays usable for its full lifetime.
+    "BLACKLIST_AFTER_ROTATION": True,
 }
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -72,11 +75,10 @@ REST_FRAMEWORK = {
     ],
 }
 
-CORS_ALLOWED_ORIGINS = config(
-    "CORS_ALLOWED_ORIGINS",
-    default="http://localhost:3000,http://127.0.0.1:3000,http://localhost:3010,http://127.0.0.1:3010",
-    cast=Csv(),
-)
+# The browser never calls Django directly: the Next.js route handlers proxy every
+# request server-side. Nothing needs a cross-origin grant, so the default is empty
+# and deployments opt in explicitly through CORS_ALLOWED_ORIGINS.
+CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", default="", cast=Csv())
 
 ROOT_URLCONF = 'saqaft.urls'
 
