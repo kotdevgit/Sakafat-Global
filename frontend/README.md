@@ -113,6 +113,9 @@ Run isolated route checks with `npm test`. These mock Django responses and never
 - The homepage "Featured by Sakafat" section reads published episodes from Django's `episode/` endpoint through `src/lib/api/episodes.ts`, revalidated every 60 seconds. Unchecking **is active** removes an episode from the homepage.
 - Card order follows the **position** field, lowest first. **Image alt** is the screen-reader description; leave it blank only when the title already says everything.
 - The play button stays disabled until **video url** is set, matching the original design.
+- The homepage hero's photo and link both come from the **first episode by position**. The episode's own image is cropped to the hero's portrait shape, and the "Latest Episode" pill is real markup over it, so it translates and scales. The link uses that episode's video url and stays disabled while the field is empty.
+- Each episode can carry an optional **portrait image** for the hero. When the featured episode has one it is used as-is; otherwise the hero centre-crops the card image; and if the episode has no artwork at all, the supplied hero PNG is used. Only the first episode reaches the hero, so a portrait is worth preparing for the one being featured rather than for every episode.
+- The hero uses the featured episode's photo whenever it has one, at any size. A card-sized image still works but looks soft, because the portrait crop is upscaled; upload at least 1040x1188 for a sharp result. The episode list in the admin shows each image's dimensions and marks the low-res ones, so you can see which to replace. The supplied artwork is used only when an episode has no image at all.
 - Uploaded images are served from Django's `/media/`, so `next.config.ts` allows that origin for `next/image`. It is derived from `DJANGO_API_BASE_URL`, and the local-IP override it needs in development is enabled only when that host is loopback.
 
 ## Programmes

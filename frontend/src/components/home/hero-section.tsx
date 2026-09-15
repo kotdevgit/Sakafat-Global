@@ -1,16 +1,36 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PillarsLink } from "@/components/layout/pillars-link";
+import { getHeroEpisode, heroImageHeight, heroImageWidth, heroPhotoUrl } from "@/lib/api/episodes";
 import styles from "./hero-section.module.css";
 
 type HeroSectionProps = {
   pillarsHref?: string;
   participateHref?: string;
+  /** Overrides the episode the card links to; otherwise the first published one is used. */
   episodeHref?: string;
 };
 
+function PlayIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+      <path d="M8 5.5v13l11-6.5z" />
+    </svg>
+  );
+}
+
 /** Destinations stay unavailable until their sections or episode URL are ready. */
-export function HeroSection({ pillarsHref, participateHref, episodeHref }: HeroSectionProps) {
+export async function HeroSection({ pillarsHref, participateHref, episodeHref }: HeroSectionProps) {
+  const heroEpisode = await getHeroEpisode();
+  const episodeUrl = episodeHref ?? heroEpisode?.videoUrl ?? null;
+  const episodeLabel = heroEpisode
+    ? `Watch the latest Sakafat Global episode: ${heroEpisode.title}`
+    : "Watch the latest Sakafat Global episode";
+  // The supplied artwork already has the "Latest Episode" pill drawn into it, so the
+  // markup pill is only rendered over an episode photo, never over that fallback.
+  // A photo smaller than the slot is still used; it just renders soft.
+  const episodePhotoUrl = heroEpisode ? heroPhotoUrl(heroEpisode) : null;
+  const episodePhoto = heroEpisode && episodePhotoUrl ? heroEpisode : null;
   return (
     <section className={styles.hero} aria-labelledby="hero-heading">
       <div className={styles.inner}>
@@ -51,19 +71,44 @@ export function HeroSection({ pillarsHref, participateHref, episodeHref }: HeroS
         </div>
         <div className={styles.visual}>
           <div className={styles.backCard} aria-hidden="true" />
-          <Image
-            className={styles.episode}
-            src="/images/hero/image.png"
-            alt="Two speakers in conversation on the latest Sakafat Global episode"
-            width={520}
-            height={594}
-            sizes="(max-width: 767px) calc(100vw - 56px), (max-width: 1100px) 43vw, 520px"
-            preload
-          />
-          {episodeHref ? (
-            <a className={styles.episodeLink} href={episodeHref} aria-label="Watch the latest Sakafat Global episode" />
+          {episodePhoto ? (
+            <div className={styles.episodeFrame}>
+              <Image
+                className={styles.episodePhoto}
+                src={episodePhotoUrl as string}
+                alt={episodePhoto.imageAlt || `Still from ${episodePhoto.title}`}
+                width={heroImageWidth}
+                height={heroImageHeight}
+                sizes="(max-width: 767px) calc(100vw - 56px), (max-width: 1100px) 43vw, 520px"
+                preload
+              />
+              {episodeUrl ? (
+                <a className={styles.episodePill} href={episodeUrl} aria-label={episodeLabel}>
+                  Latest Episode<PlayIcon />
+                </a>
+              ) : (
+                <span className={styles.episodePill} aria-disabled="true" title="Latest episode — link coming soon">
+                  Latest Episode<PlayIcon />
+                </span>
+              )}
+            </div>
           ) : (
-            <span className={styles.episodeLink} role="link" aria-disabled="true" aria-label="Latest episode — link coming soon" title="Latest episode — link coming soon" />
+            <>
+              <Image
+                className={styles.episode}
+                src="/images/hero/image.png"
+                alt="Two speakers in conversation on the latest Sakafat Global episode"
+                width={heroImageWidth}
+                height={heroImageHeight}
+                sizes="(max-width: 767px) calc(100vw - 56px), (max-width: 1100px) 43vw, 520px"
+                preload
+              />
+              {episodeUrl ? (
+                <a className={styles.episodeLink} href={episodeUrl} aria-label={episodeLabel} />
+              ) : (
+                <span className={styles.episodeLink} role="link" aria-disabled="true" aria-label="Latest episode — link coming soon" title="Latest episode — link coming soon" />
+              )}
+            </>
           )}
         </div>
       </div>

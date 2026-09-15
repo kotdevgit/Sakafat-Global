@@ -9,6 +9,10 @@ export type Episode = {
   categoryLabel: string;
   description: string;
   imageUrl: string | null;
+  imageWidth: number | null;
+  imageHeight: number | null;
+  /** Optional upright artwork, preferred by the homepage hero over a centre crop. */
+  heroImageUrl: string | null;
   imageAlt: string;
   videoUrl: string | null;
 };
@@ -34,6 +38,9 @@ function toEpisode(entry: Record<string, unknown>, base: string): Episode | null
     categoryLabel: typeof entry.category_label === "string" ? entry.category_label : category,
     description,
     imageUrl: absolute(entry.image),
+    imageWidth: typeof entry.image_width === "number" ? entry.image_width : null,
+    imageHeight: typeof entry.image_height === "number" ? entry.image_height : null,
+    heroImageUrl: absolute(entry.hero_image),
     imageAlt: typeof entry.image_alt === "string" ? entry.image_alt : "",
     videoUrl: absolute(entry.video_url),
   };
@@ -72,4 +79,23 @@ export async function getEpisodes(): Promise<Episode[]> {
   } catch {
     return [];
   }
+}
+
+/** The hero renders this portrait slot at 520x594 CSS pixels. */
+export const heroImageWidth = 520;
+export const heroImageHeight = 594;
+
+/**
+ * Picks the hero card's photo: a purpose-made portrait upload when one exists,
+ * otherwise the card image centre-cropped to the slot. Returns null when the
+ * episode has no artwork at all, leaving the supplied hero artwork in place.
+ */
+export function heroPhotoUrl(episode: Episode): string | null {
+  return episode.heroImageUrl ?? episode.imageUrl;
+}
+
+/** The episode the homepage hero features: the first one editors have ordered. */
+export async function getHeroEpisode(): Promise<Episode | null> {
+  const [first] = await getEpisodes();
+  return first ?? null;
 }

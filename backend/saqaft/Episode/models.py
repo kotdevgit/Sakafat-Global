@@ -26,7 +26,36 @@ class Episode(models.Model):
         related_name="episodes",
     )
     description = models.TextField()
-    image = models.ImageField(upload_to="episodes/", blank=True, null=True)
+    image = models.ImageField(
+        upload_to="episodes/",
+        blank=True,
+        null=True,
+        width_field="image_width",
+        height_field="image_height",
+        help_text=(
+            "Used for the card and, for the first episode, the homepage hero. "
+            "The hero crops it to portrait, so upload at least 1040x1188 to keep it sharp. "
+            "Smaller images are still used; they just look soft in the hero."
+        ),
+    )
+    # Populated by Django on save; used to flag low-resolution artwork in the admin.
+    image_width = models.PositiveIntegerField(null=True, blank=True, editable=False)
+    image_height = models.PositiveIntegerField(null=True, blank=True, editable=False)
+    hero_image = models.ImageField(
+        upload_to="episodes/hero/",
+        blank=True,
+        null=True,
+        width_field="hero_image_width",
+        height_field="hero_image_height",
+        verbose_name="portrait image",
+        help_text=(
+            "Optional upright version for the homepage hero card, ideally 1040x1188. "
+            "Only the first episode reaches the hero, so this is worth preparing for the "
+            "one you are featuring. Without it the hero centre-crops the image above."
+        ),
+    )
+    hero_image_width = models.PositiveIntegerField(null=True, blank=True, editable=False)
+    hero_image_height = models.PositiveIntegerField(null=True, blank=True, editable=False)
     image_alt = models.CharField(
         max_length=200,
         blank=True,

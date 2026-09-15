@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import sys
+import tempfile
 from pathlib import Path
+
 from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -143,6 +146,12 @@ STATIC_URL = 'static/'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# Migrations that seed artwork write real files, and the test runner applies them to
+# the test database too. Without this, every test run would litter the real media
+# folder with duplicates.
+if "test" in sys.argv:
+    MEDIA_ROOT = Path(tempfile.mkdtemp(prefix="sakafat-test-media-"))
 
 
 

@@ -1,4 +1,16 @@
+import io
+
 from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
+from PIL import Image as PILImage
+
+
+def make_image(width, height):
+    """A real image file, so Django can read its dimensions on save."""
+    buffer = io.BytesIO()
+    PILImage.new("RGB", (width, height), (120, 35, 42)).save(buffer, format="PNG")
+    return ContentFile(buffer.getvalue())
+
 from django.db.models import ProtectedError
 from django.test import TestCase
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -227,3 +239,40 @@ class EpisodeCategoryTests(TestCase):
         self.assertEqual(
             list(EpisodeCategory.objects.values_list("slug", flat=True)), ["zzz-first", "aaa-last"]
         )
+
+
+class HeroPortraitTests(TestCase):
+    """The hero prefers a purpose-made upright image over cropping the card one."""
+
+    def setUp(self):
+        Episode.objects.all().delete()
+        self.episode = Episode.objects.create(
+            title="A Culture in Motion", slug="culture-in-motion",
+            category=EpisodeCategory.objects.get(slug="documentary"),
+            description="People and places.", position=0,
+        )
+
+    def entry(self):
+        return self.client.get("/api/episode/").json()[0]
+
+    def test_portrait_image_is_optional(self):
+        self.assertIsNone(self.entry()["hero_image"])
+
+    def test_portrait_image_is_exposed_with_its_dimensions(self):
+        self.episode.hero_image.save("upright.png", make_image(900, 1100), save=True)
+
+        entry = self.entry()
+
+        self.assertIn("episodes/hero/", entry["hero_image"])
+        self.assertEqual(entry["hero_image_width"], 900)
+        self.assertEqual(entry["hero_image_height"], 1100)
+
+    def test_portrait_image_is_stored_separately_from_the_card_image(self):
+        self.episode.image.save("card.png", make_image(400, 222), save=True)
+        self.episode.hero_image.save("upright.png", make_image(900, 1100), save=True)
+        self.episode.refresh_from_db()
+
+        self.assertIn("episodes/card", self.episode.image.name)
+        self.assertIn("episodes/hero/upright", self.episode.hero_image.name)
+        self.assertEqual((self.episode.image_width, self.episode.image_height), (400, 222))
+        self.assertEqual((self.episode.hero_image_width, self.episode.hero_image_height), (900, 1100))

@@ -26,8 +26,30 @@
 .visual { position: relative; align-self: end; margin-bottom: 10px; width: 100%; max-width: 520px; isolation: isolate; }
 .backCard { position: absolute; z-index: -1; top: 0; left: 13%; width: 90%; height: 91%; border: 1px solid #101919; border-radius: 34px; background: linear-gradient(155deg, #306a72 5%, #485b64 47%, #752d37 100%); transform: rotate(10deg); box-shadow: 10px 18px 26px #0003; }
 .episode { display: block; width: 100%; height: auto; }
+/*
+ * The supplied artwork is a 520x594 canvas whose card body occupies only 463x537,
+ * the rest being transparent padding and a drop shadow. The frame reproduces that
+ * canvas so the surrounding layout is unchanged, and the photo sits exactly where
+ * the card body was rather than filling the whole box.
+ */
+.episodeFrame { position: relative; width: 100%; aspect-ratio: 520 / 594; }
+.episodePhoto { position: absolute; left: 2.69%; top: 0.67%; width: 89.04%; height: 90.4%; object-fit: cover; object-position: center; border-radius: 28px; box-shadow: 8px 14px 24px #00000038; }
+/* Replaces the label drawn into the default artwork, as real text. */
+/* 53/594 of the frame, matching the pill drawn into the supplied artwork; the
+   minimum keeps it a comfortable touch target on small screens. */
+.episodePill { position: absolute; left: 9.2%; bottom: 15.5%; display: inline-flex; align-items: center; gap: 8px; height: 8.92%; min-height: 44px; padding: 0 22px; border-radius: 999px; background: #fffefc; color: #78232a; text-decoration: none; box-shadow: 0 4px 12px #0003; }
+.episodePill svg { color: #019f19; }
+.episodePill[aria-disabled="true"] { cursor: not-allowed; opacity: 0.85; }
+.episodePill:focus-visible { outline: 3px solid #d59b20; outline-offset: 3px; }
 .episodeLink { position: absolute; left: 9.4%; top: 75.7%; width: 38%; height: 9%; border-radius: 999px; }
 .episodeLink[aria-disabled="true"] { cursor: not-allowed; }
+.episodePill { font: var(--type-button); letter-spacing: 0; }
+@media (max-width: 767px) {
+  /* The card shrinks but the pill keeps a 44px tap target, so reduce the type
+     instead of the height to hold roughly the proportions of the artwork. */
+  .episodePill { font: var(--type-compact); letter-spacing: 0; gap: 6px; padding: 0 16px; }
+  .episodePill svg { width: 14px; height: 14px; }
+}
 .hero a:focus-visible { outline: 3px solid #28666d; outline-offset: 5px; }
 @media (min-width: 768px) and (max-width: 1400px) {
   .inner { margin-inline: 48px; min-height: 650px; gap: 24px; }
