@@ -1,10 +1,21 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 from rest_framework import serializers
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
+
+    def validate(self, data):
+        try:
+            validate_password(data["password"], User(username=data["username"], email=data["email"]))
+        except DjangoValidationError as error:
+            raise serializers.ValidationError({"password": error.messages})
+        return data
+
     password = serializers.CharField(write_only=True,min_length=8)
     class Meta:
         model = User
@@ -13,6 +24,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             "email",
             "password"]
     def validate_email(self, value):
+        value = value.strip().lower()
         if User.objects.filter(email__iexact=value).exists():
             raise serializers.ValidationError(
                 "An account with this email already exists."
@@ -93,6 +105,7 @@ class VerifyResetOTPSerializer(serializers.Serializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
+    otp = serializers.RegexField(r"^[0-9]{6}$")
     email = serializers.EmailField()
     new_password = serializers.CharField(
         write_only=True,

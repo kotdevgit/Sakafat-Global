@@ -84,3 +84,22 @@ Episode play buttons and View All Episodes are inactive by request. Add `href` v
 Typography roles live in `src/app/globals.css`. Use the `--type-*` font tokens in component styles instead of adding independent sizes or breakpoint overrides. Section headings use Montserrat 700 at 42px/60px on desktop, 34px on tablet, and 28px on mobile. Page heroes use Montserrat 700 at 52px/65px on desktop. Poppins is used for body copy (16px), card descriptions (14px), card titles (18px bold), labels (14px medium), captions (12px), primary actions (16px bold), and compact actions (12px medium).
 
 Approved exceptions: the homepage hero retains Montserrat 800 at 36px with 1% letter spacing; its buttons retain 16px bold with 100% line height. Contact’s Get Started keeps Poppins 500 at 17.39px with 161% line height. Navigation retains Poppins 400 at 16px with 100% line height. The small Featured by Sakafat heading is treated as a section label.
+
+## Login and registration
+
+- `/login`, `/register`, and `/verify-email` use the shared Sakafat authentication design. Registration requires email verification before login.
+- The header Login link opens `/login`; after login it becomes Account, with a sign-out action on that page.
+- Browser forms call same-origin `/api/auth/login`, `/api/auth/register`, and `/api/auth/verify`. Next forwards the expected fields to Django's `login/`, `register/`, and `verify_otp/` endpoints using `NEXT_PUBLIC_API_BASE_URL` (set before building). This avoids browser CORS requests for authentication.
+- Django remains the authority for passwords, users, OTP verification, and protected data. The frontend sets the returned access JWT in an HTTP-only, SameSite=Lax cookie, Secure in production, with a maximum lifetime of 30 minutes. Tokens are not returned to browser JavaScript or stored in localStorage. The session endpoint is only a UI hint; future protected requests must send the cookie token to Django for validation.
+- Refresh tokens are not retained because Django does not expose a refresh endpoint yet. Users log in again after expiration. Sign out clears the local access cookie; backend token revocation is not implemented.
+- Password-reset pages and OTP resend are not included. No backend files were changed.
+- Missing backend configuration shows an unavailable-service message. Live registration, email delivery, and database-backed login still require backend setup and verification.
+
+Run isolated route checks with `npm test`. These mock Django responses and never create accounts, store enquiries, or send emails. `tests/auth-routes.test.mjs` covers secure cookie handling, origin checks, field errors, offline responses, email verification, registration, expiry, and logout. `tests/contact-route.test.mjs` covers the enquiry form.
+
+## Contact enquiries
+
+- The contact form posts to same-origin `/api/contact`, which forwards the enquiry to Django's `contact/` endpoint as multipart form data. Django stores the enquiry and emails the sender an acknowledgement.
+- Browser field names are mapped to Django's model fields in the route handler (`fullName` to `full_name`, `phone` to `phone_number`, `location` to `country_city`, `portfolio` to `relevant_link`). Update both sides together if either changes.
+- The route rejects cross-origin submissions, enforces the required fields and the enquiry types the form offers, requires the consent checkbox, and limits attachments to 5 MB. Django validates again and is the authority. Only a confirmation message is returned to the browser; the stored record is not echoed back.
+- Organisation, phone number, country and city, relevant link, and attachment are optional, matching the form design.

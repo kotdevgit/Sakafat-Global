@@ -1,7 +1,16 @@
 from rest_framework import serializers
 from .models import Contact
+
+
 class ContactSerializers(serializers.ModelSerializer):
       class Meta:
             model = Contact
             fields = "__all__"
             read_only_fields = ["created_at"]
+
+      def validate_consent(self, value):
+            if not value:
+                  raise serializers.ValidationError(
+                        "Consent is required before we can respond to your enquiry."
+                  )
+            return value

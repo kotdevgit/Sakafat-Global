@@ -11,7 +11,12 @@ from .models import OTPVerification,PasswordResetOTP
 from .serializers import (LoginSerializer,RegisterSerializer, VerifyOTPSerializer,
                           ForgotPasswordSerializer,VerifyResetOTPSerializer,ResetPasswordSerializer)
 
-import random
+import secrets
+from datetime import timedelta
+from smtplib import SMTPException
+from django.db import transaction
+from django.utils import timezone
+from rest_framework.permissions import IsAuthenticated
 User = get_user_model()
 
 class RegisterView(generics.CreateAPIView):
@@ -21,36 +26,21 @@ class RegisterView(generics.CreateAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        try:
+            with transaction.atomic():
+                user = serializer.save()
+                otp = str(secrets.randbelow(900000) + 100000)
+                OTPVerification.objects.create(user=user, otp=otp)
+                send_mail(
+                    subject="Email Verification Code",
+                    message=f"Your verification code is: {otp}\nThis code expires in 10 minutes.",
+                    from_email=None,
+                    recipient_list=[user.email],
+                )
+        except (OSError, SMTPException):
+            return Response({"error": "We couldn’t send your verification email. Please try again."}, status=503)
+        return Response({"message": "Registration successful. OTP sent to your email.", "username": user.username}, status=201)
 
-        user = serializer.save()
-
-        otp = str(random.randint(100000, 999999))
-
-        OTPVerification.objects.filter(
-            user=user,
-            is_verified=False
-        ).delete()
-
-        OTPVerification.objects.create(
-            user=user,
-            otp=otp
-        )
-
-        send_mail(
-            subject="Email Verification Code",
-            message=f"Your verification code is: {otp}",
-            from_email=None,
-            recipient_list=[user.email],
-        )
-
-        return Response(
-            {
-                "message": "Registration successful. OTP sent to your email.",
-                "username": user.username
-            },
-            status=status.HTTP_201_CREATED
-        )
-     
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -83,41 +73,53 @@ class VerifyOTPView(APIView):
     def post(self, request):
         serializer = VerifyOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         user = serializer.validated_data["user"]
-        otp = serializer.validated_data["otp"]
+        with transaction.atomic():
+            record = OTPVerification.objects.select_for_update().filter(user=user, is_verified=False).order_by("-created_at").first()
+            if not record or record.created_at < timezone.now() - timedelta(minutes=10):
+                return Response({"error": "This verification code has expired. Request a new code."}, status=400)
+            if record.attempts >= 5:
+                return Response({"error": "Too many incorrect codes. Request a new code."}, status=400)
+            if not secrets.compare_digest(record.otp, serializer.validated_data["otp"]):
+                record.attempts += 1
+                record.save(update_fields=["attempts"])
+                return Response({"error": "Invalid verification code."}, status=400)
+            record.is_verified = True
+            record.save(update_fields=["is_verified"])
+            user.is_active = True
+            user.save(update_fields=["is_active"])
+        return Response({"message": "OTP_VERIFIED"})
 
-        otp_record = OTPVerification.objects.filter(
-            user=user,
-            otp=otp,
-            is_verified=False
-        ).order_by("-created_at").first()
 
-        if not otp_record:
-            return Response(
-                {
-                    "error": "Invalid OTP."
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+class ResendOTPView(APIView):
+    permission_classes = [AllowAny]
 
-        otp_record.is_verified = True
-        otp_record.save()
+    def post(self, request):
+        username = request.data.get("username", "")
+        if not isinstance(username, str) or not username.strip():
+            return Response({"error": "Enter your username to request a new code."}, status=400)
+        user = User.objects.filter(username=username, is_active=False).first()
+        if user:
+            recent = OTPVerification.objects.filter(user=user, created_at__gte=timezone.now() - timedelta(seconds=60)).exists()
+            if recent:
+                return Response({"error": "Please wait a minute before requesting another code."}, status=429)
+            try:
+                with transaction.atomic():
+                    User.objects.select_for_update().get(pk=user.pk)
+                    OTPVerification.objects.filter(user=user, is_verified=False).delete()
+                    otp = str(secrets.randbelow(900000) + 100000)
+                    OTPVerification.objects.create(user=user, otp=otp)
+                    send_mail("Email Verification Code", f"Your verification code is: {otp}\nThis code expires in 10 minutes.", None, [user.email])
+            except (OSError, SMTPException):
+                return Response({"error": "We couldn’t send your verification email. Please try again."}, status=503)
+        return Response({"message": "If your account is awaiting verification, a new code has been sent."})
 
-        user.is_active = True
-        user.save()
 
-        return Response(
-            { 
-                "message": "OTP_VERIFIED",
-                "user": {
-                    "id": user.id,
-                    "username": user.username,
-                    "email": user.email
-                }
-            },
-            status=status.HTTP_200_OK
-        )
+class MeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"id": request.user.id, "username": request.user.username, "email": request.user.email})
 
 
 class ForgotPasswordView(APIView):
@@ -137,7 +139,7 @@ class ForgotPasswordView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        otp = str(random.randint(100000, 999999))
+        otp = str(secrets.randbelow(900000) + 100000)
 
         PasswordResetOTP.objects.filter(
             user=user,
@@ -223,7 +225,9 @@ class ResetPasswordView(APIView):
 
         otp_record = PasswordResetOTP.objects.filter(
             user=user,
-            is_verified=True
+            is_verified=True,
+            otp=serializer.validated_data["otp"],
+            created_at__gte=timezone.now() - timedelta(minutes=10),
         ).order_by("-created_at").first()
 
         if not otp_record:

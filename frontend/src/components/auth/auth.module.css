@@ -1,0 +1,40 @@
+.page { background: #faf7ef; padding: 64px 40px 80px; color: #192b50; }
+.layout { display: grid; grid-template-columns: 1fr 1fr; max-width: 1160px; margin: auto; border: 1px solid #e7e0d4; border-radius: 28px; overflow: hidden; background: #fff; box-shadow: 0 16px 48px #23324b0b; }
+.story { position: relative; display: flex; align-items: center; min-height: 640px; padding: 56px; overflow: hidden; background: linear-gradient(130deg,#192c50,#193f46 65%,#74293a); color: #fff; }
+.artwork { object-fit: contain; object-position: center bottom; opacity: .65; pointer-events: none; }
+.storyContent { position: relative; z-index: 1; }
+.eyebrow { font: var(--type-smallBold); letter-spacing: .08em; text-transform: uppercase; color: #9c751e; margin: 0 0 22px; }
+.story .eyebrow { color: #f2c65d; }
+.story h2 { font: var(--type-section); margin: 0 0 24px; }
+.story p:not(.eyebrow) { font: var(--type-body); max-width: 320px; }
+.signature { margin-top: 72px; border-top: 1px solid #e6c16960; padding-top: 24px; font: var(--type-small); color: #f4d384; }
+.card { padding: 48px; align-self: center; min-width: 0; }
+.card h1 { font: var(--type-section); margin: 24px 0 12px; }
+.intro { font: var(--type-body); color: #61686b; margin: 0 0 28px; }
+.tabs { display: flex; border-bottom: 1px solid #e3ded3; gap: 32px; }
+.tabs a { text-decoration: none; padding: 8px 2px 14px; font: var(--type-button); color: #687074; border-bottom: 3px solid transparent; }
+.tabs a[aria-current] { color: #192b50; border-bottom-color: #e5ad32; }
+.fields { border: 0; padding: 0; margin: 0; display: grid; gap: 18px; min-width: 0; }
+.field label { display: block; font: var(--type-smallBold); margin-bottom: 8px; }
+.field input { width: 100%; min-width: 0; min-height: 50px; padding: 12px 14px; border: 1px solid #d5d7d4; border-radius: 10px; font: var(--type-body); background: #fff; color: #192b50; }
+.field input[aria-invalid="true"] { border-color: #9c2940; }
+.password { position: relative; }
+.password input { padding-right: 72px; }
+.password button { position: absolute; right: 5px; top: 4px; bottom: 4px; padding: 0 10px; background: transparent; border: 0; color: #28666d; font: var(--type-smallBold); cursor: pointer; }
+.hint { color: #62696c; font: var(--type-caption); margin: 8px 0 0; }
+.code { letter-spacing: .3em; }
+.submit { display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; min-height: 52px; border: 0; border-radius: 999px; background: #ffbf32; color: #192b50; font: var(--type-button); text-decoration: none; cursor: pointer; margin-top: 8px; padding: 12px 20px; }
+.submit:hover { background: #f2b025; }
+.fields:disabled { opacity: .65; }
+.fields:disabled button { cursor: wait; }
+.footnote { font: var(--type-small); text-align: center; margin: 24px 0 12px; color: #62696c; }
+.footnote a,.hint a { color: #21686a; text-decoration: underline; text-underline-offset: 3px; }
+.card :focus-visible { outline: 3px solid #28666d; outline-offset: 3px; }
+.error { border: 1px solid #d9a5ae; border-radius: 10px; color: #87263b; background: #fff5f6; padding: 12px; font: var(--type-small); margin-bottom: 18px; }
+.fieldError { color: #87263b; font: var(--type-caption); margin: 6px 0 0; }
+.textButton { display: block; background: none; border: 0; color: #28666d; text-decoration: underline; font: var(--type-smallBold); margin: 24px auto; cursor: pointer; min-height: 44px; }
+@media(max-width:1023px) { .page { padding: 40px 24px; } .story { padding: 36px; } .card { padding: 32px; } }
+@media(max-width:767px) { .layout { grid-template-columns: 1fr; } .story { min-height: 250px; padding: 32px; } .story h2 { margin-bottom: 12px; } .story .eyebrow { margin-bottom: 12px; } .signature { display: none; } .artwork { object-position: right center; } .card { padding: 28px 24px 36px; } .card h1 { margin-top: 20px; } }
+@media(max-width:359px) { .page { padding: 24px 12px; } .card,.story { padding: 24px 20px; } }
+
+.notice { padding: 12px; border: 1px solid #9bc4bf; border-radius: 10px; background: #eef8f5; color: #205c58; font: var(--type-small); }

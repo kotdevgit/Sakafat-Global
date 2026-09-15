@@ -5,14 +5,15 @@ class Contact(models.Model):
         ("general", "General"),
         ("partnership", "Partnership"),
         ("programme", "Programme"),
+        ("creative", "Creative Collaboration"),
         ("media", "Media"),
         ("other", "Other"),
     ]
     full_name = models.CharField(max_length=150)
     organisation = models.CharField(max_length=200, blank=True)
     email = models.EmailField()
-    phone_number = models.CharField(max_length=30)
-    country_city = models.CharField(max_length=150)
+    phone_number = models.CharField(max_length=30, blank=True)
+    country_city = models.CharField(max_length=150, blank=True)
     enquiry_type = models.CharField(max_length=30,choices=ENQUIRY_TYPE_CHOICES)
     subject = models.CharField(max_length=255)
     message = models.TextField()

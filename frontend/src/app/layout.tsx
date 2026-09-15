@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Poppins } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/components/auth/auth-provider";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 
@@ -26,5 +27,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body className={`${poppins.variable} ${montserrat.variable}`}><SiteHeader />{children}<SiteFooter /></body></html>;
+  return <html lang="en"><body className={`${poppins.variable} ${montserrat.variable}`}><AuthProvider><SiteHeader />{children}<SiteFooter /></AuthProvider></body></html>;
 }

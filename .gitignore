@@ -49,3 +49,9 @@ venv/
 /frontend/mockups
 
 /backen/saqaft/.env
+
+# Local Sakafat database, email inbox, and logs
+backend/.local/
+
+# Uploaded enquiry attachments and other user media
+backend/saqaft/media/

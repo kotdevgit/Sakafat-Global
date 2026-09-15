@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useAuth } from "@/components/auth/auth-provider";
 import Link from "next/link";
 import { PillarsLink } from "./pillars-link";
 import { usePathname } from "next/navigation";
@@ -25,6 +26,7 @@ const navigation: NavigationItem[] = [
 
 export function SiteHeader({ items = navigation }: { items?: NavigationItem[] }) {
   const pathname = usePathname();
+  const { authenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -107,7 +109,7 @@ export function SiteHeader({ items = navigation }: { items?: NavigationItem[] })
             </ul>
           </nav>
           <div className={styles.actions}>
-            <button className={styles.login} type="button" disabled title="Login — coming soon">Login</button>
+            <Link className={styles.login} href="/login" onClick={() => setIsOpen(false)}>{authenticated ? "Account" : "Login"}</Link>
             <div className={styles.languages} role="group" aria-label="Website language">
               <span className={styles.english} lang="en" aria-label="English, current language">EN</span>
               <button type="button" lang="ur" disabled aria-label="Urdu — coming soon" title="Urdu — coming soon">UR</button>

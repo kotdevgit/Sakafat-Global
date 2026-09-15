@@ -23,7 +23,7 @@
 a.navItem:hover { color: #a20e19; }
 .navItem[aria-disabled="true"] { cursor: not-allowed; }
 .actions { display: flex; align-items: center; gap: 40px; }
-.login { min-width: 137px; min-height: 36px; border: 1px solid #111; border-radius: 999px; background: white;   color: #21474b; }
+.login { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; min-width: 137px; min-height: 36px; border: 1px solid #111; border-radius: 999px; background: white;   color: #21474b; }
 .languages { display: flex; border: 1px solid #e4e1db; border-radius: 999px; overflow: hidden; }
 .languages > * { display: grid; place-items: center; width: 48px; min-height: 40px; font: inherit; font-size: 14px; }
 .languages button { border: 0; border-radius: 999px; background: #fff; color: #111; }
@@ -38,7 +38,7 @@ a.navItem:hover { color: #a20e19; }
   .panel { gap: 30px; }
   .links { gap: 20px; }
   .actions { gap: 24px; }
-  .login { min-width: 112px; }
+  .login { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; min-width: 112px; }
 }
 @media (max-width: 1099px) {
   .inner { padding: 8px 24px; min-height: 82px; align-items: center; flex-wrap: wrap; gap: 0; }

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
 
 # Application definition
@@ -47,12 +48,12 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 from datetime import timedelta
@@ -70,10 +71,7 @@ REST_FRAMEWORK = {
     ],
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://192.168.18.86:3010",
-]
+CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", default="http://localhost:3010,http://127.0.0.1:3010", cast=Csv())
 
 ROOT_URLCONF = 'saqaft.urls'
 
@@ -138,7 +136,6 @@ STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-from decouple import config
 
 
 SECRET_KEY = config("SECRET_KEY")
@@ -158,15 +155,17 @@ DATABASES = {
 }
 
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
+EMAIL_FILE_PATH = BASE_DIR.parent / ".local" / "emails"
+EMAIL_TIMEOUT = 10
 
-EMAIL_HOST = config("MAIL_HOST")
-EMAIL_PORT = config("MAIL_PORT", cast=int)
-EMAIL_HOST_USER = config("MAIL_USERNAME")
-EMAIL_HOST_PASSWORD = config("MAIL_PASSWORD")
+EMAIL_HOST = config("MAIL_HOST", default="localhost")
+EMAIL_PORT = config("MAIL_PORT", default=587, cast=int)
+EMAIL_HOST_USER = config("MAIL_USERNAME", default="")
+EMAIL_HOST_PASSWORD = config("MAIL_PASSWORD", default="")
 
 EMAIL_USE_TLS = config(
-    "MAIL_ENCRYPTION"
+    "MAIL_ENCRYPTION", default="tls"
 ).lower() == "tls"
 
-DEFAULT_FROM_EMAIL = config("MAIL_FROM_ADDRESS")
+DEFAULT_FROM_EMAIL = config("MAIL_FROM_ADDRESS", default="noreply@sakafat.local")
