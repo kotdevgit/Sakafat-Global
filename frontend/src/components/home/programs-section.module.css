@@ -8,18 +8,28 @@
 .intro { max-width: 365px; margin: 0; color: #555;   }
 .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; margin: 0; padding: 0; list-style: none; }
 .card { overflow: hidden; border-radius: 12px; background: #f4f4f4; box-shadow: 0 5px 10px #0005; }
-.signals { --banner: linear-gradient(105deg, #009b9b, #006a6b); --accent: #007d7e; --badge-bg: #c6ffff; --badge-color: #064548; }
-.lawtency { --banner: linear-gradient(105deg, #84243e, #74283d); --accent: #84243e; --badge-bg: #fff0c9; --badge-color: #704400; }
-.confidence { --banner: linear-gradient(105deg, #b28724, #936f20); --accent: #946800; --badge-bg: #e7edff; --badge-color: #254678; }
+/* Themed by pillar so programmes added in the admin need no new CSS. */
+.card { --banner: linear-gradient(105deg, #4a5a63, #36444b); --accent: #36444b; --badge-bg: #e8eced; --badge-color: #2b373d; }
+.ikhlakiat { --banner: linear-gradient(105deg, #009b9b, #006a6b); --accent: #007d7e; --badge-bg: #c6ffff; --badge-color: #064548; }
+.idraak { --banner: linear-gradient(105deg, #84243e, #74283d); --accent: #84243e; --badge-bg: #fff0c9; --badge-color: #704400; }
+.falah { --banner: linear-gradient(105deg, #b28724, #936f20); --accent: #946800; --badge-bg: #e7edff; --badge-color: #254678; }
+.rabta { --banner: linear-gradient(105deg, #b95830, #87462e); --accent: #a24c28; --badge-bg: #ffe8dd; --badge-color: #7a3418; }
+.sama { --banner: linear-gradient(105deg, #219b99, #157579); --accent: #157579; --badge-bg: #d9f3f2; --badge-color: #0f4f52; }
 .program { display: flex; flex-direction: column; height: 100%; }
-.banner { display: grid; place-items: center; min-height: 114px; padding: 24px 16px; background: var(--banner); color: #fff; text-align: center;    }
+.banner { display: grid; place-items: center; min-height: 114px; padding: 24px 16px; background: var(--banner); background-size: cover; background-position: center; color: #fff; text-align: center;    }
+/* An uploaded image replaces the gradient; the scrim keeps the title readable over it. */
+.banner[data-image] { position: relative; }
+.banner[data-image]::before { content: ""; position: absolute; inset: 0; background: #0009; }
+.banner[data-image] > span { position: relative; }
 .body { display: flex; flex-direction: column; flex: 1; align-items: flex-start; padding: 16px 15px 14px; }
 .status { display: inline-block; border-radius: 999px; padding: 2px 8px; background: var(--badge-bg); color: var(--badge-color);    }
 .body h3 { margin: 12px 0 2px;    }
 .pillar { margin: 0; color: #444;    }
 .description { margin: 14px 0 18px; max-width: 300px;   }
-.action, .explore { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0;     cursor: not-allowed; }
-.action { margin-top: auto; padding: 2px 0; background: transparent; color: var(--accent); }
+.action, .explore { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; text-decoration: none; }
+.action { margin-top: auto; padding: 2px 0; background: transparent; color: var(--accent); cursor: pointer; }
+.action:hover { text-decoration: underline; }
+.action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .action svg, .explore svg { flex-shrink: 0; }
 .footer { display: flex; justify-content: flex-end; margin-top: 34px; }
 .explore { border-radius: 999px; padding: 5px 15px; background: #f8f4e9; color: #050505; cursor: pointer; text-decoration: none; }

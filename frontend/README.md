@@ -97,6 +97,14 @@ Approved exceptions: the homepage hero retains Montserrat 800 at 36px with 1% le
 
 Run isolated route checks with `npm test`. These mock Django responses and never create accounts, store enquiries, or send emails. `tests/auth-routes.test.mjs` covers secure cookie handling, origin checks, field errors, offline responses, email verification, registration, expiry, and logout. `tests/contact-route.test.mjs` covers the enquiry form.
 
+## Programmes
+
+- Programmes are managed in the Django admin at `/admin/Programme/programme/`. Create a superuser with `python manage.py createsuperuser` in `backend/saqaft/`.
+- The homepage section and `/programs` read published programmes from Django's `programme/` endpoint through `src/lib/api/programmes.ts`, revalidated every 60 seconds. Unchecking **is active** in the admin removes a programme from the public site; staff see unpublished ones through the API.
+- Card colours come from the programme's **pillar**, not its slug, so a programme added in the admin is styled without new CSS. An uploaded image replaces the banner gradient and is shown behind a scrim. Programmes without a recognised pillar fall back to a neutral slate theme.
+- Card order follows the **position** field, lowest first.
+- If Django is unreachable, both pages render with an "details are being updated" message rather than failing. Programme content is not duplicated in the frontend any more.
+
 ## Contact enquiries
 
 - The contact form posts to same-origin `/api/contact`, which forwards the enquiry to Django's `contact/` endpoint as multipart form data. Django stores the enquiry and emails the sender an acknowledgement.

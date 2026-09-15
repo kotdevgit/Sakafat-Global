@@ -25,13 +25,18 @@ test('login keeps JWT out of response body and sets secure HTTP-only cookie', as
   const route = handler(async (url, options) => {
     assert.equal(String(url), 'http://django.test/api/login/');
     assert.deepEqual(JSON.parse(options.body), credentials);
-    return Response.json({ access, refresh: 'never-expose', user: { username: 'test-user' } });
+    return Response.json({ access, refresh: 'refresh-token-value', user: { username: 'test-user' } });
   });
   const response = await route.POST(request(credentials), context('login'));
   assert.equal(response.status, 200);
-  const cookie = response.headers.get('set-cookie');
-  assert.match(cookie, /HttpOnly/i); assert.match(cookie, /Secure/i); assert.match(cookie, /SameSite=lax/i);
-  assert.doesNotMatch(await response.text(), /signature|never-expose/);
+  const cookies = response.headers.getSetCookie ? response.headers.getSetCookie() : [response.headers.get('set-cookie')];
+  const accessCookie = cookies.find(c => c.includes('sakafat_access='));
+  const refreshCookie = cookies.find(c => c.includes('sakafat_refresh='));
+  assert.ok(accessCookie, 'access cookie should be set');
+  assert.ok(refreshCookie, 'refresh cookie should be set');
+  assert.match(accessCookie, /HttpOnly/i); assert.match(accessCookie, /Secure/i); assert.match(accessCookie, /SameSite=lax/i);
+  assert.match(refreshCookie, /Path=\/api\/auth/i);
+  assert.doesNotMatch(await response.text(), /signature|refresh-token-value/);
 });
 test('rejects cross-origin login before contacting Django', async () => {
   const response = await handler(() => { throw Error('must not fetch'); }).POST(request(credentials,'https://other.test'),context('login'));
@@ -53,11 +58,46 @@ test('email verification maps to the Django endpoint and does not create a sessi
 test('rejects expired login tokens and unknown endpoints',async()=>{
   const access=`header.${Buffer.from(JSON.stringify({exp:1})).toString('base64url')}.signature`;
   assert.equal((await handler(async()=>Response.json({access})).POST(request(credentials),context('login'))).status,502);
-  assert.equal((await handler(()=>{throw Error('must not fetch');}).POST(request(credentials),context('reset-password'))).status,404);
+  assert.equal((await handler(()=>{throw Error('must not fetch');}).POST(request(credentials),context('unknown'))).status,404);
 });
-test('logout expires the access cookie without calling Django',async()=>{
+test('password reset endpoints forward to Django correctly', async () => {
+  const route = handler(async (url, options) => {
+    const u = String(url);
+    if (u.endsWith('forgot-password/')) {
+      assert.deepEqual(JSON.parse(options.body), { email: 'user@example.test' });
+      return Response.json({ message: 'Password reset OTP sent to your email.' });
+    }
+    if (u.endsWith('verify-reset-otp/')) {
+      assert.deepEqual(JSON.parse(options.body), { email: 'user@example.test', otp: '123456' });
+      return Response.json({ message: 'OTP verified successfully.' });
+    }
+    if (u.endsWith('reset-password/')) {
+      assert.deepEqual(JSON.parse(options.body), { email: 'user@example.test', otp: '123456', new_password: 'new-secure-password' });
+      return Response.json({ message: 'Password reset successfully.' });
+    }
+    throw Error(`Unexpected URL: ${u}`);
+  });
+
+  const res1 = await route.POST(request({ email: 'user@example.test' }), context('forgot-password'));
+  assert.equal(res1.status, 200);
+  assert.match((await res1.json()).message, /reset code/i);
+
+  const res2 = await route.POST(request({ email: 'user@example.test', otp: '123456' }), context('verify-reset-otp'));
+  assert.equal(res2.status, 200);
+  assert.match((await res2.json()).message, /verified/i);
+
+  const res3 = await route.POST(request({ email: 'user@example.test', otp: '123456', new_password: 'new-secure-password' }), context('reset-password'));
+  assert.equal(res3.status, 200);
+  assert.match((await res3.json()).message, /reset successfully/i);
+});
+test('logout expires the access and refresh cookies without calling Django',async()=>{
   const response=await handler(()=>{throw Error('must not fetch');}).POST(request({}),context('logout'));
-  assert.equal(response.status,200);assert.match(response.headers.get('set-cookie'),/Max-Age=0/);
+  assert.equal(response.status,200);
+  const cookies = response.headers.getSetCookie ? response.headers.getSetCookie() : [response.headers.get('set-cookie')];
+  const access = cookies.find(c => c.includes('sakafat_access='));
+  const refresh = cookies.find(c => c.includes('sakafat_refresh='));
+  assert.match(access, /Max-Age=0/);
+  assert.match(refresh, /Max-Age=0/);
 });
 test('supports a public request host differing from the internal Next URL',async()=>{
   const req=new NextRequest('http://localhost:3011/api/auth/register',{method:'POST',headers:{host:'127.0.0.1:3011',origin:'http://127.0.0.1:3011','Content-Type':'application/json'},body:JSON.stringify({...credentials,email:'qa@example.test'})});
