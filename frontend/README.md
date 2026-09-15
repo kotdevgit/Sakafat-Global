@@ -105,6 +105,16 @@ Run isolated route checks with `npm test`. These mock Django responses and never
 - `forgot-password` replies identically whether or not the email has an account, so it cannot be used to discover registered addresses. Wrong codes and unknown emails return the same message.
 - A successful reset blacklists the account's outstanding refresh tokens, signing other sessions out.
 
+## Episodes
+
+- Episodes are managed in the Django admin at `/admin/Episode/episode/`, the same way programmes are.
+- Categories are rows, not code: add them at `/admin/Episode/episodecategory/` and they are immediately selectable, with no migration or deploy. A category still used by an episode cannot be deleted. Programme **pillars** stay a fixed list in the model, because the five pillars are a brand constant and the card colours key off them.
+- The API exposes a category as its **slug** plus a display **label**, so renaming a category in the admin changes what readers see without changing the public data shape.
+- The homepage "Featured by Sakafat" section reads published episodes from Django's `episode/` endpoint through `src/lib/api/episodes.ts`, revalidated every 60 seconds. Unchecking **is active** removes an episode from the homepage.
+- Card order follows the **position** field, lowest first. **Image alt** is the screen-reader description; leave it blank only when the title already says everything.
+- The play button stays disabled until **video url** is set, matching the original design.
+- Uploaded images are served from Django's `/media/`, so `next.config.ts` allows that origin for `next/image`. It is derived from `DJANGO_API_BASE_URL`, and the local-IP override it needs in development is enabled only when that host is loopback.
+
 ## Programmes
 
 - Programmes are managed in the Django admin at `/admin/Programme/programme/`. Create a superuser with `python manage.py createsuperuser` in `backend/saqaft/`.
