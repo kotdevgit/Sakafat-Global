@@ -47,3 +47,5 @@ venv/
 .pytest_cache/
 *.sqlite3
 /frontend/mockups
+
+/backen/saqaft/.env

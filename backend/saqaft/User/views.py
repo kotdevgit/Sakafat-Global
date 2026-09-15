@@ -12,38 +12,67 @@ from .serializers import (LoginSerializer,RegisterSerializer, VerifyOTPSerialize
                           ForgotPasswordSerializer,VerifyResetOTPSerializer,ResetPasswordSerializer)
 
 import random
-
 User = get_user_model()
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
-
-class LoginView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self,request):
-        serializer = LoginSerializer(data=request.data)
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user=serializer.validated_data["user"]
 
-        otp = str(random.randint(100000,999999))
+        user = serializer.save()
 
-        OTPVerification.objects.filter(user=user, is_verified=False).delete()
-        OTPVerification.objects.create(user=user ,otp=otp)
+        otp = str(random.randint(100000, 999999))
+
+        OTPVerification.objects.filter(
+            user=user,
+            is_verified=False
+        ).delete()
+
+        OTPVerification.objects.create(
+            user=user,
+            otp=otp
+        )
 
         send_mail(
-            subject="Login Verification Code",
-            message=f"Your verification code is : {otp} ",
+            subject="Email Verification Code",
+            message=f"Your verification code is: {otp}",
             from_email=None,
             recipient_list=[user.email],
         )
 
         return Response(
             {
-                "message": "OTP sent to your email.",
+                "message": "Registration successful. OTP sent to your email.",
                 "username": user.username
+            },
+            status=status.HTTP_201_CREATED
+        )
+     
+
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data["user"]
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                "message": "Login successful.",
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                }
             },
             status=status.HTTP_200_OK
         )
@@ -75,13 +104,12 @@ class VerifyOTPView(APIView):
         otp_record.is_verified = True
         otp_record.save()
 
-        refresh = RefreshToken.for_user(user)
+        user.is_active = True
+        user.save()
 
         return Response(
-            {
-                "message": "Login successful.",
-                "access": str(refresh.access_token),
-                "refresh": str(refresh),
+            { 
+                "message": "OTP_VERIFIED",
                 "user": {
                     "id": user.id,
                     "username": user.username,
