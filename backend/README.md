@@ -1,10 +1,33 @@
 # Sakafat Global — Backend
 
-Reserved for the backend team’s Python Django application, backed by PostgreSQL.
+The Django REST Framework API behind the site, backed by PostgreSQL. The project
+root is `saqaft/`, with four apps: **User** (registration, OTP, JWT, password
+reset), **Programme**, **Episode**, and **Contact**.
 
-Django has not been scaffolded yet. The backend team will provide dependencies, setup commands, models, migrations, authentication, and API endpoints here. PostgreSQL runs as a separate database service; do not commit database files or credentials.
+Stack: Django 6.1.1, djangorestframework 3.18, SimpleJWT, psycopg 3, Pillow.
+Full dependency list in `saqaft/requirements.txt`.
 
-Coordinate API URLs, response types, authentication, CORS, and CSRF settings with the frontend team. The frontend lives in `../frontend/` and reads its API URL from `NEXT_PUBLIC_API_BASE_URL`.
+```bash
+cd saqaft
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env          # then fill in DB_* and SECRET_KEY
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver 127.0.0.1:8000
+./.venv/bin/python manage.py test    # builds and drops its own test database
+```
+
+Settings read from `saqaft/.env` via `python-decouple`; it is gitignored and must
+stay that way — database credentials, `SECRET_KEY` and mail passwords live there.
+`.env.example` selects Django's file-based mail backend, which writes messages to
+`backend/.local/emails` instead of sending them; keep that locally, or every
+registration fails when SMTP is unreachable.
+
+Uploaded images are served from `/media/`. The browser does not call this API
+directly — Next.js proxies every request server-side — so `CORS_ALLOWED_ORIGINS`
+stays empty locally and deployments opt in explicitly. See the repository root
+`README.md` for the full request flow.
 
 
 ## API Endpoints
@@ -23,19 +46,45 @@ http://127.0.0.1:8000/api/
 | POST | `/forgot-password/` | Send password reset OTP to email |
 | POST | `/verify-reset-otp/` | Verify password reset OTP |
 | POST | `/reset-password/` | Set a new password |
+| POST | `/resend_otp/` | Send a fresh signup OTP |
+| POST | `/token/refresh/` | Exchange a refresh token for a new access token |
+| GET | `/me/` | The signed-in user (requires a bearer token) |
 
 ### Programmes
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/programme/` | View all programmes |
+| GET | `/programme/` | List programmes |
 | POST | `/programme/` | Create a programme (Admin only) |
-| GET | `/programme/<id>/` | View a single programme |
-| PUT | `/programme/<id>/` | Update a programme (Admin only) |
-| PATCH | `/programme/<id>/` | Partially update a programme (Admin only) |
-| DELETE | `/programme/<id>/` | Delete a programme (Admin only) |
+| GET | `/programme/<id or slug>/` | View a single programme |
+| PUT | `/programme/<id or slug>/` | Update a programme (Admin only) |
+| PATCH | `/programme/<id or slug>/` | Partially update a programme (Admin only) |
+| DELETE | `/programme/<id or slug>/` | Delete a programme (Admin only) |
 
-Users can view programmes, while Admin/Staff users can perform CRUD operations.
+Anyone can read; only Admin/Staff can write. A detail route accepts either the
+numeric id or the slug, and the site links by slug.
+
+**Unpublished programmes are hidden from everyone but staff.** The queryset is
+filtered to `is_active=True` unless the request carries an authenticated staff
+user, so unchecking **is active** in the admin removes a programme from the
+public site and from the public API at once.
+
+### Episodes
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/episode/` | List episodes |
+| POST | `/episode/` | Create an episode (Admin only) |
+| GET | `/episode/<id or slug>/` | View a single episode |
+| PUT | `/episode/<id or slug>/` | Update an episode (Admin only) |
+| PATCH | `/episode/<id or slug>/` | Partially update an episode (Admin only) |
+| DELETE | `/episode/<id or slug>/` | Delete an episode (Admin only) |
+
+Same permissions and same `is_active` filtering as programmes. An episode carries
+`category` (the category's slug) alongside a read-only `category_label` (its
+name), so renaming a category in the admin changes what readers see without
+changing the public data shape. Categories are rows, editable at
+`/admin/Episode/episodecategory/` with no migration or deploy.
 
 ### Contact
 

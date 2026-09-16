@@ -38,6 +38,13 @@ next-env.d.ts
 # Environment files (keep the safe template)
 .env*
 !.env.example
+# The same names without the leading dot. Next.js does not read these, so such a
+# file is always a mistake — and an unignored mistake one typo from a real
+# secret. Listed by name rather than as env*, which would also swallow source
+# files like env.ts.
+env
+env.local
+env.*.local
 
 # Python / Django
 __pycache__/
@@ -48,7 +55,7 @@ venv/
 *.sqlite3
 /frontend/mockups
 
-/backen/saqaft/.env
+/backend/saqaft/.env
 
 # Local Sakafat database, email inbox, and logs
 backend/.local/

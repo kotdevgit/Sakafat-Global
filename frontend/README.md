@@ -12,22 +12,28 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open http://localhost:3000. The starter page runs without Django or PostgreSQL.
+Open http://localhost:3000; it redirects to `/en` or `/ur`. Pages render without Django running, showing a placeholder message in place of content it would have supplied.
 
 ## Commands
 
 - `npm run dev` — local development
+- `npm test` — route, validation, and i18n checks with Django mocked
 - `npm run lint` — ESLint checks
 - `npm run typecheck` — generate route types and check TypeScript
 - `npm run build` — production build
 - `npm start` — serve the production build
+- `npm run translate` — seed a machine-translated Urdu draft for review
 
 ## Structure
 
 ```text
-src/app/          Pages, layouts, and global styles (App Router)
-src/components/   Reusable UI components
-src/lib/api/      Django API configuration and future request helpers
+src/app/[lang]/   Pages, layouts, and global styles, served per language
+src/app/api/      Route handlers proxying Django
+src/components/   Reusable UI components, grouped by area
+src/lib/api/      Django API configuration and request helpers
+src/lib/i18n/     Locale config, dictionaries, and server/client access
+src/lib/validation/  Field rules shared by the forms and the API routes
+src/proxy.ts      Locale negotiation and redirect
 src/types/        Shared frontend and API response types
 public/           Static images, icons, and fonts
 ```
@@ -36,19 +42,17 @@ Stack: Next.js, React, TypeScript, Tailwind CSS, ESLint. Import source files wit
 
 ## Django integration
 
-Set `NEXT_PUBLIC_API_BASE_URL` in `.env.local` to the backend team's API base URL. The example `http://localhost:8000/api/` is a placeholder, not a verified endpoint. `getApiBaseUrl()` in `src/lib/api/config.ts` validates this setting when used. No API calls or authentication are implemented yet.
+The browser never calls Django directly. Server Components and the route handlers under `src/app/api/` reach it server-side using `DJANGO_API_BASE_URL`, so there are no cross-origin browser requests and no tokens in browser JavaScript. `getApiBaseUrl()` in `src/lib/api/config.ts` validates the setting when it is used.
 
-Agree on endpoint paths, response types, pagination, error formats, and authentication with the backend team before implementing request helpers. Django must allow the frontend origin for browser requests. If cookie authentication is selected, coordinate credentials, CSRF tokens, trusted origins, and cookie settings with that team.
+`NEXT_PUBLIC_API_BASE_URL` is baked into the bundle at build time and readable by anyone. Never add database credentials, Django secret keys, or private API keys to `.env.local`. The frontend reads data through Django's API; it does not connect to PostgreSQL. Models, migrations, authorization, and business logic belong in `backend/`.
 
-All `NEXT_PUBLIC_` values are visible in the browser and set at build time. Never add database credentials, Django secret keys, or private API keys here. The frontend accesses data through Django APIs; it does not connect directly to PostgreSQL. Backend models, migrations, authorization, and business logic belong in the `backend/` directory.
-
-This is the initial scaffold; final page designs and backend integration are pending. Setup follows the [Next.js installation guide](https://nextjs.org/docs/app/getting-started/installation).
+See the repository root `README.md` for the request flow, environment variables, and setup end to end.
 
 ## Shared header
 
 `src/components/layout/site-header.tsx` is mounted once in the root layout and reused across pages. Its CSS module handles desktop navigation and a mobile disclosure menu below 1100px. The menu closes on Escape, outside click, focus leaving the header, link selection, and switching to desktop.
 
-Update the typed navigation list as pages are built; only Home is currently enabled to avoid broken destinations. Login and Urdu are unavailable placeholders, not implemented authentication or translation. The active page is derived from the current path. New pages should give their main element `id="main-content"` and `tabIndex={-1}` for the skip link.
+Every navigation destination is built and enabled; the typed list in the component controls which appear. Labels come from the header dictionary, so the nav reads in the served language. Login opens `/login` and becomes Account once signed in, and the language control is a working EN/UR switch that keeps the current page and query. The active page is derived from the current path with the locale segment stripped, so it is decided the same way in both languages. New pages should give their main element `id="main-content"` and `tabIndex={-1}` for the skip link.
 
 The logo was raster-extracted from `mockups/Sakafat Landing Page.pdf`; replace it with the original brand asset when available. Navigation uses Poppins Regular (400), 16px, 100% line-height, and zero letter spacing, as provided by the designer. Next.js self-hosts the Google font at build time.
 
@@ -81,7 +85,7 @@ Episode play buttons and View All Episodes are inactive by request. Add `href` v
 
 ## Shared typography
 
-Typography roles live in `src/app/globals.css`. Use the `--type-*` font tokens in component styles instead of adding independent sizes or breakpoint overrides. Section headings use Montserrat 700 at 42px/60px on desktop, 34px on tablet, and 28px on mobile. Page heroes use Montserrat 700 at 52px/65px on desktop. Poppins is used for body copy (16px), card descriptions (14px), card titles (18px bold), labels (14px medium), captions (12px), primary actions (16px bold), and compact actions (12px medium).
+Typography roles live in `src/app/[lang]/globals.css`. Use the `--type-*` font tokens in component styles instead of adding independent sizes or breakpoint overrides. Section headings use Montserrat 700 at 42px/60px on desktop, 34px on tablet, and 28px on mobile. Page heroes use Montserrat 700 at 52px/65px on desktop. Poppins is used for body copy (16px), card descriptions (14px), card titles (18px bold), labels (14px medium), captions (12px), primary actions (16px bold), and compact actions (12px medium).
 
 Approved exceptions: the homepage hero retains Montserrat 800 at 36px with 1% letter spacing; its buttons retain 16px bold with 100% line height. Contact’s Get Started keeps Poppins 500 at 17.39px with 161% line height. Navigation retains Poppins 400 at 16px with 100% line height. The small Featured by Sakafat heading is treated as a section label.
 
@@ -91,8 +95,8 @@ Approved exceptions: the homepage hero retains Montserrat 800 at 36px with 1% le
 - The header Login link opens `/login`; after login it becomes Account, with a sign-out action on that page.
 - Browser forms call same-origin `/api/auth/login`, `/api/auth/register`, and `/api/auth/verify`. Next forwards the expected fields to Django's `login/`, `register/`, and `verify_otp/` endpoints using `NEXT_PUBLIC_API_BASE_URL` (set before building). This avoids browser CORS requests for authentication.
 - Django remains the authority for passwords, users, OTP verification, and protected data. The frontend sets the returned access JWT in an HTTP-only, SameSite=Lax cookie, Secure in production, with a maximum lifetime of 30 minutes. Tokens are not returned to browser JavaScript or stored in localStorage. The session endpoint is only a UI hint; future protected requests must send the cookie token to Django for validation.
-- Refresh tokens are not retained because Django does not expose a refresh endpoint yet. Users log in again after expiration. Sign out clears the local access cookie; backend token revocation is not implemented.
-- Password-reset pages and OTP resend are not included. No backend files were changed.
+- The refresh token is kept in its own HTTP-only cookie (`sakafat_refresh`). When the access cookie has expired the session route exchanges it at Django's `token/refresh/` and reissues both, so a visitor is not signed out mid-visit. Sign out clears both cookies locally; backend token revocation on logout is not implemented.
+- Password reset and OTP resend are implemented — see **Password reset** below.
 - Missing backend configuration shows an unavailable-service message. Live registration, email delivery, and database-backed login still require backend setup and verification.
 
 Run isolated route checks with `npm test`. These mock Django responses and never create accounts, store enquiries, or send emails. `tests/auth-routes.test.mjs` covers secure cookie handling, origin checks, field errors, offline responses, email verification, registration, expiry, and logout. `tests/contact-route.test.mjs` covers the enquiry form.
