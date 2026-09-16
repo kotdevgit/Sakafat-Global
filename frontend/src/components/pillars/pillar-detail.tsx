@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { PillarsLink } from "@/components/layout/pillars-link";
 import { ScrollToTop } from "./scroll-to-top";
+import { enquiryHref } from "@/lib/validation/contact";
 import type { PillarDetail } from "./pillar-data";
 import styles from "./pillar-detail.module.css";
 
@@ -23,7 +24,7 @@ export function PillarDetailPage({ pillar }: { pillar: PillarDetail }) {
             <p>{pillar.introduction}</p>
             <div className={styles.actions}>
               <Link href="/get-involved" className={styles.primary}>Join Sakafat<Arrow /></Link>
-              <Link href="/contact" className={styles.secondary}>Start a Conversation</Link>
+              <Link href={enquiryHref("general", `${pillar.name} — ${pillar.meaning}`)} className={styles.secondary}>Start a Conversation</Link>
             </div>
           </div>
         </div>

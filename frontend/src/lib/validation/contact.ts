@@ -26,6 +26,33 @@ const PHONE_MAX_DIGITS = 15;
 
 export const enquiryTypes = ["general", "programme", "creative", "partnership", "media", "other"] as const;
 
+/**
+ * The enquiry types the form offers, in the order they are listed. "other" is a
+ * stored value Django accepts but the form does not present, so it is not here.
+ */
+export const enquiryOptions = [
+  ["general", "General enquiry"],
+  ["programme", "Programmes and participation"],
+  ["creative", "Creative collaboration"],
+  ["partnership", "Partnership enquiry"],
+  ["media", "Media enquiry"],
+] as const;
+
+export type OfferedEnquiryType = (typeof enquiryOptions)[number][0];
+
+/** The anchor the enquiry form carries, so a call to action can land on it. */
+export const enquiryFormId = "enquiry-form";
+
+/**
+ * Builds a link to the enquiry form with the enquiry already framed. Every call
+ * to action across the site goes through this, so the type and subject a visitor
+ * arrives with always match a type the form actually offers.
+ */
+export function enquiryHref(type: OfferedEnquiryType, subject: string): string {
+  const query = new URLSearchParams({ type, subject });
+  return `/contact?${query}#${enquiryFormId}`;
+}
+
 export type FieldRule = {
   /** The name Django expects, so the route can map the payload in one place. */
   djangoField: string;

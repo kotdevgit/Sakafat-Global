@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ScrollToTop } from "@/components/pillars/scroll-to-top";
 import type { Programme } from "@/lib/api/programmes";
+import { enquiryHref } from "@/lib/validation/contact";
 import styles from "./program-detail.module.css";
 
 function Arrow() {
@@ -17,9 +18,12 @@ function ArrowLeft() {
  */
 export function ProgramDetailView({ programme }: { programme: Programme }) {
   const isOpen = programme.status === "open" || programme.status === "register_interest";
-  const enquiryHref = isOpen
-    ? `/contact?type=programme&subject=${encodeURIComponent(programme.name)}`
-    : "/contact";
+  // Both branches carry the programme's name, so an enquiry about a programme that
+  // has not opened yet still arrives knowing which one it is about.
+  const contactHref = enquiryHref(
+    "programme",
+    isOpen ? programme.name : `${programme.name} — keep me informed`,
+  );
   const facts = [
     { term: "Current status", value: programme.statusLabel },
     { term: "Pillar", value: programme.pillarLabel },
@@ -49,7 +53,7 @@ export function ProgramDetailView({ programme }: { programme: Programme }) {
             <h1 id="programme-heading">{programme.name}</h1>
             <p className={styles.intro}>{programme.description}</p>
             <div className={styles.actions}>
-              <Link href={enquiryHref} className={styles.primary}>
+              <Link href={contactHref} className={styles.primary}>
                 {isOpen ? "Register Interest" : "Ask About This Programme"}<Arrow />
               </Link>
               <Link href="/get-involved" className={styles.secondary}>Other ways to take part</Link>
@@ -103,7 +107,7 @@ export function ProgramDetailView({ programme }: { programme: Programme }) {
                 {isOpen ? "Ready to put your name forward?" : "Want to hear when this opens?"}
               </h2>
             </div>
-            <Link href={enquiryHref} className={styles.primary}>
+            <Link href={contactHref} className={styles.primary}>
               {isOpen ? "Register Interest" : "Contact Us for Updates"}<Arrow />
             </Link>
           </div>

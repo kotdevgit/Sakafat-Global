@@ -1,5 +1,6 @@
 import Link from "next/link";
 import styles from "./programs-content.module.css";
+import { enquiryHref } from "@/lib/validation/contact";
 
 const steps = [
   { title: "Discover", text: "Find a programme connected to your interests." },
@@ -37,7 +38,7 @@ export function ProgramsStatusNote() {
           <h2 id="status-heading">Some details aren’t published yet</h2>
           <p className={styles.statusText}>Dates, eligibility, participation requirements and fees are released only after approval.</p>
         </div>
-        <Link className={styles.ask} href="/contact">Ask a Question</Link>
+        <Link className={styles.ask} href={enquiryHref("programme", "Question about programmes")}>Ask a Question</Link>
       </div>
     </section>
   );

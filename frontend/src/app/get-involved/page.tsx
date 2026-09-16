@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { enquiryHref } from "@/lib/validation/contact";
 import styles from "@/components/get-involved/get-involved.module.css";
 
 export const metadata: Metadata = {
@@ -13,17 +14,14 @@ export const metadata: Metadata = {
  * subject already set, so the visitor does not have to restate why they came;
  * the two that have a page of their own link to it instead.
  */
-const enquiry = (type: string, subject: string) =>
-  `/contact?type=${type}&subject=${encodeURIComponent(subject)}`;
-
 const pathways = [
   { title: "Submit Your Story", description: "Share a cultural story, idea, creative work or perspective through an approved open call.", action: "View Open Calls", href: "/programs" },
-  { title: "Become a Podcast Guest", description: "Propose yourself or another relevant voice for an interview, discussion or Sakafat production.", action: "Propose a Guest", href: enquiry("creative", "Podcast guest proposal") },
-  { title: "Join as a Creator", description: "Express interest in writing, audio, video, music, performance or other creative work.", action: "Join the Creator Network", href: enquiry("creative", "Creator network application") },
-  { title: "Register a Studio", description: "Submit production capabilities, facilities, portfolio and operational information.", action: "Register Your Studio", href: enquiry("partnership", "Studio registration") },
-  { title: "Propose a Production", description: "Submit a podcast, documentary, series or creative-format concept for consideration.", action: "Propose a Format", href: enquiry("creative", "Production proposal") },
+  { title: "Become a Podcast Guest", description: "Propose yourself or another relevant voice for an interview, discussion or Sakafat production.", action: "Propose a Guest", href: enquiryHref("creative", "Podcast guest proposal") },
+  { title: "Join as a Creator", description: "Express interest in writing, audio, video, music, performance or other creative work.", action: "Join the Creator Network", href: enquiryHref("creative", "Creator network application") },
+  { title: "Register a Studio", description: "Submit production capabilities, facilities, portfolio and operational information.", action: "Register Your Studio", href: enquiryHref("partnership", "Studio registration") },
+  { title: "Propose a Production", description: "Submit a podcast, documentary, series or creative-format concept for consideration.", action: "Propose a Format", href: enquiryHref("creative", "Production proposal") },
   { title: "Join a Programme", description: "Explore active programmes, eligibility requirements and participation opportunities.", action: "Explore Programmes", href: "/programs" },
-  { title: "Partner With Sakafat", description: "Propose structured institutional, educational, media or responsible commercial collaboration.", action: "Start a Partnership Enquiry", href: enquiry("partnership", "Partnership enquiry") },
+  { title: "Partner With Sakafat", description: "Propose structured institutional, educational, media or responsible commercial collaboration.", action: "Start a Partnership Enquiry", href: enquiryHref("partnership", "Partnership enquiry") },
 ];
 
 function Arrow() {
