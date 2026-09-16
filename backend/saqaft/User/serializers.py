@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
-
+from .models import OTPVerification
 from rest_framework import serializers
 
 
@@ -66,25 +66,30 @@ class LoginSerializer(serializers.Serializer):
 
 
 class VerifyOTPSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    # A code is six digits, so anything else is rejected before a lookup happens.
-    otp = serializers.RegexField(r"^[0-9]{6}$")
+    otp = serializers.CharField(
+            min_length=6,
+            max_length=6
+        )
 
     def validate(self, data):
         try:
-            user = User.objects.get(
-                username=data["username"]
+            verification = OTPVerification.objects.get(
+                otp=data["otp"],
+                is_verified=False
             )
-        except User.DoesNotExist:
+        except OTPVerification.DoesNotExist:
             raise serializers.ValidationError(
-                "Invalid username."
+                "Invalid OTP."
             )
+
+        user = verification.user
 
         if user.is_active:
             raise serializers.ValidationError(
                 "This account is already verified."
             )
 
+        data["verification"] = verification
         data["user"] = user
 
         return data
@@ -96,7 +101,10 @@ class ForgotPasswordSerializer(serializers.Serializer):
 
 class VerifyResetOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    otp = serializers.RegexField(r"^[0-9]{6}$")
+    otp = serializers.CharField(
+        min_length=6,
+        max_length=6
+    )
 
 
 class ResetPasswordSerializer(serializers.Serializer):
@@ -106,13 +114,3 @@ class ResetPasswordSerializer(serializers.Serializer):
         write_only=True,
         min_length=8
     )
-
-    def validate(self, data):
-        # Registration runs Django's password validators, so a reset must too —
-        # otherwise the weakest way into an account is to reset its password.
-        user = User.objects.filter(email__iexact=data["email"]).first()
-        try:
-            validate_password(data["new_password"], user)
-        except DjangoValidationError as error:
-            raise serializers.ValidationError({"new_password": error.messages})
-        return data

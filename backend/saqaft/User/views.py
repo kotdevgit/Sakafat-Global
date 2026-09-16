@@ -20,7 +20,7 @@ from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 User = get_user_model()
 
-OTP_TTL_MINUTES = 10
+OTP_TTL_MINUTES = 1
 MAX_OTP_ATTEMPTS = 5
 INVALID_RESET_CODE = "Invalid or expired reset code."
 
@@ -41,10 +41,10 @@ class RegisterView(generics.CreateAPIView):
             with transaction.atomic():
                 user = serializer.save()
                 otp = str(secrets.randbelow(900000) + 100000)
-                OTPVerification.objects.create(user=user, otp=otp)
+                OTPVerification.objects.create(user=user, otp=otp,)
                 send_mail(
                     subject="Email Verification Code",
-                    message=f"Your verification code is: {otp}\nThis code expires in 10 minutes.",
+                    message=f"Your verification code is: {otp}",
                     from_email=None,
                     recipient_list=[user.email],
                 )
@@ -84,21 +84,45 @@ class VerifyOTPView(APIView):
     def post(self, request):
         serializer = VerifyOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data["user"]
+        verification = serializer.validated_data["verification"]
         with transaction.atomic():
-            record = OTPVerification.objects.select_for_update().filter(user=user, is_verified=False).order_by("-created_at").first()
-            if not record or record.created_at < timezone.now() - timedelta(minutes=10):
-                return Response({"error": "This verification code has expired. Request a new code."}, status=400)
+            record = OTPVerification.objects.select_for_update().get(id=verification.id)
+
+            if record.created_at < timezone.now() - timedelta(minutes=10):
+                return Response(
+                    {
+                        "error": "This verification code has expired. Request a new code."
+                    },
+                    status=400
+                )
+
             if record.attempts >= 5:
-                return Response({"error": "Too many incorrect codes. Request a new code."}, status=400)
-            if not secrets.compare_digest(record.otp, serializer.validated_data["otp"]):
+                return Response(
+                    {
+                        "error": "Too many incorrect codes. Request a new code."
+                    },
+                    status=400
+                )
+
+            if not secrets.compare_digest(
+                record.otp,
+                serializer.validated_data["otp"]
+            ):
                 record.attempts += 1
                 record.save(update_fields=["attempts"])
-                return Response({"error": "Invalid verification code."}, status=400)
+
+                return Response(
+                    {"error": "Invalid verification code."},
+                    status=400
+                )
+
             record.is_verified = True
             record.save(update_fields=["is_verified"])
+
+            user = record.user
             user.is_active = True
             user.save(update_fields=["is_active"])
+
         return Response({"message": "OTP_VERIFIED"})
 
 
