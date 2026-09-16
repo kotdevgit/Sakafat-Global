@@ -1,14 +1,10 @@
 import Image from "next/image";
-import Link from "next/link";
 import { PillarsLink } from "./pillars-link";
+import { LocaleLink } from "@/components/i18n/locale-link";
 import styles from "./site-footer.module.css";
 import { enquiryHref } from "@/lib/validation/contact";
-
-const groups = [
-  { title: "Explore", links: ["Pillars", "Programmes", "About"] },
-  { title: "Participate", links: ["Open pathways", "Creator network", "Partner with us"] },
-  { title: "Governance", links: ["Editorial Charter", "Privacy Notice", "Accessibility"] },
-];
+import { getLocale } from "@/lib/i18n/server";
+import { getDictionary, format } from "@/lib/i18n/dictionary";
 
 const socials = [
   { name: "Instagram", image: "insta-icon.png", width: 14 },
@@ -17,46 +13,88 @@ const socials = [
   { name: "X", image: "x-icon.png", width: 12 },
 ];
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const dict = getDictionary(await getLocale());
+  const { footer, common } = dict;
+
+  /** A destination that has no page yet is named but not linked. */
+  const pending = (label: string) => (
+    <span aria-disabled="true" title={`${label} — ${common.comingSoon}`}>{label}</span>
+  );
+
+  const columns = [
+    {
+      title: footer.explore.title,
+      items: [
+        <PillarsLink key="pillars">{footer.explore.pillars}</PillarsLink>,
+        <LocaleLink key="programmes" href="/programs">{footer.explore.programmes}</LocaleLink>,
+        <LocaleLink key="about" href="/about">{footer.explore.about}</LocaleLink>,
+      ],
+    },
+    {
+      title: footer.participate.title,
+      items: [
+        <LocaleLink key="pathways" href="/get-involved">{footer.participate.openPathways}</LocaleLink>,
+        pending(footer.participate.creatorNetwork),
+        <LocaleLink key="partner" href={enquiryHref("partnership", footer.partnershipSubject)}>
+          {footer.participate.partnerWithUs}
+        </LocaleLink>,
+      ],
+    },
+    {
+      title: footer.governance.title,
+      items: [
+        pending(footer.governance.editorialCharter),
+        pending(footer.governance.privacyNotice),
+        pending(footer.governance.accessibility),
+      ],
+    },
+  ];
+
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
         <div className={styles.grid}>
           <div className={styles.brand}>
-            <Link href="/" className={styles.logo} aria-label="Sakafat Global home">
-              <Image src="/images/footer/logo.svg" alt="Sakafat Global" width={128} height={89} />
-            </Link>
-            <p className={styles.description}>A Pakistan-rooted cultural media and production company connecting stories, dialogue, creativity and opportunity.</p>
-            <ul className={styles.socials} aria-label="Social media">
+            <LocaleLink href="/" className={styles.logo} aria-label={footer.homeAria}>
+              <Image src="/images/footer/logo.svg" alt={common.logoAlt} width={128} height={89} />
+            </LocaleLink>
+            <p className={styles.description}>{footer.description}</p>
+            <ul className={styles.socials} aria-label={footer.socials}>
               {socials.map((social) => (
                 <li key={social.name}>
-                  <button type="button" disabled aria-label={`${social.name} — coming soon`} title={`${social.name} — coming soon`}>
+                  <button
+                    type="button"
+                    disabled
+                    aria-label={`${social.name} — ${common.comingSoon}`}
+                    title={`${social.name} — ${common.comingSoon}`}
+                  >
                     <Image src={`/images/footer/${social.image}`} alt="" width={social.width} height={14} />
                   </button>
                 </li>
               ))}
             </ul>
           </div>
-          {groups.map((group) => (
-            <nav className={styles.column} aria-label={`Footer ${group.title}`} key={group.title}>
-              <h2>{group.title}</h2>
+          {columns.map((column) => (
+            <nav className={styles.column} aria-label={format(footer.columnAria, { title: column.title })} key={column.title}>
+              <h2>{column.title}</h2>
               <ul>
-                {group.links.map((label) => (
-                  <li key={label}>{label === "Pillars" ? <PillarsLink>{label}</PillarsLink> : label === "Open pathways" ? <Link href="/get-involved">{label}</Link> : label === "Partner with us" ? <Link href={enquiryHref("partnership", "Partnership enquiry")}>{label}</Link> : (label === "Programmes" || label === "About") ? <Link href={label === "About" ? "/about" : "/programs"}>{label}</Link> : <span aria-disabled="true" title={`${label} — coming soon`}>{label}</span>}</li>
+                {column.items.map((item, index) => (
+                  <li key={index}>{item}</li>
                 ))}
               </ul>
             </nav>
           ))}
           <div className={styles.column}>
-            <h2>Contact</h2>
+            <h2>{footer.contact.title}</h2>
             <address className={styles.contact}>
-              <p>info@sakafatglobal.com</p>
-              <p>111 222 3333 00</p>
-              <p>58 A2, Tipu Road, Gulberg 3<br />Lahore, Pakistan</p>
+              <p>{footer.contact.email}</p>
+              <p>{footer.contact.phone}</p>
+              <p>{footer.contact.addressLine1}<br />{footer.contact.addressLine2}</p>
             </address>
           </div>
         </div>
-        <p className={styles.copyright}>© 2026 Sakafat Global (Private) Limited. A private media and production company</p>
+        <p className={styles.copyright}>{footer.copyright}</p>
       </div>
     </footer>
   );

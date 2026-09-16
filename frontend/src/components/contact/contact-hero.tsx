@@ -1,15 +1,19 @@
 import Image from "next/image";
+import { getLocale } from "@/lib/i18n/server";
+import { getDictionary } from "@/lib/i18n/dictionary";
+import { enquiryFormId } from "@/lib/validation/contact";
 import styles from "./contact.module.css";
 
-export function ContactHero() {
+export async function ContactHero() {
+  const copy = getDictionary(await getLocale()).contact.hero;
   return (
     <section className={styles.hero} aria-labelledby="contact-heading">
       <Image src="/images/contact/hero/bg.png" alt="" fill preload sizes="100vw" className={styles.background} />
       <div className={styles.heroInner}>
-        <p className={styles.eyebrow}>Contact Us</p>
-        <h1 id="contact-heading">Start the right<br />conversation</h1>
-        <p className={styles.intro}>Tell us what brings you here, and we’ll route it straight to the team built to answer it.</p>
-        <a href="#enquiry-form" className={styles.getStarted}>Get Started</a>
+        <p className={styles.eyebrow}>{copy.eyebrow}</p>
+        <h1 id="contact-heading">{copy.headingLine1}<br />{copy.headingLine2}</h1>
+        <p className={styles.intro}>{copy.intro}</p>
+        <a href={`#${enquiryFormId}`} className={styles.getStarted}>{copy.getStarted}</a>
       </div>
     </section>
   );

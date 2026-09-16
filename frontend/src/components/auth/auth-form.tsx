@@ -1,7 +1,7 @@
 "use client";
-import Link from "next/link";
 import { useRef, useState } from "react";
 import { useAuth } from "./auth-provider";
+import { LocaleLink } from "@/components/i18n/locale-link";
 import {
   emailMaxLength,
   otpLength,
@@ -9,15 +9,19 @@ import {
   passwordMinLength,
   usernameMaxLength,
   filterAuthValue,
+  resolveAuthMessage,
   validateAuthField,
   type AuthField,
 } from "@/lib/validation/auth";
 import { filterInput } from "@/lib/validation/filter";
+import { useI18n } from "@/lib/i18n/context";
 import styles from "./auth.module.css";
 
 type Mode = "login" | "register" | "forgot-password";
 
 export function AuthForm({ mode }: { mode: Mode }) {
+  const { dict, t } = useI18n();
+  const copy = dict.auth;
   const { authenticated, setAuthenticated } = useAuth();
   const [busy, setBusy] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -42,12 +46,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
   // any rule tightening must still be able to log in.
   const context = mode === "login" ? "login" : "register";
 
-  function messageFor(field: AuthField, value: string, all: Record<string, string>) {
-    return validateAuthField(field, value, {
+  function messageFor(field: AuthField, value: string, all: Record<string, string>): string | null {
+    const issue = validateAuthField(field, value, {
       context,
       username: all.username ?? "",
       password: all.newPassword ?? all.password ?? "",
     });
+    return issue ? resolveAuthMessage(dict, issue) : null;
   }
 
   /** Wires one field for live validation. `key` is where its error is reported. */
@@ -107,14 +112,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
     // Only the details step has password fields; the code step that follows it is
     // still mode "register" and must not be held to this check.
     if (mode === "register" && registerStep === "details" && password !== data.get("confirmPassword")) {
-      showError("Your passwords don’t match.", { confirmPassword: "Enter the same password in both fields." });
+      showError(copy.messages.passwordsDoNotMatch, { confirmPassword: dict.validation.confirmPasswordMismatch });
       return;
     }
 
     if (mode === "forgot-password" && resetStep === "otp") {
       const newPassword = String(data.get("newPassword") || "");
       if (newPassword !== data.get("confirmPassword")) {
-        showError("Your passwords don’t match.", { confirmPassword: "Enter the same password in both fields." });
+        showError(copy.messages.passwordsDoNotMatch, { confirmPassword: dict.validation.confirmPasswordMismatch });
         return;
       }
     }
@@ -135,12 +140,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
           });
           const result = await response.json();
           if (!response.ok) {
-            showError(result.message || "Please check your email address and try again.", result.errors);
+            showError(result.message || copy.messages.checkEmailAddress, result.errors);
             return;
           }
           setResetEmail(email);
           setResetStep("otp");
-          setNotice(result.message || "A reset code has been sent to your email.");
+          setNotice(result.message || copy.messages.resetCodeSent);
           return;
         } else {
           const otp = String(data.get("otp") || "").trim();
@@ -152,7 +157,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           });
           const result = await response.json();
           if (!response.ok) {
-            showError(result.message || "Please check your code and new password.", result.errors);
+            showError(result.message || copy.messages.checkCodeAndPassword, result.errors);
             return;
           }
           setResetDone(true);
@@ -190,7 +195,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           form.reset();
           return;
         }
-        showError(result.message || "Please try again.", result.errors);
+        showError(result.message || copy.messages.tryAgain, result.errors);
         return;
       }
       if (enteringCode) setVerified(true);
@@ -199,13 +204,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
         // sending the visitor to a page that asks for the username again.
         setRegisteredUsername(username);
         setRegisterStep("otp");
-        setNotice(result.message || "Check your email for your verification code.");
+        setNotice(result.message || copy.messages.verificationCodeSent);
         setTouched({});
         setValues({});
         form.reset();
       } else setAuthenticated(true);
     } catch {
-      showError("We couldn’t connect. Check your connection and try again.");
+      showError(copy.messages.offline);
     } finally {
       setBusy(false);
     }
@@ -218,7 +223,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       registeredUsername ||
       (document.getElementById("username") as HTMLInputElement | null)?.value.trim();
     if (!username) {
-      showError("Enter your username first.");
+      showError(copy.messages.enterUsernameFirst);
       return;
     }
     setBusy(true);
@@ -231,9 +236,9 @@ export function AuthForm({ mode }: { mode: Mode }) {
       });
       const result = await response.json();
       if (response.ok) setNotice(result.message);
-      else showError(result.message || "Please try again.", result.errors);
+      else showError(result.message || copy.messages.tryAgain, result.errors);
     } catch {
-      showError("We couldn’t connect. Please try again.");
+      showError(copy.messages.offlineShort);
     } finally {
       setBusy(false);
     }
@@ -250,10 +255,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
         body: JSON.stringify({ email: resetEmail }),
       });
       const result = await response.json();
-      if (response.ok) setNotice("A new reset code has been sent to your email.");
-      else showError(result.message || "Please try again.", result.errors);
+      if (response.ok) setNotice(copy.messages.newResetCodeSent);
+      else showError(result.message || copy.messages.tryAgain, result.errors);
     } catch {
-      showError("We couldn’t connect. Please try again.");
+      showError(copy.messages.offlineShort);
     } finally {
       setBusy(false);
     }
@@ -267,7 +272,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       if (!response.ok) throw new Error();
       setAuthenticated(false);
     } catch {
-      showError("We couldn’t sign you out. Please try again.");
+      showError(copy.messages.signOutFailed);
     } finally {
       setBusy(false);
     }
@@ -278,14 +283,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
   if (authenticated && registerStep === "details") {
     return (
       <>
-        <p className={styles.eyebrow}>Your account</p>
-        <h1 id="auth-heading">You’re signed in.</h1>
-        <p className={styles.intro}>Continue exploring Sakafat’s stories and programmes.</p>
-        <Link className={styles.submit} href="/programs">
-          Explore programmes <span aria-hidden="true">→</span>
-        </Link>
+        <p className={styles.eyebrow}>{copy.signedIn.eyebrow}</p>
+        <h1 id="auth-heading">{copy.signedIn.heading}</h1>
+        <p className={styles.intro}>{copy.signedIn.body}</p>
+        <LocaleLink className={styles.submit} href="/programs">
+          {copy.signedIn.explore} <span className={styles.arrow} aria-hidden="true">→</span>
+        </LocaleLink>
         <button className={styles.textButton} disabled={busy} onClick={logout}>
-          {busy ? "Signing out…" : "Sign out"}
+          {busy ? copy.signedIn.signingOut : copy.signedIn.signOut}
         </button>
         <div role="alert" ref={feedback} tabIndex={-1} className={message ? styles.error : undefined}>
           {message}
@@ -297,12 +302,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
   if (verified) {
     return (
       <>
-        <p className={styles.eyebrow}>Email verified</p>
-        <h1 id="auth-heading">You’re ready.</h1>
-        <p className={styles.intro}>Your email is verified. Log in with your username and password to continue.</p>
-        <Link className={styles.submit} href="/login">
-          Continue to login <span aria-hidden="true">→</span>
-        </Link>
+        <p className={styles.eyebrow}>{copy.verified.eyebrow}</p>
+        <h1 id="auth-heading">{copy.verified.heading}</h1>
+        <p className={styles.intro}>{copy.verified.body}</p>
+        <LocaleLink className={styles.submit} href="/login">
+          {copy.verified.continue} <span className={styles.arrow} aria-hidden="true">→</span>
+        </LocaleLink>
       </>
     );
   }
@@ -310,12 +315,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
   if (resetDone) {
     return (
       <>
-        <p className={styles.eyebrow}>Password Updated</p>
-        <h1 id="auth-heading">Password reset successfully.</h1>
-        <p className={styles.intro}>Your password has been changed. You can now log in with your new credentials.</p>
-        <Link className={styles.submit} href="/login">
-          Continue to login <span aria-hidden="true">→</span>
-        </Link>
+        <p className={styles.eyebrow}>{copy.resetDone.eyebrow}</p>
+        <h1 id="auth-heading">{copy.resetDone.heading}</h1>
+        <p className={styles.intro}>{copy.resetDone.body}</p>
+        <LocaleLink className={styles.submit} href="/login">
+          {copy.resetDone.continue} <span className={styles.arrow} aria-hidden="true">→</span>
+        </LocaleLink>
       </>
     );
   }
@@ -329,37 +334,37 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
   return (
     <>
-      <nav className={styles.tabs} aria-label="Account navigation">
-        <Link href="/login" aria-current={mode === "login" ? "page" : undefined}>
-          Login
-        </Link>
-        <Link href="/register" aria-current={registering ? "page" : undefined}>
-          Register
-        </Link>
+      <nav className={styles.tabs} aria-label={copy.tabsAria}>
+        <LocaleLink href="/login" aria-current={mode === "login" ? "page" : undefined}>
+          {copy.login}
+        </LocaleLink>
+        <LocaleLink href="/register" aria-current={registering ? "page" : undefined}>
+          {copy.register}
+        </LocaleLink>
       </nav>
 
       <h1 id="auth-heading">
         {enteringCode
-          ? "Check your email."
+          ? copy.headings.checkEmail
           : isForgotPassword
           ? resetStep === "email"
-            ? "Reset your password."
-            : "Set new password."
+            ? copy.headings.resetPassword
+            : copy.headings.setNewPassword
           : registering
-          ? "Join Sakafat."
-          : "Welcome back."}
+          ? copy.headings.join
+          : copy.headings.welcomeBack}
       </h1>
 
       <p className={styles.intro}>
         {enteringCode
-          ? `Enter the six-digit code we sent to activate ${registeredUsername}.`
+          ? t(copy.intros.checkEmail, { username: registeredUsername })
           : isForgotPassword
           ? resetStep === "email"
-            ? "Enter your account email to receive a password reset verification code."
-            : `Enter the six-digit code sent to ${resetEmail} and choose a new password.`
+            ? copy.intros.resetPassword
+            : t(copy.intros.setNewPassword, { email: resetEmail })
           : registering
-          ? "Create your account and be part of the conversation."
-          : "Log in to your Sakafat Global account."}
+          ? copy.intros.join
+          : copy.intros.welcomeBack}
       </p>
 
       {/*
@@ -383,7 +388,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           {isForgotPassword ? (
             resetStep === "email" ? (
               <div className={styles.field}>
-                <label htmlFor="email">Email address</label>
+                <label htmlFor="email">{copy.fields.email}</label>
                 <input
                   id="email"
                   name="email"
@@ -404,7 +409,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
             ) : (
               <>
                 <div className={styles.field}>
-                  <label htmlFor="otp">Verification code</label>
+                  <label htmlFor="otp">{copy.fields.otp}</label>
                   <input
                     id="otp"
                     name="otp"
@@ -420,11 +425,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
                     aria-describedby="otp-hint"
                   />
                   <p id="otp-hint" className={errors.otp ? styles.fieldError : styles.hint}>
-                    {errors.otp || "Use the six-digit code sent to your email."}
+                    {errors.otp || copy.hints.otpEmail}
                   </p>
                 </div>
                 <div className={styles.field}>
-                  <label htmlFor="newPassword">New Password</label>
+                  <label htmlFor="newPassword">{copy.fields.newPassword}</label>
                   <div className={styles.password}>
                     <input
                       id="newPassword"
@@ -441,18 +446,18 @@ export function AuthForm({ mode }: { mode: Mode }) {
                     <button
                       type="button"
                       onClick={() => setVisible(!visible)}
-                      aria-label={visible ? "Hide password" : "Show password"}
+                      aria-label={visible ? copy.hidePassword : copy.showPassword}
                       aria-pressed={visible}
                     >
-                      {visible ? "Hide" : "Show"}
+                      {visible ? copy.hide : copy.show}
                     </button>
                   </div>
                   <p id="password-hint" className={errors.new_password ? styles.fieldError : styles.hint}>
-                    {errors.new_password || "Use at least 8 characters."}
+                    {errors.new_password || copy.hints.password}
                   </p>
                 </div>
                 <div className={styles.field}>
-                  <label htmlFor="confirmPassword">Confirm new password</label>
+                  <label htmlFor="confirmPassword">{copy.fields.confirmNewPassword}</label>
                   <input
                     id="confirmPassword"
                     name="confirmPassword"
@@ -480,7 +485,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
                   so it is never asked for again. */}
               {!enteringCode && (
               <div className={styles.field}>
-                <label htmlFor="username">Username</label>
+                <label htmlFor="username">{copy.fields.username}</label>
                 <input
                   id="username"
                   name="username"
@@ -503,7 +508,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
               {registering && (
                 <div className={styles.field}>
-                  <label htmlFor="email">Email address</label>
+                  <label htmlFor="email">{copy.fields.email}</label>
                   <input
                     id="email"
                     name="email"
@@ -525,7 +530,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
               {enteringCode ? (
                 <div className={styles.field}>
-                  <label htmlFor="otp">Verification code</label>
+                  <label htmlFor="otp">{copy.fields.otp}</label>
                   <input
                     id="otp"
                     name="otp"
@@ -541,13 +546,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
                     aria-describedby="otp-hint"
                   />
                   <p id="otp-hint" className={errors.otp ? styles.fieldError : styles.hint}>
-                    {errors.otp || "Use the six-digit code from your registration email."}
+                    {errors.otp || copy.hints.otpRegistration}
                   </p>
                 </div>
               ) : (
                 <>
                   <div className={styles.field}>
-                    <label htmlFor="password">Password</label>
+                    <label htmlFor="password">{copy.fields.password}</label>
                     <div className={styles.password}>
                       <input
                         id="password"
@@ -564,27 +569,27 @@ export function AuthForm({ mode }: { mode: Mode }) {
                       <button
                         type="button"
                         onClick={() => setVisible(!visible)}
-                        aria-label={visible ? "Hide password" : "Show password"}
+                        aria-label={visible ? copy.hidePassword : copy.showPassword}
                         aria-pressed={visible}
                       >
-                        {visible ? "Hide" : "Show"}
+                        {visible ? copy.hide : copy.show}
                       </button>
                     </div>
                     {(registering || errors.password) && (
                       <p id="password-hint" className={errors.password ? styles.fieldError : styles.hint}>
-                        {errors.password || "Use at least 8 characters."}
+                        {errors.password || copy.hints.password}
                       </p>
                     )}
                     {mode === "login" && (
                       <p className={styles.hint} style={{ marginTop: "6px" }}>
-                        <Link href="/forgot-password">Forgot password?</Link>
+                        <LocaleLink href="/forgot-password">{copy.forgotPassword}</LocaleLink>
                       </p>
                     )}
                   </div>
 
                   {registering && (
                     <div className={styles.field}>
-                      <label htmlFor="confirmPassword">Confirm password</label>
+                      <label htmlFor="confirmPassword">{copy.fields.confirmPassword}</label>
                       <input
                         id="confirmPassword"
                         name="confirmPassword"
@@ -611,49 +616,49 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
           <button className={styles.submit} type="submit">
             {busy
-              ? "Please wait…"
+              ? copy.submit.busy
               : isForgotPassword
               ? resetStep === "email"
-                ? "Send reset code"
-                : "Reset password"
+                ? copy.submit.sendResetCode
+                : copy.submit.resetPassword
               : enteringCode
-              ? "Verify email"
+              ? copy.submit.verifyEmail
               : registering
-              ? "Create account"
-              : "Login"}
-            <span aria-hidden="true">→</span>
+              ? copy.submit.createAccount
+              : copy.submit.login}
+            <span className={styles.arrow} aria-hidden="true">→</span>
           </button>
         </fieldset>
       </form>
 
       {enteringCode && (
         <button type="button" className={styles.textButton} disabled={busy} onClick={resend}>
-          Send a new code
+          {copy.sendNewCode}
         </button>
       )}
 
       {isForgotPassword && resetStep === "otp" && (
         <button type="button" className={styles.textButton} disabled={busy} onClick={resendResetCode}>
-          Resend reset code
+          {copy.resendResetCode}
         </button>
       )}
 
       <p className={styles.footnote}>
         {enteringCode ? (
           <>
-            Already verified? <Link href="/login">Log in</Link>
+            {copy.footnotes.alreadyVerified} <LocaleLink href="/login">{copy.footnotes.logIn}</LocaleLink>
           </>
         ) : isForgotPassword ? (
           <>
-            Remember your password? <Link href="/login">Log in</Link>
+            {copy.footnotes.rememberPassword} <LocaleLink href="/login">{copy.footnotes.logIn}</LocaleLink>
           </>
         ) : registering ? (
           <>
-            Already have an account? <Link href="/login">Log in</Link>
+            {copy.footnotes.alreadyHaveAccount} <LocaleLink href="/login">{copy.footnotes.logIn}</LocaleLink>
           </>
         ) : (
           <>
-            New to Sakafat? <Link href="/register">Create an account</Link>
+            {copy.footnotes.newToSakafat} <LocaleLink href="/register">{copy.footnotes.createAccount}</LocaleLink>
           </>
         )}
       </p>

@@ -100,3 +100,6 @@
 .facts dd { font: var(--type-card); letter-spacing: 0; }
 .pillarLink { font: var(--type-button); letter-spacing: 0; }
 .back { font: var(--type-small); letter-spacing: 0; }
+
+/* The arrows point the way the language runs; "back" flips with them. */
+[dir="rtl"] .arrow { transform: scaleX(-1); }

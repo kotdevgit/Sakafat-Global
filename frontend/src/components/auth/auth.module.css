@@ -19,8 +19,8 @@
 .field input { width: 100%; min-width: 0; min-height: 50px; padding: 12px 14px; border: 1px solid #d5d7d4; border-radius: 10px; font: var(--type-body); background: #fff; color: #192b50; }
 .field input[aria-invalid="true"] { border-color: #9c2940; }
 .password { position: relative; }
-.password input { padding-right: 72px; }
-.password button { position: absolute; right: 5px; top: 4px; bottom: 4px; padding: 0 10px; background: transparent; border: 0; color: #28666d; font: var(--type-smallBold); cursor: pointer; }
+.password input { padding-inline-end: 72px; }
+.password button { position: absolute; inset-inline-end: 5px; top: 4px; bottom: 4px; padding: 0 10px; background: transparent; border: 0; color: #28666d; font: var(--type-smallBold); cursor: pointer; }
 .hint { color: #62696c; font: var(--type-caption); margin: 8px 0 0; }
 .code { letter-spacing: .3em; }
 .submit { display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; min-height: 52px; border: 0; border-radius: 999px; background: #ffbf32; color: #192b50; font: var(--type-button); text-decoration: none; cursor: pointer; margin-top: 8px; padding: 12px 20px; }
@@ -38,3 +38,6 @@
 @media(max-width:359px) { .page { padding: 24px 12px; } .card,.story { padding: 24px 20px; } }
 
 .notice { padding: 12px; border: 1px solid #9bc4bf; border-radius: 10px; background: #eef8f5; color: #205c58; font: var(--type-small); }
+
+/* The submit arrow points the way the language runs. */
+[dir="rtl"] .arrow { display: inline-block; transform: scaleX(-1); }

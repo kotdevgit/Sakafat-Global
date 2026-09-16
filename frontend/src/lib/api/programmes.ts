@@ -1,4 +1,5 @@
 import { getApiBaseUrl } from "./config";
+import type { Dictionary } from "@/lib/i18n/dictionary";
 import { missingApiBaseUrl, reportUnavailable } from "./unavailable";
 
 /** Mirrors Django's Programme serializer; Django remains the authority for these values. */
@@ -34,11 +35,20 @@ export function matchesFilter(programme: Programme, filter: ProgrammeFilter): bo
   return filter === "All Programmes" || filterOf(programme) === filter;
 }
 
-/** Only "Open" programmes have an action today; the rest link to their details. */
-export function actionLabel(programme: Programme): string {
+/**
+ * Only "Open" programmes have an action today; the rest link to their details.
+ * The filter names double as their own identifiers, so the words shown for them
+ * are looked up rather than stored — a filter is the same filter in both
+ * languages, it just reads differently.
+ */
+export function actionLabel(programme: Programme, dict: Dictionary): string {
   return programme.status === "open" || programme.status === "register_interest"
-    ? "Register Interest"
-    : "View Details";
+    ? dict.programs.actions.register_interest
+    : dict.programs.actions.closed;
+}
+
+export function filterLabel(filter: ProgrammeFilter, dict: Dictionary): string {
+  return dict.programs.discovery.filters[filter];
 }
 
 function toProgramme(entry: Record<string, unknown>, base: string): Programme | null {

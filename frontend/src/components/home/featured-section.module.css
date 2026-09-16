@@ -10,7 +10,7 @@
 .card { overflow: hidden; border: 1px solid #fff; border-radius: 30px; background: #fff; box-shadow: 0 9px 12px #001b2433; }
 .media { position: relative; aspect-ratio: 400 / 222; background: #173d42; }
 .thumbnail { object-fit: cover; }
-.play { position: absolute; right: 18px; bottom: 0; display: grid; place-items: center; width: 44px; height: 44px; padding: 6px; border: 0; border-radius: 999px; background: transparent; }
+.play { position: absolute; inset-inline-end: 18px; bottom: 0; display: grid; place-items: center; width: 44px; height: 44px; padding: 6px; border: 0; border-radius: 999px; background: transparent; }
 .play img { display: block; }
 .body { min-height: 174px; padding: 14px 14px 30px; }
 .category { margin: 0 0 12px;   }
@@ -45,3 +45,6 @@
 .category { font: var(--type-caption); letter-spacing: 0; }
 .body h3 { font: var(--type-card); letter-spacing: 0; }
 .description { font: var(--type-small); letter-spacing: 0; }
+
+/* The arrow points the way the language runs. */
+[dir="rtl"] .arrow { transform: scaleX(-1); }

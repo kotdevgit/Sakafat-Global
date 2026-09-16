@@ -1,6 +1,6 @@
 .hero { background: linear-gradient(100deg, #112b53, #003e48 52%, #92203e); color: #fff; }
 .heroInner { position: relative; max-width: 1280px; margin-inline: auto; padding: 110px 60px; overflow: hidden; }
-.artwork { position: absolute; right: 0; bottom: 20px; width: min(43%, 460px); height: auto; opacity: .65; pointer-events: none; }
+.artwork { position: absolute; inset-inline-end: 0; bottom: 20px; width: min(43%, 460px); height: auto; opacity: .65; pointer-events: none; }
 .heroContent { position: relative; }
 .breadcrumb { margin-bottom: 14px; color: #ffbf32; font: var(--type-label); text-transform: uppercase; }
 .breadcrumb a { color: inherit; text-decoration: none; }
@@ -54,3 +54,6 @@
   .next { padding: 56px 24px; }
   .nextCard { padding: 32px 24px; }
 }
+
+/* The arrow points the way the language runs. */
+[dir="rtl"] .arrow { transform: scaleX(-1); }

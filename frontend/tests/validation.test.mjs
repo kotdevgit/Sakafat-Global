@@ -1,21 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import vm from 'node:vm';
-import ts from 'typescript';
+import { loadModule } from './helpers/load.mjs';
 
-const load = path => {
-  const exports = {};
-  const code = ts.transpileModule(
-    readFileSync(new URL(path, import.meta.url), 'utf8'),
-    { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
-  ).outputText;
-  vm.runInNewContext(code, { exports, Object, Array, RegExp, URL });
-  return exports;
-};
-
-const contact = load('../src/lib/validation/contact.ts');
-const auth = load('../src/lib/validation/auth.ts');
+const contact = loadModule('lib/validation/contact.ts');
+const auth = loadModule('lib/validation/auth.ts');
 
 test('a name may not contain digits or symbols', () => {
   for (const value of ['Amina 4', 'Amina<script>', 'Amina_Rahim', '123']) {

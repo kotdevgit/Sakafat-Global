@@ -1,34 +1,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import vm from 'node:vm';
-import ts from 'typescript';
 import { NextRequest } from 'next/server.js';
+import { loadModule } from './helpers/load.mjs';
 
-const require = createRequire(import.meta.url);
-const compile = path => ts.transpileModule(
-  readFileSync(new URL(path, import.meta.url), 'utf8'),
-  { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
-).outputText;
-
-const code = compile('../src/app/api/auth/[action]/route.ts');
-
-/** The route shares its field rules with the browser form; load the real module. */
-function validation() {
-  const exports = {};
-  vm.runInNewContext(compile('../src/lib/validation/auth.ts'), { exports, Object, RegExp, Array });
-  return exports;
-}
+/**
+ * The route shares its field rules with the browser form and its wording with
+ * the rest of the site, so both are loaded for real; only Django's address is
+ * stubbed, and only so the test can assert what is sent there.
+ */
 function handler(fetch, configured = true) {
-  const exports = {};
-  vm.runInNewContext(code, { exports, require: name => {
-    if (name === '@/lib/api/config') return { getApiBaseUrl: () => { if (!configured) throw Error('not configured'); return 'http://django.test/api/'; } };
-    if (name === '@/lib/validation/auth') return validation();
-    return require(name);
-  }, fetch, URL, Buffer, AbortSignal, process: { env: { NODE_ENV: 'production' } } });
-  return exports;
+  return loadModule('app/api/auth/[action]/route.ts', name => {
+    if (name === '@/lib/api/config') {
+      return { getApiBaseUrl: () => { if (!configured) throw Error('not configured'); return 'http://django.test/api/'; } };
+    }
+    return undefined;
+  }, { fetch, Buffer, AbortSignal, process: { env: { NODE_ENV: 'production' } } });
 }
+
 const context = action => ({ params: Promise.resolve({ action }) });
 function request(body, origin = 'https://sakafat.test') {
   return new NextRequest('https://sakafat.test/api/auth/login', { method: 'POST', headers: { origin, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });

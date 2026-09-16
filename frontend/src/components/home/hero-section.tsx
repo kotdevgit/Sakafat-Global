@@ -1,7 +1,9 @@
 import Image from "next/image";
-import Link from "next/link";
+import { LocaleLink } from "@/components/i18n/locale-link";
 import { PillarsLink } from "@/components/layout/pillars-link";
 import { getHeroEpisode, heroImageHeight, heroImageWidth, heroPhotoUrl } from "@/lib/api/episodes";
+import { getLocale } from "@/lib/i18n/server";
+import { format, getDictionary } from "@/lib/i18n/dictionary";
 import styles from "./hero-section.module.css";
 
 type HeroSectionProps = {
@@ -21,11 +23,12 @@ function PlayIcon() {
 
 /** Destinations stay unavailable until their sections or episode URL are ready. */
 export async function HeroSection({ pillarsHref, participateHref, episodeHref }: HeroSectionProps) {
-  const heroEpisode = await getHeroEpisode();
+  const [heroEpisode, dict] = await Promise.all([getHeroEpisode(), getLocale().then(getDictionary)]);
+  const copy = dict.home.hero;
   const episodeUrl = episodeHref ?? heroEpisode?.videoUrl ?? null;
   const episodeLabel = heroEpisode
-    ? `Watch the latest Sakafat Global episode: ${heroEpisode.title}`
-    : "Watch the latest Sakafat Global episode";
+    ? format(copy.watchLatestNamed, { title: heroEpisode.title })
+    : copy.watchLatest;
   // The supplied artwork already has the "Latest Episode" pill drawn into it, so the
   // markup pill is only rendered over an episode photo, never over that fallback.
   // A photo smaller than the slot is still used; it just renders soft.
@@ -46,25 +49,23 @@ export async function HeroSection({ pillarsHref, participateHref, episodeHref }:
             loading="eager"
           />
           <div className={styles.content}>
-            <p className={styles.eyebrow}>SAKAFAT GLOBAL</p>
+            <p className={styles.eyebrow}>{copy.eyebrow}</p>
             <h1 id="hero-heading" className={styles.heading}>
-              CULTURE AS A<br />SOCIOECONOMIC FORCE.
+              {copy.headingLine1}<br />{copy.headingLine2}
             </h1>
-            <p className={styles.description}>
-              A Pakistan-rooted media and production house Storytelling. Dialogue. Creative Production. Opportunity.
-            </p>
+            <p className={styles.description}>{copy.description}</p>
             <div className={styles.actions}>
               {pillarsHref === "/#pillars" ? (
-                <PillarsLink className={styles.primary}>Explore 5 Pillar</PillarsLink>
+                <PillarsLink className={styles.primary}>{copy.explorePillars}</PillarsLink>
               ) : pillarsHref ? (
-                <Link className={styles.primary} href={pillarsHref}>Explore 5 Pillar</Link>
+                <LocaleLink className={styles.primary} href={pillarsHref}>{copy.explorePillars}</LocaleLink>
               ) : (
-                <button className={styles.primary} type="button" disabled title="Pillars — coming soon">Explore 5 Pillar</button>
+                <button className={styles.primary} type="button" disabled title={copy.pillarsComingSoon}>{copy.explorePillars}</button>
               )}
               {participateHref ? (
-                <Link className={styles.secondary} href={participateHref}>Be Part of the signal</Link>
+                <LocaleLink className={styles.secondary} href={participateHref}>{copy.participate}</LocaleLink>
               ) : (
-                <button className={styles.secondary} type="button" disabled title="Participation — coming soon">Be Part of the signal</button>
+                <button className={styles.secondary} type="button" disabled title={copy.participationComingSoon}>{copy.participate}</button>
               )}
             </div>
           </div>
@@ -76,7 +77,7 @@ export async function HeroSection({ pillarsHref, participateHref, episodeHref }:
               <Image
                 className={styles.episodePhoto}
                 src={episodePhotoUrl as string}
-                alt={episodePhoto.imageAlt || `Still from ${episodePhoto.title}`}
+                alt={episodePhoto.imageAlt || format(copy.stillFrom, { title: episodePhoto.title })}
                 width={heroImageWidth}
                 height={heroImageHeight}
                 sizes="(max-width: 767px) calc(100vw - 56px), (max-width: 1100px) 43vw, 520px"
@@ -84,11 +85,11 @@ export async function HeroSection({ pillarsHref, participateHref, episodeHref }:
               />
               {episodeUrl ? (
                 <a className={styles.episodePill} href={episodeUrl} aria-label={episodeLabel}>
-                  Latest Episode<PlayIcon />
+                  {copy.latestEpisode}<PlayIcon />
                 </a>
               ) : (
-                <span className={styles.episodePill} aria-disabled="true" title="Latest episode — link coming soon">
-                  Latest Episode<PlayIcon />
+                <span className={styles.episodePill} aria-disabled="true" title={copy.latestEpisodeComingSoon}>
+                  {copy.latestEpisode}<PlayIcon />
                 </span>
               )}
             </div>
@@ -97,7 +98,7 @@ export async function HeroSection({ pillarsHref, participateHref, episodeHref }:
               <Image
                 className={styles.episode}
                 src="/images/hero/image.png"
-                alt="Two speakers in conversation on the latest Sakafat Global episode"
+                alt={copy.fallbackEpisodeAlt}
                 width={heroImageWidth}
                 height={heroImageHeight}
                 sizes="(max-width: 767px) calc(100vw - 56px), (max-width: 1100px) 43vw, 520px"
@@ -106,7 +107,7 @@ export async function HeroSection({ pillarsHref, participateHref, episodeHref }:
               {episodeUrl ? (
                 <a className={styles.episodeLink} href={episodeUrl} aria-label={episodeLabel} />
               ) : (
-                <span className={styles.episodeLink} role="link" aria-disabled="true" aria-label="Latest episode — link coming soon" title="Latest episode — link coming soon" />
+                <span className={styles.episodeLink} role="link" aria-disabled="true" aria-label={copy.latestEpisodeComingSoon} title={copy.latestEpisodeComingSoon} />
               )}
             </>
           )}

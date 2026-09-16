@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  background: #faf9f6;
+  color: #24251f;
+  font-family: Arial, Helvetica, sans-serif;
+}
+body {
+  margin: 0;
+  font-family: var(--font-poppins), Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: var(--leading-relaxed);
+  --section-size: 42px;
+  --section-leading: 60px;
+  --hero-size: 52px;
+  --hero-leading: 65px;
+  --quote-heading-size: 36px;
+  /*
+    Named rather than repeated, because Urdu set in Nastaliq needs far more room
+    between lines than a Latin face does and overrides them all at once below.
+  */
+  --leading-tight: 1.25;
+  --leading-snug: 1.4;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.61;
+  --type-hero: normal 700 var(--hero-size)/var(--hero-leading) var(--font-montserrat), Arial, sans-serif;
+  --type-section: normal 700 var(--section-size)/var(--section-leading) var(--font-montserrat), Arial, sans-serif;
+  --type-card: normal 700 18px/var(--leading-snug) var(--font-poppins), Arial, sans-serif;
+  --type-body: normal 400 16px/var(--leading-relaxed) var(--font-poppins), Arial, sans-serif;
+  --type-small: normal 400 14px/var(--leading-relaxed) var(--font-poppins), Arial, sans-serif;
+  --type-smallBold: normal 700 14px/var(--leading-normal) var(--font-poppins), Arial, sans-serif;
+  --type-label: normal 500 14px/var(--leading-normal) var(--font-poppins), Arial, sans-serif;
+  --type-caption: normal 400 12px/var(--leading-normal) var(--font-poppins), Arial, sans-serif;
+  --type-button: normal 700 16px/var(--leading-snug) var(--font-poppins), Arial, sans-serif;
+  --type-compact: normal 500 12px/var(--leading-normal) var(--font-poppins), Arial, sans-serif;
+  --type-quote: normal 400 20px/var(--leading-normal) var(--font-poppins), Arial, sans-serif;
+  --type-quoteHeading: normal 700 var(--quote-heading-size)/var(--leading-tight) var(--font-montserrat), Arial, sans-serif;
+}
+
+/*
+  Urdu is written in Nastaliq, a sloping script whose descenders run well below
+  the baseline and whose letters sit lower in the em box than a Latin face. It
+  needs roughly a third more leading before lines stop colliding, and a little
+  more size to read at the same apparent weight. Both Latin families are
+  redirected at once so every --type-* token follows without being restated —
+  Poppins and Montserrat have no Arabic-script coverage at all.
+*/
+[lang="ur"] body {
+  --font-poppins: var(--font-nastaliq);
+  --font-montserrat: var(--font-nastaliq);
+  --leading-tight: 1.75;
+  --leading-snug: 1.9;
+  --leading-normal: 2;
+  --leading-relaxed: 2.05;
+  --section-leading: 1.7;
+  --hero-leading: 1.6;
+  font-family: var(--font-nastaliq), serif;
+}
+
+/*
+  Urdu is read right to left, so text inputs and their placeholders start on the
+  right — but a phone number, an email address, a URL, a password, a username and
+  a verification code are written left to right in every language, and must not
+  be reordered by the paragraph direction. The username and code fields only
+  accept ASCII, so they belong here even though they are plain text inputs.
+*/
+[lang="ur"] input[type="email"],
+[lang="ur"] input[type="tel"],
+[lang="ur"] input[type="url"],
+[lang="ur"] input[type="password"],
+[lang="ur"] input[name="username"],
+[lang="ur"] input[name="otp"] {
+  direction: ltr;
+  text-align: start;
+}
+
+@media (max-width: 1023px) {
+  body { --section-size: 34px; --section-leading: 1.4; --hero-size: 44px; --hero-leading: 1.25; --quote-heading-size: 28px; }
+  [lang="ur"] body { --section-leading: 1.7; --hero-leading: 1.6; }
+}
+@media (max-width: 639px) {
+  body { --section-size: 28px; --section-leading: 1.4; --hero-size: clamp(30px, 8vw, 40px); --hero-leading: 1.25; --quote-heading-size: 26px; }
+  [lang="ur"] body { --section-leading: 1.7; --hero-leading: 1.6; }
+}

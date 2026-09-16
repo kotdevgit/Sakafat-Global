@@ -13,7 +13,7 @@
   gap: 35px;
 }
 .copy { position: relative; padding-top: 190px; padding-bottom: 90px; }
-.artwork { position: absolute; top: 18px; left: 0; width: 733px; max-width: none; height: auto; opacity: 0.6; pointer-events: none; }
+.artwork { position: absolute; top: 18px; inset-inline-start: 0; width: 733px; max-width: none; height: auto; opacity: 0.6; pointer-events: none; }
 .content { position: relative; z-index: 1; }
 .eyebrow { margin: 0 0 26px; color: #84232e; font-size: 20px; line-height: 1.4; font-weight: 700; }
 .heading { margin: 0; font-family: var(--font-montserrat), Arial, sans-serif; font-size: 36px; line-height: 1; letter-spacing: 0.01em; font-weight: 800; font-style: normal; }
@@ -24,7 +24,7 @@
 .secondary { min-width: 196px; border: 1px solid #111; background: #fff; color: #050505; }
 .actions button:disabled { cursor: not-allowed; }
 .visual { position: relative; align-self: end; margin-bottom: 10px; width: 100%; max-width: 520px; isolation: isolate; }
-.backCard { position: absolute; z-index: -1; top: 0; left: 13%; width: 90%; height: 91%; border: 1px solid #101919; border-radius: 34px; background: linear-gradient(155deg, #306a72 5%, #485b64 47%, #752d37 100%); transform: rotate(10deg); box-shadow: 10px 18px 26px #0003; }
+.backCard { position: absolute; z-index: -1; top: 0; inset-inline-start: 13%; width: 90%; height: 91%; border: 1px solid #101919; border-radius: 34px; background: linear-gradient(155deg, #306a72 5%, #485b64 47%, #752d37 100%); transform: rotate(10deg); box-shadow: 10px 18px 26px #0003; }
 .episode { display: block; width: 100%; height: auto; }
 /*
  * The supplied artwork is a 520x594 canvas whose card body occupies only 463x537,
@@ -33,6 +33,12 @@
  * the card body was rather than filling the whole box.
  */
 .episodeFrame { position: relative; width: 100%; aspect-ratio: 520 / 594; }
+/*
+  Deliberately physical, not logical. These three sit on top of the supplied
+  artwork, which is a bitmap and does not mirror: the pill on /images/hero/image.png
+  is drawn into the picture, and .episodeLink is the invisible hit area over it.
+  Flipping them in Urdu would move them off what they sit on.
+*/
 .episodePhoto { position: absolute; left: 2.69%; top: 0.67%; width: 89.04%; height: 90.4%; object-fit: cover; object-position: center; border-radius: 28px; box-shadow: 8px 14px 24px #00000038; }
 /* Replaces the label drawn into the default artwork, as real text. */
 /* 53/594 of the frame, matching the pill drawn into the supplied artwork; the
@@ -69,7 +75,7 @@
 @media (max-width: 767px) {
   .inner { display: flex; flex-direction: column; gap: 46px; min-height: 0; padding: 38px 24px 36px; }
   .copy { padding: 0; }
-  .artwork { top: -22px; left: -12px; width: calc(100% + 24px); opacity: 0.6; }
+  .artwork { top: -22px; inset-inline-start: -12px; width: calc(100% + 24px); opacity: 0.6; }
   .eyebrow { font-size: 15px; margin-bottom: 20px; }
   .heading { font-size: clamp(27px, 5.8vw, 36px); }
   .description { max-width: 520px; margin-top: 22px;   }
@@ -86,3 +92,10 @@
 
 /* Shared typography roles; responsive sizes are defined in globals.css. */
 .description { font: var(--type-body); letter-spacing: 0; }
+
+/*
+  The tilted card behind the episode leans away from the copy, so its angle and
+  the shadow it throws mirror with the layout.
+*/
+[dir="rtl"] .backCard { transform: rotate(-10deg); box-shadow: -10px 18px 26px #0003; }
+[dir="rtl"] .episodePhoto { box-shadow: -8px 14px 24px #00000038; }

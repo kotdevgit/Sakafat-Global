@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ContactHero } from "@/components/contact/contact-hero";
 import { ContactForm } from "@/components/contact/contact-form";
+import { getLocale } from "@/lib/i18n/server";
+import { getDictionary } from "@/lib/i18n/dictionary";
 
-export const metadata: Metadata = {
-  title: "Contact Us | Sakafat Global",
-  description: "Start the right conversation with Sakafat Global. Enquiries about programmes, creative collaboration, and partnerships.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getDictionary(await getLocale()).meta.contact;
+}
 
 export default function ContactPage() {
   return (

@@ -66,3 +66,6 @@
 .pillar { font: var(--type-caption); letter-spacing: 0; }
 .description { font: var(--type-small); letter-spacing: 0; }
 .action, .explore { font: var(--type-compact); letter-spacing: 0; }
+
+/* The arrow points the way the language runs. */
+[dir="rtl"] .arrow { transform: scaleX(-1); }

@@ -1,6 +1,6 @@
 .hero { background: radial-gradient(ellipse at 85% 25%, #58463788, transparent 60%), linear-gradient(115deg, #303748, #30283c 55%, #303c4b); color: #f3f8f9; }
 .heroInner { position: relative; max-width: 1280px; margin-inline: auto; padding: 150px 60px 60px; overflow: hidden; }
-.artwork { position: absolute; right: -10px; top: 60px; width: min(58%, 600px); height: auto; opacity: .3; pointer-events: none; }
+.artwork { position: absolute; inset-inline-end: -10px; top: 60px; width: min(58%, 600px); height: auto; opacity: .3; pointer-events: none; }
 .heroCopy, .guidance { position: relative; }
 .heroCopy h1 { margin: 0; font: var(--type-hero); letter-spacing: 0; }
 .heroCopy p { max-width: 670px; margin: 16px 0 0; font: var(--type-body); }
@@ -18,8 +18,8 @@
 .accordion h3 { margin: 0; color: #192e56; font: var(--type-card); }
 .plus { position: relative; display: block; flex-shrink: 0; width: 18px; height: 18px; }
 .plus::before, .plus::after { content: ""; position: absolute; background: currentColor; }
-.plus::before { width: 18px; height: 2px; top: 8px; left: 0; }
-.plus::after { height: 18px; width: 2px; top: 0; left: 8px; }
+.plus::before { width: 18px; height: 2px; top: 8px; inset-inline-start: 0; }
+.plus::after { height: 18px; width: 2px; top: 0; inset-inline-start: 8px; }
 .accordion[open] .plus::after { display: none; }
 .panel { padding: 0 56px 32px; }
 .panel p { margin: 0 0 20px; color: #66716e; font: var(--type-body); }
@@ -53,3 +53,6 @@
   .participation { padding: 48px 24px 64px; }
   .noteCopy { padding: 32px 24px; }
 }
+
+/* The arrow points the way the language runs. */
+[dir="rtl"] .arrow { transform: scaleX(-1); }

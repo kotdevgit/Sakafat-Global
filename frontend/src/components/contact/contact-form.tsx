@@ -1,27 +1,46 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { contactFieldNames, contactFields, enquiryFormId, enquiryOptions, filterValue, validateContact, validateField, type ContactField } from "@/lib/validation/contact";
+import {
+  contactFieldNames,
+  contactFields,
+  enquiryFormId,
+  enquiryOptions,
+  filterValue,
+  resolveContactMessage,
+  validateContact,
+  validateField,
+  type ContactField,
+} from "@/lib/validation/contact";
 import { filterInput } from "@/lib/validation/filter";
+import { useI18n } from "@/lib/i18n/context";
 import styles from "./contact.module.css";
 
-const noFile = "No file selected";
-
-
+/*
+  The character counters are wrapped in dir="ltr" because "0 / 100" is a numeric
+  expression, not prose: the slash between the numbers is a neutral character, so
+  an Urdu page would otherwise reorder it to "100 / 0" and reverse its meaning.
+  The paragraph itself stays in the page direction, so it still sits at the end
+  of the line — the left, in Urdu.
+*/
 
 /** Field errors are keyed by the browser field names used in this form. */
 type Errors = Record<string, string>;
 
 export function ContactForm() {
+  const { dict } = useI18n();
+  const copy = dict.contact.form;
+  const options = useMemo(() => enquiryOptions(dict), [dict]);
+
   // Pathway and programme pages link here with the enquiry already framed, so the
   // visitor lands on a form that knows why they came.
   const params = useSearchParams();
   const requestedType = params.get("type") ?? "";
-  const presetType = enquiryOptions.some(([value]) => value === requestedType) ? requestedType : "";
+  const presetType = options.some(([value]) => value === requestedType) ? requestedType : "";
   const presetSubject = filterValue("subject", params.get("subject") ?? "");
 
-  const [fileName, setFileName] = useState(noFile);
+  const [fileName, setFileName] = useState(copy.noFile);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
@@ -88,7 +107,8 @@ export function ContactForm() {
 
   function check(field: ContactField, value: string) {
     setErrors((current) => {
-      const message = validateField(field, value);
+      const issue = validateField(field, value);
+      const message = issue ? resolveContactMessage(dict, field, issue) : "";
       if (current[field] === message || (!current[field] && !message)) return current;
       const next = { ...current };
       if (message) next[field] = message;
@@ -120,7 +140,6 @@ export function ContactForm() {
     };
   }
 
-
   function showError(text: string, fields: Errors = {}) {
     setSent(false);
     setMessage(text);
@@ -138,13 +157,18 @@ export function ContactForm() {
 
     // Check everything before going near the network, and reveal errors on fields
     // the visitor never focused so nothing fails silently.
-    const found = validateContact(
+    const issues = validateContact(
       Object.fromEntries(contactFieldNames.map((field) => [field, String(data.get(field) ?? "")])),
     );
-    if (data.get("consent") !== "true") found.consent = "Please confirm you agree before sending.";
+    const found: Errors = {};
+    for (const field of contactFieldNames) {
+      const issue = issues[field];
+      if (issue) found[field] = resolveContactMessage(dict, field, issue);
+    }
+    if (data.get("consent") !== "true") found.consent = dict.validation.consentRequired;
     setTouched(Object.fromEntries(contactFieldNames.map((field) => [field, true])));
     if (Object.keys(found).length > 0) {
-      showError("Please check the highlighted fields.", found);
+      showError(copy.checkFields, found);
       return;
     }
 
@@ -155,18 +179,18 @@ export function ContactForm() {
       const response = await fetch("/api/contact", { method: "POST", body: data });
       const result = await response.json();
       if (!response.ok) {
-        showError(result.message || "Please try again.", result.errors ?? {});
+        showError(result.message || copy.tryAgain, result.errors ?? {});
         return;
       }
       form.reset();
-      setFileName(noFile);
+      setFileName(copy.noFile);
       setTouched({});
       setLengths({});
       setSent(true);
       setMessage(result.message);
       requestAnimationFrame(() => feedback.current?.focus());
     } catch {
-      showError("We couldn’t connect. Check your connection and try again.");
+      showError(copy.offline);
     } finally {
       setBusy(false);
     }
@@ -177,31 +201,31 @@ export function ContactForm() {
       <div className={styles.inner}>
         <header className={styles.enquiryHeader}>
           <div>
-            <p className={styles.enquiryEyebrow}>ENQUIRY ROUTINE</p>
-            <h2 id="enquiry-heading">Choose the closest enquiry type.</h2>
+            <p className={styles.enquiryEyebrow}>{copy.eyebrow}</p>
+            <h2 id="enquiry-heading">{copy.heading}</h2>
           </div>
-          <p className={styles.enquiryIntro}>This keeps the form relevant and avoids unnecessary data collection.</p>
+          <p className={styles.enquiryIntro}>{copy.intro}</p>
         </header>
         <form id={enquiryFormId} ref={formRef} method="post" className={styles.form} tabIndex={-1} onSubmit={submit} aria-busy={busy} aria-describedby="submission-note">
           <div ref={feedback} tabIndex={-1} role={sent ? "status" : "alert"} className={message ? (sent ? styles.notice : styles.error) : undefined}>{message}</div>
           <fieldset disabled={busy} className={styles.fieldset}>
           <div className={styles.fields}>
-            <div><label className={styles.srOnly} htmlFor="full-name">Full Name</label><input id="full-name" name="fullName" autoComplete="name" placeholder="Full Name" required {...liveProps("fullName")} />{errors.fullName && <p id="fullName-error" className={styles.fieldError}>{errors.fullName}</p>}</div>
-            <div><label className={styles.srOnly} htmlFor="organisation">Organisation</label><input id="organisation" name="organisation" autoComplete="organization" placeholder="Organisation" {...liveProps("organisation")} />{errors.organisation && <p id="organisation-error" className={styles.fieldError}>{errors.organisation}</p>}</div>
-            <div><label className={styles.srOnly} htmlFor="email">Email address</label><input id="email" name="email" type="email" autoComplete="email" placeholder="Email address" required {...liveProps("email")} />{errors.email && <p id="email-error" className={styles.fieldError}>{errors.email}</p>}</div>
-            <div><label className={styles.srOnly} htmlFor="phone">Phone number</label><input id="phone" name="phone" type="tel" autoComplete="tel" placeholder="Phone number" required {...liveProps("phone")} />{errors.phone && <p id="phone-error" className={styles.fieldError}>{errors.phone}</p>}</div>
-            <div><label className={styles.srOnly} htmlFor="location">Country and city</label><input id="location" name="location" placeholder="Country and city" {...liveProps("location")} />{errors.location && <p id="location-error" className={styles.fieldError}>{errors.location}</p>}</div>
-            <div><label className={styles.srOnly} htmlFor="enquiry-type">Enquiry type</label><select id="enquiry-type" name="enquiryType" defaultValue={presetType} required {...liveProps("enquiryType")}><option value="" disabled>Enquiry type</option>{enquiryOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>{errors.enquiryType && <p id="enquiryType-error" className={styles.fieldError}>{errors.enquiryType}</p>}</div>
-            <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="subject">Subject</label><input id="subject" name="subject" placeholder="Subject" defaultValue={presetSubject} required {...liveProps("subject")} /><p className={styles.counter} aria-live="polite">{lengths.subject ?? 0} / {contactFields.subject.maxLength}</p>{errors.subject && <p id="subject-error" className={styles.fieldError}>{errors.subject}</p>}</div>
-            <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="message">Message</label><textarea id="message" name="message" placeholder="Message" rows={4} required {...liveProps("message")} /><p className={styles.counter} aria-live="polite">{lengths.message ?? 0} / {contactFields.message.maxLength}</p>{errors.message && <p id="message-error" className={styles.fieldError}>{errors.message}</p>}</div>
-            <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="portfolio">Relevant link or portfolio</label><input id="portfolio" name="portfolio" type="url" placeholder="Relevant link or portfolio" {...liveProps("portfolio")} />{errors.portfolio && <p id="portfolio-error" className={styles.fieldError}>{errors.portfolio}</p>}</div>
+            <div><label className={styles.srOnly} htmlFor="full-name">{copy.labels.fullName}</label><input id="full-name" name="fullName" autoComplete="name" placeholder={copy.labels.fullName} required {...liveProps("fullName")} />{errors.fullName && <p id="fullName-error" className={styles.fieldError}>{errors.fullName}</p>}</div>
+            <div><label className={styles.srOnly} htmlFor="organisation">{copy.labels.organisation}</label><input id="organisation" name="organisation" autoComplete="organization" placeholder={copy.labels.organisation} {...liveProps("organisation")} />{errors.organisation && <p id="organisation-error" className={styles.fieldError}>{errors.organisation}</p>}</div>
+            <div><label className={styles.srOnly} htmlFor="email">{copy.labels.email}</label><input id="email" name="email" type="email" autoComplete="email" placeholder={copy.labels.email} required {...liveProps("email")} />{errors.email && <p id="email-error" className={styles.fieldError}>{errors.email}</p>}</div>
+            <div><label className={styles.srOnly} htmlFor="phone">{copy.labels.phone}</label><input id="phone" name="phone" type="tel" autoComplete="tel" placeholder={copy.labels.phone} required {...liveProps("phone")} />{errors.phone && <p id="phone-error" className={styles.fieldError}>{errors.phone}</p>}</div>
+            <div><label className={styles.srOnly} htmlFor="location">{copy.labels.location}</label><input id="location" name="location" placeholder={copy.labels.location} {...liveProps("location")} />{errors.location && <p id="location-error" className={styles.fieldError}>{errors.location}</p>}</div>
+            <div><label className={styles.srOnly} htmlFor="enquiry-type">{copy.labels.enquiryType}</label><select id="enquiry-type" name="enquiryType" defaultValue={presetType} required {...liveProps("enquiryType")}><option value="" disabled>{copy.labels.enquiryType}</option>{options.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>{errors.enquiryType && <p id="enquiryType-error" className={styles.fieldError}>{errors.enquiryType}</p>}</div>
+            <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="subject">{copy.labels.subject}</label><input id="subject" name="subject" placeholder={copy.labels.subject} defaultValue={presetSubject} required {...liveProps("subject")} /><p className={styles.counter} aria-live="polite"><span dir="ltr">{lengths.subject ?? 0} / {contactFields.subject.maxLength}</span></p>{errors.subject && <p id="subject-error" className={styles.fieldError}>{errors.subject}</p>}</div>
+            <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="message">{copy.labels.message}</label><textarea id="message" name="message" placeholder={copy.labels.message} rows={4} required {...liveProps("message")} /><p className={styles.counter} aria-live="polite"><span dir="ltr">{lengths.message ?? 0} / {contactFields.message.maxLength}</span></p>{errors.message && <p id="message-error" className={styles.fieldError}>{errors.message}</p>}</div>
+            <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="portfolio">{copy.labels.portfolio}</label><input id="portfolio" name="portfolio" type="url" placeholder={copy.labels.portfolio} {...liveProps("portfolio")} />{errors.portfolio && <p id="portfolio-error" className={styles.fieldError}>{errors.portfolio}</p>}</div>
           </div>
           <div className={styles.attachment}>
-            <label htmlFor="attachment">Attachment (optional, 5 MB maximum)</label>
+            <label htmlFor="attachment">{copy.attachmentLabel}</label>
             <div className={styles.fileControl}>
               <span className={styles.fileName} aria-live="polite">{fileName}</span>
-              <span className={styles.chooseFile} aria-hidden="true">Choose file</span>
-              <input id="attachment" name="attachment" type="file" onChange={(event) => setFileName(event.currentTarget.files?.[0]?.name ?? noFile)} aria-invalid={errors.attachment ? true : undefined} aria-describedby={errors.attachment ? "attachment-error" : undefined} />
+              <span className={styles.chooseFile} aria-hidden="true">{copy.chooseFile}</span>
+              <input id="attachment" name="attachment" type="file" onChange={(event) => setFileName(event.currentTarget.files?.[0]?.name ?? copy.noFile)} aria-invalid={errors.attachment ? true : undefined} aria-describedby={errors.attachment ? "attachment-error" : undefined} />
             </div>
             {errors.attachment && <p id="attachment-error" className={styles.fieldError}>{errors.attachment}</p>}
           </div>
@@ -221,12 +245,12 @@ export function ContactForm() {
                 })
               }
             />
-            <span>I agree that Sakafat Global may use these details to respond to my enquiry. This does not create any partnership, engagement or contractual commitment.</span>
+            <span>{copy.consent}</span>
           </label>
           {errors.consent && <p id="consent-error" className={styles.fieldError}>{errors.consent}</p>}
-          <button className={styles.send} type="submit">{busy ? "Sending…" : "Send inquiry"}</button>
+          <button className={styles.send} type="submit">{busy ? copy.sending : copy.send}</button>
           </fieldset>
-          <p id="submission-note" className={styles.note}>We use these details only to respond to your enquiry. Attachments are limited to 5 MB.</p>
+          <p id="submission-note" className={styles.note}>{copy.note}</p>
         </form>
       </div>
     </section>

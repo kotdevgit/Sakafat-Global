@@ -1,0 +1,655 @@
+{
+  "meta": {
+    "siteName": "Sakafat Global",
+    "home": {
+      "title": "Sakafat Global",
+      "description": "Sakafat Global official website."
+    },
+    "about": {
+      "title": "About | Sakafat Global",
+      "description": "Learn about Sakafat Global, our mission, vision and commitment to responsible cultural media and production."
+    },
+    "contact": {
+      "title": "Contact Us | Sakafat Global",
+      "description": "Start the right conversation with Sakafat Global. Enquiries about programmes, creative collaboration, and partnerships."
+    },
+    "getInvolved": {
+      "title": "Get Involved | Sakafat Global",
+      "description": "Find your pathway to participate in Sakafat Global as a creator, guest, studio, institution or partner."
+    },
+    "programs": {
+      "title": "Programmes | Sakafat Global",
+      "description": "Ideas become opportunities through Sakafat Global programmes, open calls and participation pathways."
+    },
+    "programmeNotFound": "Programme Not Found | Sakafat Global",
+    "login": {
+      "title": "Login | Sakafat Global"
+    },
+    "register": {
+      "title": "Register | Sakafat Global"
+    },
+    "forgotPassword": {
+      "title": "Reset Password | Sakafat Global"
+    }
+  },
+  "common": {
+    "comingSoon": "coming soon",
+    "brandAlt": "Sakafat Global — Art. Culture. Heritage.",
+    "logoAlt": "Sakafat Global"
+  },
+  "header": {
+    "skipLink": "Skip to content",
+    "homeAria": "Sakafat Global home",
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close navigation menu",
+    "menu": "Menu",
+    "close": "Close",
+    "mainNavigation": "Main navigation",
+    "nav": {
+      "home": "Home",
+      "pillars": "Pillars",
+      "programs": "Programs",
+      "about": "About",
+      "getInvolved": "Get involved",
+      "contact": "Contact"
+    },
+    "login": "Login",
+    "account": "Account",
+    "languageGroup": "Website language",
+    "currentLanguage": "{language}, current language",
+    "switchTo": "Switch to {language}"
+  },
+  "footer": {
+    "homeAria": "Sakafat Global home",
+    "description": "A Pakistan-rooted cultural media and production company connecting stories, dialogue, creativity and opportunity.",
+    "socials": "Social media",
+    "columnAria": "Footer {title}",
+    "explore": {
+      "title": "Explore",
+      "pillars": "Pillars",
+      "programmes": "Programmes",
+      "about": "About"
+    },
+    "participate": {
+      "title": "Participate",
+      "openPathways": "Open pathways",
+      "creatorNetwork": "Creator network",
+      "partnerWithUs": "Partner with us"
+    },
+    "governance": {
+      "title": "Governance",
+      "editorialCharter": "Editorial Charter",
+      "privacyNotice": "Privacy Notice",
+      "accessibility": "Accessibility"
+    },
+    "contact": {
+      "title": "Contact",
+      "email": "info@sakafatglobal.com",
+      "phone": "111 222 3333 00",
+      "addressLine1": "58 A2, Tipu Road, Gulberg 3",
+      "addressLine2": "Lahore, Pakistan"
+    },
+    "copyright": "© 2026 Sakafat Global (Private) Limited. A private media and production company",
+    "partnershipSubject": "Partnership enquiry"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "SAKAFAT GLOBAL",
+      "headingLine1": "CULTURE AS A",
+      "headingLine2": "SOCIOECONOMIC FORCE.",
+      "description": "A Pakistan-rooted media and production house Storytelling. Dialogue. Creative Production. Opportunity.",
+      "explorePillars": "Explore 5 Pillar",
+      "participate": "Be Part of the signal",
+      "pillarsComingSoon": "Pillars — coming soon",
+      "participationComingSoon": "Participation — coming soon",
+      "latestEpisode": "Latest Episode",
+      "latestEpisodeComingSoon": "Latest episode — link coming soon",
+      "watchLatest": "Watch the latest Sakafat Global episode",
+      "watchLatestNamed": "Watch the latest Sakafat Global episode: {title}",
+      "stillFrom": "Still from {title}",
+      "fallbackEpisodeAlt": "Two speakers in conversation on the latest Sakafat Global episode"
+    },
+    "featured": {
+      "heading": "Featured by Sakafat",
+      "viewAll": "View All Episodes",
+      "viewAllComingSoon": "All episodes — coming soon",
+      "watch": "Watch {title}",
+      "watchComingSoon": "Watch {title} — coming soon",
+      "episodeLinkComingSoon": "Episode link — coming soon",
+      "empty": "Episodes are being updated. Please check back shortly."
+    },
+    "pillars": {
+      "eyebrow": "Five areas of work",
+      "heading": "One signal, five pillars.",
+      "intro": "Each pillar carries its own tone, format and flagship program — sharing one purpose and one Editorial Charter.",
+      "flagshipLabel": "Flagship:"
+    },
+    "programs": {
+      "eyebrow": "Programmes",
+      "heading": "Open doors, clearly marked.",
+      "intro": "Every opportunity shows its current status, requirements and next available action.",
+      "empty": "Programme details are being updated. Please check back shortly.",
+      "exploreAll": "Explore All Programs"
+    },
+    "founder": {
+      "sectionAria": "A message from our founder",
+      "quotePrefix": "was established from a belief that culture has practical power. It shapes how people see themselves, communicate across difference, develop confidence and participate in the future of their communities.",
+      "name": "Meeran Nasir",
+      "role": "Founder, Director & Chief Executive Officer",
+      "portraitAlt": "Meeran Nasir, founder of Sakafat Global"
+    },
+    "incoming": {
+      "heading": "Be part of the signal.",
+      "body": "Sakafat Signals 01.0 is open to emerging cultural practitioners, writers, performers and creators.",
+      "submit": "Submit your interest"
+    }
+  },
+  "pillarsSection": {
+    "idraak": {
+      "name": "Idraak",
+      "question": "How do we understand?",
+      "description": "Mind nourishment. Bright ideas. Boundless minds.",
+      "flagship": "MindsBehind.",
+      "action": "Explore Idraak"
+    },
+    "rabta": {
+      "name": "Rabta",
+      "question": "How do we connect?",
+      "description": "Connected people, collective power.",
+      "flagship": "Rabta Live.",
+      "action": "Explore Rabtaa"
+    },
+    "ikhlakiat": {
+      "name": "Ikhlakiat",
+      "question": "How should we act?",
+      "description": "Work ethics ethics that empower.",
+      "flagship": "Lawtency.",
+      "action": "Explore Ikhlakiat"
+    },
+    "falah": {
+      "name": "Hayee Ya Lal Falah",
+      "question": "How do we build and progress?",
+      "description": "Business coaching: purpose driven growth, lasting impact.",
+      "flagship": "Falah Ki Kahani.",
+      "action": "Explore Hayee Ya Lal Falah"
+    },
+    "sama": {
+      "name": "Sama",
+      "question": "What gives us depth and belonging?",
+      "description": "Where Pakistan’s living arts find their voice.",
+      "flagship": "Sama Session",
+      "action": "Explore Sama"
+    }
+  },
+  "pillarDetail": {
+    "breadcrumb": "Breadcrumb",
+    "pillarsLink": "Pillars",
+    "titleSeparator": " — ",
+    "joinSakafat": "Join Sakafat",
+    "startConversation": "Start a Conversation",
+    "foundationEyebrow": "The Foundation",
+    "foundationHeading": "{meaning} as a seed of action.",
+    "foundationBody": "{name} connects reflection with meaningful public work. It helps people examine context, build capability and participate with greater clarity and responsibility.",
+    "focusEyebrow": "Focus Areas",
+    "focusHeading": "What {name} develops.",
+    "focusCards": [
+      "Personal understanding",
+      "Community connection",
+      "Responsible action"
+    ],
+    "focusBody": "Practical learning, dialogue and cultural work shaped by the purpose of {name}.",
+    "nextEyebrow": "Next step",
+    "nextHeading": "Explore work connected to {name}.",
+    "viewProgrammes": "View Programmes",
+    "pillars": {
+      "idraak": {
+        "name": "Idraak",
+        "meaning": "Understanding",
+        "introduction": "How do we understand? Perception, cognition and critical thinking that help people understand themselves, others and the world.",
+        "photoAlt": "An interview with a guest at a Sakafat exhibition"
+      },
+      "rabta": {
+        "name": "Rabta",
+        "meaning": "Connection",
+        "introduction": "How do we connect? Meaningful dialogue and stronger relationships across people, communities, institutions and industries.",
+        "photoAlt": "A Sakafat interviewer in conversation with a guest"
+      },
+      "ikhlakiat": {
+        "name": "Ikhlakiat",
+        "meaning": "Ethics",
+        "introduction": "How should we act? Values, responsibility and ethical choices influencing public, professional and community life.",
+        "photoAlt": "Two participants in conversation at a Sakafat exhibition"
+      },
+      "falah": {
+        "name": "Falah",
+        "meaning": "Progress",
+        "introduction": "How do we move forward? Skills, confidence, careers, enterprise and practical pathways into opportunity.",
+        "photoAlt": "Sakafat recording studio with microphones, cameras and seating"
+      },
+      "sama": {
+        "name": "Sama",
+        "meaning": "Cultural Heritage",
+        "introduction": "What gives us depth and belonging? Pakistan’s living artistic heritage through music, poetry, performance and cultural storytelling.",
+        "photoAlt": "Four speakers taking part in Sakafat conversations"
+      }
+    }
+  },
+  "programs": {
+    "hero": {
+      "heading": "Programmes for a stronger cultural tomorrow",
+      "body": "Ideas become opportunities through clearly governed programmes, open calls and participation pathways.",
+      "join": "Join The Conversation"
+    },
+    "discovery": {
+      "eyebrow": "Discovery",
+      "heading": "Find the right programme.",
+      "approval": "Filter by current status. Details appear only after operational, legal and editorial approval.",
+      "filterGroup": "Filter programmes by status",
+      "filters": {
+        "All Programmes": "All Programmes",
+        "Open Now": "Open Now",
+        "Upcoming": "Upcoming",
+        "In Development": "In Development"
+      },
+      "resultCount": "{count} programmes shown: {filter}.",
+      "empty": "Programme details are being updated. Please check back shortly.",
+      "noMatch": "No programmes match this filter right now."
+    },
+    "participation": {
+      "eyebrow": "Participation",
+      "heading": "From discovery to participation.",
+      "steps": [
+        {
+          "title": "Discover",
+          "text": "Find a programme connected to your interests."
+        },
+        {
+          "title": "Review",
+          "text": "Check status, dates, eligibility and terms."
+        },
+        {
+          "title": "Respond",
+          "text": "Apply or register interest when available."
+        },
+        {
+          "title": "Receive an Update",
+          "text": "Receive an acknowledgement and instructions."
+        },
+        {
+          "title": "Participate",
+          "text": "Selected participants receive clear expectations."
+        }
+      ]
+    },
+    "statusNote": {
+      "eyebrow": "Status note",
+      "heading": "Some details aren’t published yet",
+      "body": "Dates, eligibility, participation requirements and fees are released only after approval.",
+      "ask": "Ask a Question",
+      "askSubject": "Question about programmes"
+    },
+    "card": {
+      "actionAria": "{action}: {name}"
+    },
+    "actions": {
+      "open": "Apply Now",
+      "register_interest": "Register Interest",
+      "upcoming": "Get Notified",
+      "development": "Learn More",
+      "closed": "View Details"
+    },
+    "detail": {
+      "breadcrumb": "Breadcrumb",
+      "programmesLink": "Programmes",
+      "registerInterest": "Register Interest",
+      "askAbout": "Ask About This Programme",
+      "otherWays": "Other ways to take part",
+      "keepMeInformed": "{name} — keep me informed",
+      "glanceEyebrow": "At a glance",
+      "headingOpen": "How to take part.",
+      "headingClosed": "Where this programme stands.",
+      "bodyOpen": "Register your interest and the programme team will follow up with eligibility, dates and what to prepare. Registering does not guarantee selection.",
+      "bodyClosed": "This programme is still being shaped. Ask to be kept informed and we will share dates and participation details once they are confirmed.",
+      "facts": {
+        "status": "Current status",
+        "pillar": "Pillar",
+        "access": "Access",
+        "accessOpen": "Open public participation",
+        "accessClosed": "In active formulation"
+      },
+      "foundationEyebrow": "The foundation",
+      "foundationHeading": "Anchored in {pillar}.",
+      "foundationBody": "{name} carries the purpose of {pillar} into practical work — building understanding, capability and cultural participation.",
+      "explorePillar": "Explore the {pillar} pillar",
+      "nextEyebrow": "Next step",
+      "nextHeadingOpen": "Ready to put your name forward?",
+      "nextHeadingClosed": "Want to hear when this opens?",
+      "nextActionOpen": "Register Interest",
+      "nextActionClosed": "Contact Us for Updates",
+      "back": "Back to all programmes"
+    }
+  },
+  "about": {
+    "heroAria": "About Sakafat Global",
+    "heroHeading": "Sakafat Global is a Pakistan-rooted media and production company developing cultural content, dialogue, creative formats and participation pathways.",
+    "identityLabel": "Who We Are",
+    "belief": {
+      "lead": "We believe",
+      "culture": "Culture",
+      "middle": "influences how people",
+      "verbs": [
+        "Think",
+        "Communicate",
+        "Collaborate",
+        "Create"
+      ],
+      "verbSeparator": ", ",
+      "and": "and",
+      "buildValue": "Build Value.",
+      "tail": "Our work connects cultural understanding with responsible media, creative production and practical opportunity."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "body": "To use media, production and dialogue to strengthen values, understanding, connection, opportunity and cultural heritage."
+    },
+    "vision": {
+      "title": "Our Vision",
+      "body": "To use media, production and dialogue to strengthen values, understanding, connection, opportunity and cultural heritage."
+    },
+    "promiseEyebrow": "Our public promise",
+    "promiseHeading": "Trust, Made Visible.",
+    "promises": [
+      {
+        "title": "Honest Communication",
+        "text": "We share programme status clearly."
+      },
+      {
+        "title": "Privacy & Context",
+        "text": "We respect personal data and cultural sensitivity."
+      },
+      {
+        "title": "Transparent Content",
+        "text": "We identify sponsored and commissioned work."
+      },
+      {
+        "title": "Rights & Consent",
+        "text": "We protect contributors and creative ownership."
+      },
+      {
+        "title": "English & Urdu",
+        "text": "We design meaningful experiences in both languages."
+      },
+      {
+        "title": "Impact With Purpose",
+        "text": "We measure value beyond views and followers."
+      }
+    ],
+    "learnMore": "Learn More",
+    "learnMoreAria": "Learn more about {title} — coming soon",
+    "governance": "Read our governance standards",
+    "governanceComingSoon": "Governance standards — coming soon",
+    "statusAria": "Company status",
+    "statement": "Sakafat Global operates as a private media and production company. It is not represented as a government authority, charity, broadcaster, legal adviser or nationally representative research institution."
+  },
+  "getInvolved": {
+    "headingLine1": "Your voice can",
+    "headingLine2": "move culture forward.",
+    "intro": "Whether you are a creator, guest, institution, studio or responsible commercial organisation, there is a pathway for you to participate.",
+    "guidance": "Choose the description below that fits you best to see the pathways built for it — or browse all seven at once.",
+    "eyebrow": "Choose your pathway",
+    "pathwaysHeading": "How would you like to take part?",
+    "pathwaysIntro": "Open each pathway to see what to prepare and where your information will go.",
+    "pathways": {
+      "story": {
+        "title": "Submit Your Story",
+        "description": "Share a cultural story, idea, creative work or perspective through an approved open call.",
+        "action": "View Open Calls"
+      },
+      "guest": {
+        "title": "Become a Podcast Guest",
+        "description": "Propose yourself or another relevant voice for an interview, discussion or Sakafat production.",
+        "action": "Propose a Guest",
+        "subject": "Podcast guest proposal"
+      },
+      "creator": {
+        "title": "Join as a Creator",
+        "description": "Express interest in writing, audio, video, music, performance or other creative work.",
+        "action": "Join the Creator Network",
+        "subject": "Creator network application"
+      },
+      "studio": {
+        "title": "Register a Studio",
+        "description": "Submit production capabilities, facilities, portfolio and operational information.",
+        "action": "Register Your Studio",
+        "subject": "Studio registration"
+      },
+      "production": {
+        "title": "Propose a Production",
+        "description": "Submit a podcast, documentary, series or creative-format concept for consideration.",
+        "action": "Propose a Format",
+        "subject": "Production proposal"
+      },
+      "programme": {
+        "title": "Join a Programme",
+        "description": "Explore active programmes, eligibility requirements and participation opportunities.",
+        "action": "Explore Programmes"
+      },
+      "partner": {
+        "title": "Partner With Sakafat",
+        "description": "Propose structured institutional, educational, media or responsible commercial collaboration.",
+        "action": "Start a Partnership Enquiry",
+        "subject": "Partnership enquiry"
+      }
+    },
+    "noteHeading": "Participation note",
+    "noteBody": "Registration or submission does not guarantee approval, selection, commissioning, funding, distribution or employment. Selected participants will receive clear expectations, permissions and written terms where required."
+  },
+  "contact": {
+    "hero": {
+      "eyebrow": "Contact Us",
+      "headingLine1": "Start the right",
+      "headingLine2": "conversation",
+      "intro": "Tell us what brings you here, and we’ll route it straight to the team built to answer it.",
+      "getStarted": "Get Started"
+    },
+    "form": {
+      "eyebrow": "ENQUIRY ROUTINE",
+      "heading": "Choose the closest enquiry type.",
+      "intro": "This keeps the form relevant and avoids unnecessary data collection.",
+      "labels": {
+        "fullName": "Full Name",
+        "organisation": "Organisation",
+        "email": "Email address",
+        "phone": "Phone number",
+        "location": "Country and city",
+        "enquiryType": "Enquiry type",
+        "subject": "Subject",
+        "message": "Message",
+        "portfolio": "Relevant link or portfolio"
+      },
+      "enquiryOptions": {
+        "general": "General enquiry",
+        "programme": "Programmes and participation",
+        "creative": "Creative collaboration",
+        "partnership": "Partnership enquiry",
+        "media": "Media enquiry"
+      },
+      "attachmentLabel": "Attachment (optional, 5 MB maximum)",
+      "noFile": "No file selected",
+      "chooseFile": "Choose file",
+      "consent": "I agree that Sakafat Global may use these details to respond to my enquiry. This does not create any partnership, engagement or contractual commitment.",
+      "send": "Send inquiry",
+      "sending": "Sending…",
+      "note": "We use these details only to respond to your enquiry. Attachments are limited to 5 MB.",
+      "checkFields": "Please check the highlighted fields.",
+      "tryAgain": "Please try again.",
+      "offline": "We couldn’t connect. Check your connection and try again."
+    }
+  },
+  "auth": {
+    "story": {
+      "eyebrow": "Sakafat Global",
+      "headingLine1": "Your voice.",
+      "headingLine2": "Our shared culture.",
+      "body": "A place for stories, dialogue, creativity and connection.",
+      "signature": "Art. Culture. Heritage."
+    },
+    "tabsAria": "Account navigation",
+    "login": "Login",
+    "register": "Register",
+    "headings": {
+      "checkEmail": "Check your email.",
+      "resetPassword": "Reset your password.",
+      "setNewPassword": "Set new password.",
+      "join": "Join Sakafat.",
+      "welcomeBack": "Welcome back."
+    },
+    "intros": {
+      "checkEmail": "Enter the six-digit code we sent to activate {username}.",
+      "resetPassword": "Enter your account email to receive a password reset verification code.",
+      "setNewPassword": "Enter the six-digit code sent to {email} and choose a new password.",
+      "join": "Create your account and be part of the conversation.",
+      "welcomeBack": "Log in to your Sakafat Global account."
+    },
+    "fields": {
+      "username": "Username",
+      "email": "Email address",
+      "password": "Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm password",
+      "confirmNewPassword": "Confirm new password",
+      "otp": "Verification code"
+    },
+    "hints": {
+      "password": "Use at least 8 characters.",
+      "otpEmail": "Use the six-digit code sent to your email.",
+      "otpRegistration": "Use the six-digit code from your registration email."
+    },
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "show": "Show",
+    "hide": "Hide",
+    "forgotPassword": "Forgot password?",
+    "submit": {
+      "busy": "Please wait…",
+      "sendResetCode": "Send reset code",
+      "resetPassword": "Reset password",
+      "verifyEmail": "Verify email",
+      "createAccount": "Create account",
+      "login": "Login"
+    },
+    "sendNewCode": "Send a new code",
+    "resendResetCode": "Resend reset code",
+    "footnotes": {
+      "alreadyVerified": "Already verified?",
+      "rememberPassword": "Remember your password?",
+      "alreadyHaveAccount": "Already have an account?",
+      "newToSakafat": "New to Sakafat?",
+      "logIn": "Log in",
+      "createAccount": "Create an account"
+    },
+    "signedIn": {
+      "eyebrow": "Your account",
+      "heading": "You’re signed in.",
+      "body": "Continue exploring Sakafat’s stories and programmes.",
+      "explore": "Explore programmes",
+      "signOut": "Sign out",
+      "signingOut": "Signing out…"
+    },
+    "verified": {
+      "eyebrow": "Email verified",
+      "heading": "You’re ready.",
+      "body": "Your email is verified. Log in with your username and password to continue.",
+      "continue": "Continue to login"
+    },
+    "resetDone": {
+      "eyebrow": "Password Updated",
+      "heading": "Password reset successfully.",
+      "body": "Your password has been changed. You can now log in with your new credentials.",
+      "continue": "Continue to login"
+    },
+    "messages": {
+      "passwordsDoNotMatch": "Your passwords don’t match.",
+      "checkEmailAddress": "Please check your email address and try again.",
+      "checkCodeAndPassword": "Please check your code and new password.",
+      "resetCodeSent": "A reset code has been sent to your email.",
+      "newResetCodeSent": "A new reset code has been sent to your email.",
+      "verificationCodeSent": "Check your email for your verification code.",
+      "enterUsernameFirst": "Enter your username first.",
+      "tryAgain": "Please try again.",
+      "offline": "We couldn’t connect. Check your connection and try again.",
+      "offlineShort": "We couldn’t connect. Please try again.",
+      "signOutFailed": "We couldn’t sign you out. Please try again."
+    }
+  },
+  "validation": {
+    "required": "{label} is required.",
+    "maxLength": "{label} must be {max} characters or fewer.",
+    "minLength": "{label} must be at least {min} characters.",
+    "invalid": "{label} is not valid.",
+    "namePattern": "Use letters only — spaces, hyphens and apostrophes are fine, but not digits.",
+    "organisationPattern": "Use letters, numbers and standard punctuation.",
+    "emailPattern": "Enter a complete email address, such as name@example.com.",
+    "phonePattern": "Use digits, and optionally a leading + for the country code.",
+    "placePattern": "Use letters only — for example, Pakistan, Lahore.",
+    "subjectPattern": "Describe your enquiry in a few words.",
+    "messagePattern": "Tell us a little about your enquiry.",
+    "enquiryTypeChoice": "Choose one of the listed enquiry types.",
+    "urlPattern": "Enter a full link starting with https://",
+    "phoneMinDigits": "Phone number must include at least {min} digits.",
+    "phoneMaxDigits": "Phone number must include no more than {max} digits.",
+    "consentRequired": "Please confirm you agree before sending.",
+    "attachmentTooLarge": "Attachments must be 5 MB or smaller.",
+    "usernameRequired": "Username is required.",
+    "usernameMaxLength": "Username must be {max} characters or fewer.",
+    "usernameMinLength": "Username must be at least {min} characters.",
+    "usernamePattern": "Use letters, digits and . @ + - _ only — no spaces.",
+    "emailRequired": "Email address is required.",
+    "emailMaxLength": "Email address must be {max} characters or fewer.",
+    "passwordRequired": "Password is required.",
+    "passwordMinLength": "Password must be at least {min} characters.",
+    "passwordMaxLength": "Password must be {max} characters or fewer.",
+    "passwordAllNumbers": "Password cannot be only numbers.",
+    "passwordContainsUsername": "Password cannot contain your username.",
+    "confirmPasswordRequired": "Please confirm your password.",
+    "confirmPasswordMismatch": "Enter the same password in both fields.",
+    "otpRequired": "Verification code is required.",
+    "otpPattern": "Enter the {length}-digit code from your email."
+  },
+  "api": {
+    "contact": {
+      "wrongOrigin": "Please submit this form from the Sakafat website.",
+      "malformed": "Please check your form and try again.",
+      "checkFields": "Please check the highlighted fields.",
+      "unavailable": "Enquiries are not available yet. Please try again later.",
+      "upstreamError": "We couldn’t send your enquiry. Please try again later.",
+      "unreachable": "We couldn’t reach enquiry services. Please try again shortly.",
+      "received": "Thank you. Your enquiry has been received and a confirmation email is on its way."
+    },
+    "auth": {
+      "notFound": "Not found.",
+      "wrongOrigin": "Please submit this form from the Sakafat website.",
+      "malformed": "Please check your form and try again.",
+      "invalidForm": "Invalid form.",
+      "signedOut": "Signed out.",
+      "completeFields": "Please complete all required fields.",
+      "checkFields": "Please check the highlighted fields.",
+      "unavailable": "Account services are temporarily unavailable.",
+      "unavailableLater": "Account services are temporarily unavailable. Please try again later.",
+      "notConfigured": "Account services are not available yet. Please try again later.",
+      "registerUnconfirmed": "We couldn’t confirm registration. If an email arrives, use Verify email below before trying again.",
+      "notVerified": "Your email is not verified yet. Enter the code we sent you.",
+      "successLogin": "Signed in successfully.",
+      "successRegister": "Check your email for your verification code.",
+      "successResend": "If your account is awaiting verification, a new code has been sent.",
+      "successVerify": "Email verified. You can now log in.",
+      "successForgotPassword": "If an account exists for that email, a reset code has been sent.",
+      "successVerifyResetOtp": "Code verified. Please set your new password.",
+      "successResetPassword": "Password reset successfully. You can now log in.",
+      "success": "Success.",
+      "loginIncomplete": "We couldn’t complete login. Please try again.",
+      "sessionExpired": "Your session has expired. Please log in again.",
+      "unreachable": "We couldn’t reach account services. Please try again shortly. If you were registering, check your email before trying again."
+    }
+  }
+}

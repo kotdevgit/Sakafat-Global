@@ -1,7 +1,7 @@
 .section { padding: 40px 48px 116px; background: #fff; color: #050505; font-family: var(--font-poppins), Arial, sans-serif; }
 .inner { max-width: 1280px; margin-inline: auto; }
 .header { position: relative; display: grid; grid-template-columns: auto 1fr 1.2fr; align-items: start; gap: 24px; padding: 82px 18px 0; margin-bottom: 30px; }
-.artwork { position: absolute; top: 0; left: 24px; width: 276px; height: auto; opacity: .65; }
+.artwork { position: absolute; top: 0; inset-inline-start: 24px; width: 276px; height: auto; opacity: .65; }
 .eyebrow { margin: 8px 0 0;   }
 .header h2 { margin: 0;     }
 .intro { margin: 8px 0 0;   }
@@ -29,7 +29,7 @@
 @media (max-width: 767px) {
   .section { padding: 32px 24px 56px; }
   .header { display: flex; flex-direction: column; gap: 12px; padding: 80px 0 0; margin-bottom: 28px; }
-  .artwork { left: 0; max-width: 100%; }
+  .artwork { inset-inline-start: 0; max-width: 100%; }
   .eyebrow, .intro { margin: 0; }
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .card { padding: 18px; border-radius: 24px; }
@@ -52,3 +52,6 @@
 .explore { font: var(--type-compact); letter-spacing: 0; }
 
 .explore:focus-visible { outline: 3px solid #283663; outline-offset: 4px; }
+
+/* The chevron points the way the language runs. */
+[dir="rtl"] .chevron { transform: scaleX(-1); }

@@ -1,13 +1,16 @@
 import Image from "next/image";
-import Link from "next/link";
 import { getOpenProgramme } from "@/lib/api/programmes";
+import { LocaleLink } from "@/components/i18n/locale-link";
+import { getLocale } from "@/lib/i18n/server";
+import { getDictionary } from "@/lib/i18n/dictionary";
 import styles from "./incoming-section.module.css";
 
 export async function IncomingSection() {
   // Point at whichever programme is open rather than a fixed slug, so the call to
   // action follows the admin. With nothing open it falls back to the full listing.
-  const open = await getOpenProgramme();
+  const [open, dict] = await Promise.all([getOpenProgramme(), getLocale().then(getDictionary)]);
   const href = open ? `/programs/${open.slug}` : "/programs";
+  const copy = dict.home.incoming;
 
   return (
     <section className={styles.section} aria-labelledby="incoming-heading">
@@ -22,10 +25,10 @@ export async function IncomingSection() {
         <Image src="/images/incoming/sakafat.png" alt="" width={328} height={219} className={styles.watermark} />
         <div className={styles.content}>
           <div className={styles.message}>
-            <h2 id="incoming-heading">Be part of the signal.</h2>{" "}
-            <p>Sakafat Signals 01.0 is open to emerging cultural practitioners, writers, performers and creators.</p>
+            <h2 id="incoming-heading">{copy.heading}</h2>{" "}
+            <p>{copy.body}</p>
           </div>
-          <Link className={styles.submit} href={href}>Submit your interest</Link>
+          <LocaleLink className={styles.submit} href={href}>{copy.submit}</LocaleLink>
         </div>
       </div>
     </section>

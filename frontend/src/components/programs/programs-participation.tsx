@@ -1,23 +1,18 @@
-import Link from "next/link";
-import styles from "./programs-content.module.css";
+import { LocaleLink } from "@/components/i18n/locale-link";
+import { getLocale } from "@/lib/i18n/server";
+import { getDictionary } from "@/lib/i18n/dictionary";
 import { enquiryHref } from "@/lib/validation/contact";
+import styles from "./programs-content.module.css";
 
-const steps = [
-  { title: "Discover", text: "Find a programme connected to your interests." },
-  { title: "Review", text: "Check status, dates, eligibility and terms." },
-  { title: "Respond", text: "Apply or register interest when available." },
-  { title: "Receive an Update", text: "Receive an acknowledgement and instructions." },
-  { title: "Participate", text: "Selected participants receive clear expectations." },
-];
-
-export function ProgramsParticipation() {
+export async function ProgramsParticipation() {
+  const copy = getDictionary(await getLocale()).programs.participation;
   return (
     <section className={styles.participation} aria-labelledby="participation-heading">
       <div className={styles.inner}>
-        <p className={styles.eyebrow}>Participation</p>
-        <h2 id="participation-heading" className={styles.heading}>From discovery to participation.</h2>
+        <p className={styles.eyebrow}>{copy.eyebrow}</p>
+        <h2 id="participation-heading" className={styles.heading}>{copy.heading}</h2>
         <ol className={styles.steps}>
-          {steps.map((step, index) => (
+          {copy.steps.map((step, index) => (
             <li key={step.title} className={styles.step}>
               <span className={styles.number} aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
               <div><h3>{step.title}</h3><p>{step.text}</p></div>
@@ -29,16 +24,17 @@ export function ProgramsParticipation() {
   );
 }
 
-export function ProgramsStatusNote() {
+export async function ProgramsStatusNote() {
+  const copy = getDictionary(await getLocale()).programs.statusNote;
   return (
     <section className={styles.statusSection} aria-labelledby="status-heading">
       <div className={styles.statusCard}>
         <div>
-          <p className={styles.eyebrow}>Status note</p>
-          <h2 id="status-heading">Some details aren’t published yet</h2>
-          <p className={styles.statusText}>Dates, eligibility, participation requirements and fees are released only after approval.</p>
+          <p className={styles.eyebrow}>{copy.eyebrow}</p>
+          <h2 id="status-heading">{copy.heading}</h2>
+          <p className={styles.statusText}>{copy.body}</p>
         </div>
-        <Link className={styles.ask} href={enquiryHref("programme", "Question about programmes")}>Ask a Question</Link>
+        <LocaleLink className={styles.ask} href={enquiryHref("programme", copy.askSubject)}>{copy.ask}</LocaleLink>
       </div>
     </section>
   );

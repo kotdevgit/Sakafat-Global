@@ -11,10 +11,10 @@
 .logo { width: 100%; height: auto; }
 .identityBody p { margin: 0; font: var(--type-quote); }
 .culture { color: #84232e; }
-.think { color: #c95027; }
-.communicate { color: #283663; }
-.collaborate { color: #27939d; }
-.create { color: #b77c18; }
+.verb1 { color: #c95027; }
+.verb2 { color: #283663; }
+.verb3 { color: #27939d; }
+.verb4 { color: #b77c18; }
 .purposeGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; max-width: 1080px; margin-inline: auto; }
 .purposeCard { display: flex; align-items: center; gap: 20px; min-height: 210px; padding: 28px; border: 1px solid #dbc9ae; border-radius: 20px; background: #fff; box-shadow: 0 6px 12px #0002; }
 .purposeCard:last-child { background: #d2fafb; }
@@ -71,3 +71,6 @@
   .promise h2 { margin-bottom: 28px; }
   .statement { padding: 64px 24px; }
 }
+
+/* The arrow points the way the language runs. */
+[dir="rtl"] .arrow { transform: scaleX(-1); }

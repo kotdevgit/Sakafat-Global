@@ -2,7 +2,12 @@
  * Enquiry field rules, shared by the browser form and the /api/contact route so
  * live validation and the server check can never drift apart. Django validates
  * independently — its endpoint is public, so the browser is never trusted.
+ *
+ * The rules report a message *code* rather than English text, so the same rule
+ * produces the right sentence in whichever language the visitor is reading.
+ * `resolveContactMessage` turns a code into words using the active dictionary.
  */
+import { format, type Dictionary } from "@/lib/i18n/dictionary";
 
 /**
  * Letters of any script, plus the joiners real names use. Urdu and Arabic names
@@ -29,16 +34,17 @@ export const enquiryTypes = ["general", "programme", "creative", "partnership", 
 /**
  * The enquiry types the form offers, in the order they are listed. "other" is a
  * stored value Django accepts but the form does not present, so it is not here.
+ * The words shown for each come from the dictionary, so the list reads in the
+ * visitor's language while the stored value stays the same in both.
  */
-export const enquiryOptions = [
-  ["general", "General enquiry"],
-  ["programme", "Programmes and participation"],
-  ["creative", "Creative collaboration"],
-  ["partnership", "Partnership enquiry"],
-  ["media", "Media enquiry"],
-] as const;
+export const offeredEnquiryTypes = ["general", "programme", "creative", "partnership", "media"] as const;
 
-export type OfferedEnquiryType = (typeof enquiryOptions)[number][0];
+export type OfferedEnquiryType = (typeof offeredEnquiryTypes)[number];
+
+/** The offered types paired with their words in the given language. */
+export function enquiryOptions(dict: Dictionary): [OfferedEnquiryType, string][] {
+  return offeredEnquiryTypes.map((type) => [type, dict.contact.form.enquiryOptions[type]]);
+}
 
 /** The anchor the enquiry form carries, so a call to action can land on it. */
 export const enquiryFormId = "enquiry-form";
@@ -53,53 +59,54 @@ export function enquiryHref(type: OfferedEnquiryType, subject: string): string {
   return `/contact?${query}#${enquiryFormId}`;
 }
 
+/** A failed check: the dictionary key for the sentence, plus anything it interpolates. */
+export type ValidationIssue = {
+  code: keyof Dictionary["validation"];
+  values?: Record<string, string | number>;
+};
+
 export type FieldRule = {
   /** The name Django expects, so the route can map the payload in one place. */
   djangoField: string;
-  label: string;
   required: boolean;
   maxLength: number;
   minLength?: number;
   pattern?: RegExp;
-  patternMessage?: string;
+  /** Dictionary key for the message shown when `pattern` fails. */
+  patternCode?: keyof Dictionary["validation"];
 };
 
 export const contactFields = {
   fullName: {
-    djangoField: "full_name", label: "Full name", required: true, maxLength: 150, minLength: 2,
-    pattern: NAME,
-    patternMessage: "Use letters only — spaces, hyphens and apostrophes are fine, but not digits.",
+    djangoField: "full_name", required: true, maxLength: 150, minLength: 2,
+    pattern: NAME, patternCode: "namePattern",
   },
   organisation: {
-    djangoField: "organisation", label: "Organisation", required: false, maxLength: 200, minLength: 2,
-    pattern: ORGANISATION,
-    patternMessage: "Use letters, numbers and standard punctuation.",
+    djangoField: "organisation", required: false, maxLength: 200, minLength: 2,
+    pattern: ORGANISATION, patternCode: "organisationPattern",
   },
   email: {
-    djangoField: "email", label: "Email address", required: true, maxLength: 254,
-    pattern: EMAIL,
-    patternMessage: "Enter a complete email address, such as name@example.com.",
+    djangoField: "email", required: true, maxLength: 254,
+    pattern: EMAIL, patternCode: "emailPattern",
   },
   phone: {
-    djangoField: "phone_number", label: "Phone number", required: true, maxLength: 30,
-    pattern: PHONE,
-    patternMessage: "Use digits, and optionally a leading + for the country code.",
+    djangoField: "phone_number", required: true, maxLength: 30,
+    pattern: PHONE, patternCode: "phonePattern",
   },
   location: {
-    djangoField: "country_city", label: "Country and city", required: false, maxLength: 150, minLength: 2,
-    pattern: PLACE,
-    patternMessage: "Use letters only — for example, Pakistan, Lahore.",
+    djangoField: "country_city", required: false, maxLength: 150, minLength: 2,
+    pattern: PLACE, patternCode: "placePattern",
   },
-  enquiryType: { djangoField: "enquiry_type", label: "Enquiry type", required: true, maxLength: 30 },
+  enquiryType: { djangoField: "enquiry_type", required: true, maxLength: 30 },
   subject: {
-    djangoField: "subject", label: "Subject", required: true, maxLength: 100, minLength: 3,
-    pattern: HAS_LETTER, patternMessage: "Describe your enquiry in a few words.",
+    djangoField: "subject", required: true, maxLength: 100, minLength: 3,
+    pattern: HAS_LETTER, patternCode: "subjectPattern",
   },
   message: {
-    djangoField: "message", label: "Message", required: true, maxLength: 500, minLength: 20,
-    pattern: HAS_LETTER, patternMessage: "Tell us a little about your enquiry.",
+    djangoField: "message", required: true, maxLength: 500, minLength: 20,
+    pattern: HAS_LETTER, patternCode: "messagePattern",
   },
-  portfolio: { djangoField: "relevant_link", label: "Relevant link or portfolio", required: false, maxLength: 200 },
+  portfolio: { djangoField: "relevant_link", required: false, maxLength: 200 },
 } as const satisfies Record<string, FieldRule>;
 
 export type ContactField = keyof typeof contactFields;
@@ -158,46 +165,72 @@ export function filterValue(field: ContactField, value: string): string {
 }
 
 /**
- * Validates one field's raw input. Returns the message to show, or null when the
+ * Validates one field's raw input. Returns the issue to report, or null when the
  * value is acceptable. Empty optional fields are acceptable.
  */
-export function validateField(field: ContactField, raw: string): string | null {
+export function validateField(field: ContactField, raw: string): ValidationIssue | null {
   const rule: FieldRule = contactFields[field];
   const value = raw.trim();
 
-  if (!value) return rule.required ? `${rule.label} is required.` : null;
-  if (value.length > rule.maxLength) {
-    return `${rule.label} must be ${rule.maxLength} characters or fewer.`;
-  }
+  if (!value) return rule.required ? { code: "required" } : null;
+  if (value.length > rule.maxLength) return { code: "maxLength", values: { max: rule.maxLength } };
   if (rule.minLength && value.length < rule.minLength) {
-    return `${rule.label} must be at least ${rule.minLength} characters.`;
+    return { code: "minLength", values: { min: rule.minLength } };
   }
 
   if (field === "enquiryType") {
-    return (enquiryTypes as readonly string[]).includes(value)
-      ? null
-      : "Choose one of the listed enquiry types.";
+    return (enquiryTypes as readonly string[]).includes(value) ? null : { code: "enquiryTypeChoice" };
   }
   if (field === "portfolio") {
-    return isWebAddress(value) ? null : "Enter a full link starting with https://";
+    return isWebAddress(value) ? null : { code: "urlPattern" };
   }
   if (field === "phone") {
-    if (!rule.pattern?.test(value)) return rule.patternMessage ?? null;
+    if (!rule.pattern?.test(value)) return { code: rule.patternCode ?? "invalid" };
     const digits = countDigits(value);
-    if (digits < PHONE_MIN_DIGITS) return `Phone number must include at least ${PHONE_MIN_DIGITS} digits.`;
-    if (digits > PHONE_MAX_DIGITS) return `Phone number must include no more than ${PHONE_MAX_DIGITS} digits.`;
+    if (digits < PHONE_MIN_DIGITS) return { code: "phoneMinDigits", values: { min: PHONE_MIN_DIGITS } };
+    if (digits > PHONE_MAX_DIGITS) return { code: "phoneMaxDigits", values: { max: PHONE_MAX_DIGITS } };
     return null;
   }
-  if (rule.pattern && !rule.pattern.test(value)) return rule.patternMessage ?? `${rule.label} is not valid.`;
+  if (rule.pattern && !rule.pattern.test(value)) return { code: rule.patternCode ?? "invalid" };
   return null;
 }
 
-/** Validates every field at once. Returns a map of field name to message. */
-export function validateContact(values: Partial<Record<ContactField, string>>): Record<string, string> {
-  const errors: Record<string, string> = {};
+/** Validates every field at once. Returns a map of field name to issue. */
+export function validateContact(
+  values: Partial<Record<ContactField, string>>,
+): Partial<Record<ContactField, ValidationIssue>> {
+  const issues: Partial<Record<ContactField, ValidationIssue>> = {};
   for (const field of contactFieldNames) {
-    const message = validateField(field, values[field] ?? "");
-    if (message) errors[field] = message;
+    const issue = validateField(field, values[field] ?? "");
+    if (issue) issues[field] = issue;
   }
-  return errors;
+  return issues;
+}
+
+/**
+ * Turns an issue into a sentence. The field's own name is supplied from the same
+ * dictionary the form labels come from, so "Full name is required." and
+ * "پورا نام ضروری ہے۔" are built from one rule and one label.
+ */
+export function resolveContactMessage(
+  dict: Dictionary,
+  field: ContactField,
+  issue: ValidationIssue,
+): string {
+  return format(dict.validation[issue.code], {
+    label: dict.contact.form.labels[field],
+    ...issue.values,
+  });
+}
+
+/** Resolves a whole map of issues at once, for rendering or for an API reply. */
+export function resolveContactMessages(
+  dict: Dictionary,
+  issues: Partial<Record<ContactField, ValidationIssue>>,
+): Record<string, string> {
+  const messages: Record<string, string> = {};
+  for (const [field, issue] of Object.entries(issues)) {
+    if (issue) messages[field] = resolveContactMessage(dict, field as ContactField, issue);
+  }
+  return messages;
 }

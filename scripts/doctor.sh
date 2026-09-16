@@ -64,10 +64,21 @@ rm -f /tmp/_sakafat_doc
 echo
 
 echo "4. Frontend pages"
-for path in / /programs; do
+# Every page lives under /en or /ur, and an address without one is redirected to
+# a language. Both are checked: a fault in the shared data layer shows up in each.
+where=$(curl -s -o /dev/null -w '%{redirect_url}' --max-time 15 "http://localhost:3000/" 2>/dev/null)
+case "$where" in
+  */en|*/ur) pass "localhost:3000/ redirects to a language (${where##*/})" ;;
+  "")        fail "localhost:3000/ did not redirect to a language (is npm run dev running?)" ;;
+  *)         fail "localhost:3000/ redirected to an unexpected address: $where" ;;
+esac
+
+for path in /en /en/programs /ur /ur/programs; do
   code=$(curl -s -o /tmp/_sakafat_page -w '%{http_code}' --max-time 15 "http://localhost:3000$path" 2>/dev/null)
   if [ "$code" != "200" ]; then fail "GET localhost:3000$path -> ${code} (is npm run dev running?)"
   else
+    # Programme and episode names come from Django in one language, so the same
+    # names are expected on the Urdu pages as on the English ones.
     hits=$(grep -oE 'Sakafat Signals|Career Rasta|Culture in Motion|Living Heritage' /tmp/_sakafat_page 2>/dev/null | sort -u | wc -l | tr -d ' ')
     [ "$hits" -gt 0 ] && pass "localhost:3000$path renders content ($hits known item(s))" || fail "localhost:3000$path renders NO programme/episode content"
   fi

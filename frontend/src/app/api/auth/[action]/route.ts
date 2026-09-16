@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getApiBaseUrl } from "@/lib/api/config";
-import { validateAuthField, type AuthField } from "@/lib/validation/auth";
+import { resolveAuthMessage, validateAuthField, type AuthField } from "@/lib/validation/auth";
+import { getDictionary } from "@/lib/i18n/dictionary";
+import { localeFromRequest } from "@/lib/i18n/request";
 
 const cookieName = "sakafat_access";
 const refreshCookieName = "sakafat_refresh";
@@ -64,14 +66,15 @@ function clearAuthCookies(response: NextResponse) {
 }
 
 export async function GET(request: NextRequest, context: { params: Promise<{ action: string }> }) {
-  if ((await context.params).action !== "session") return reply({ message: "Not found." }, 404);
+  const api = getDictionary(localeFromRequest(request)).api.auth;
+  if ((await context.params).action !== "session") return reply({ message: api.notFound }, 404);
   let access = request.cookies.get(cookieName)?.value;
   const refresh = request.cookies.get(refreshCookieName)?.value;
   let base: string;
   try {
     base = getApiBaseUrl();
   } catch {
-    return reply({ message: "Account services are temporarily unavailable." }, 503);
+    return reply({ message: api.unavailable }, 503);
   }
 
   let refreshedAccess: string | null = null;
@@ -152,7 +155,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ act
       clearAuthCookies(response);
       return response;
     }
-    if (!upstream.ok) return reply({ message: "Account services are temporarily unavailable." }, 503);
+    if (!upstream.ok) return reply({ message: api.unavailable }, 503);
     const user = await upstream.json();
     const response = reply({ authenticated: true, username: user.username });
     if (refreshedAccess) {
@@ -160,11 +163,13 @@ export async function GET(request: NextRequest, context: { params: Promise<{ act
     }
     return response;
   } catch {
-    return reply({ message: "Account services are temporarily unavailable." }, 503);
+    return reply({ message: api.unavailable }, 503);
   }
 }
 
 export async function POST(request: NextRequest, context: { params: Promise<{ action: string }> }) {
+  const dict = getDictionary(localeFromRequest(request));
+  const api = dict.api.auth;
   const origin = request.headers.get("origin");
   const host = request.headers.get("host") || new URL(request.url).host;
   let sameOrigin = false;
@@ -175,25 +180,25 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
   } catch {
     /* Invalid origins are rejected */
   }
-  if (!sameOrigin) return reply({ message: "Please submit this form from the Sakafat website." }, 403);
+  if (!sameOrigin) return reply({ message: api.wrongOrigin }, 403);
 
   const { action } = await context.params;
   if (action === "logout") {
-    const response = reply({ message: "Signed out." });
+    const response = reply({ message: api.signedOut });
     clearAuthCookies(response);
     return response;
   }
 
-  if (!Object.hasOwn(endpoints, action)) return reply({ message: "Not found." }, 404);
+  if (!Object.hasOwn(endpoints, action)) return reply({ message: api.notFound }, 404);
 
   let input: Record<string, unknown>;
   try {
     input = await request.json();
   } catch {
-    return reply({ message: "Please check your form and try again." }, 400);
+    return reply({ message: api.malformed }, 400);
   }
   if (!input || typeof input !== "object" || Array.isArray(input)) {
-    return reply({ message: "Invalid form." }, 400);
+    return reply({ message: api.invalidForm }, 400);
   }
 
   const fields =
@@ -223,7 +228,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
   for (const field of fields) {
     const value = input[field];
     if (typeof value !== "string" || !value || value.length > 1024) {
-      return reply({ message: "Please complete all required fields." }, 400);
+      return reply({ message: api.completeFields }, 400);
     }
     if (checked.has(field as AuthField)) {
       const problem = validateAuthField(field as AuthField, value, {
@@ -231,21 +236,21 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
         username: typeof input.username === "string" ? input.username : "",
       });
       if (problem) {
-        errors[field] = problem;
+        errors[field] = resolveAuthMessage(dict, problem);
         continue;
       }
     }
     payload[field] = value;
   }
   if (Object.keys(errors).length > 0) {
-    return reply({ message: "Please check the highlighted fields.", errors }, 400);
+    return reply({ message: api.checkFields, errors }, 400);
   }
 
   let base: string;
   try {
     base = getApiBaseUrl();
   } catch {
-    return reply({ message: "Account services are not available yet. Please try again later." }, 503);
+    return reply({ message: api.notConfigured }, 503);
   }
 
   try {
@@ -261,10 +266,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
     if (upstream.status >= 500) {
       return reply(
         {
-          message:
-            action === "register"
-              ? "We couldn’t confirm registration. If an email arrives, use Verify email below before trying again."
-              : "Account services are temporarily unavailable. Please try again later.",
+          message: action === "register" ? api.registerUnconfirmed : api.unavailableLater,
         },
         502
       );
@@ -280,7 +282,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
           {
             code: "ACCOUNT_NOT_VERIFIED",
             username: typeof data.username === "string" ? data.username : "",
-            message: "Your email is not verified yet. Enter the code we sent you.",
+            message: api.notVerified,
           },
           upstream.status,
         );
@@ -293,41 +295,33 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
       }
       return reply(
         {
-          message: errors.non_field_errors || errors.detail || errors.error || "Please check the highlighted fields.",
+          message: errors.non_field_errors || errors.detail || errors.error || api.checkFields,
           errors,
         },
         upstream.status
       );
     }
 
-    const response = reply({
-      message:
-        action === "login"
-          ? "Signed in successfully."
-          : action === "register"
-          ? "Check your email for your verification code."
-          : action === "resend"
-          ? "If your account is awaiting verification, a new code has been sent."
-          : action === "verify"
-          ? "Email verified. You can now log in."
-          : action === "forgot-password"
-          ? "If an account exists for that email, a reset code has been sent."
-          : action === "verify-reset-otp"
-          ? "Code verified. Please set your new password."
-          : action === "reset-password"
-          ? "Password reset successfully. You can now log in."
-          : "Success.",
-    });
+    const success: Record<string, string> = {
+      login: api.successLogin,
+      register: api.successRegister,
+      resend: api.successResend,
+      verify: api.successVerify,
+      "forgot-password": api.successForgotPassword,
+      "verify-reset-otp": api.successVerifyResetOtp,
+      "reset-password": api.successResetPassword,
+    };
+    const response = reply({ message: success[action] ?? api.success });
 
     if (action === "login") {
       if (typeof data.access !== "string") {
-        return reply({ message: "We couldn’t complete login. Please try again." }, 502);
+        return reply({ message: api.loginIncomplete }, 502);
       }
       try {
         const claims = JSON.parse(Buffer.from(data.access.split(".")[1], "base64url").toString());
         const maxAge = Math.floor(Number(claims.exp) - Date.now() / 1000);
         if (!Number.isFinite(maxAge) || maxAge <= 0) {
-          return reply({ message: "Your session has expired. Please log in again." }, 502);
+          return reply({ message: api.sessionExpired }, 502);
         }
         response.cookies.set(cookieName, data.access, {
           httpOnly: true,
@@ -337,7 +331,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
           maxAge: Math.min(maxAge, 1800),
         });
       } catch {
-        return reply({ message: "We couldn’t complete login. Please try again." }, 502);
+        return reply({ message: api.loginIncomplete }, 502);
       }
       if (typeof data.refresh === "string") {
         response.cookies.set(refreshCookieName, data.refresh, {
@@ -352,12 +346,6 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
 
     return response;
   } catch {
-    return reply(
-      {
-        message:
-          "We couldn’t reach account services. Please try again shortly. If you were registering, check your email before trying again.",
-      },
-      503
-    );
+    return reply({ message: api.unreachable }, 503);
   }
 }

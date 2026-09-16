@@ -1,9 +1,14 @@
 import Image from "next/image";
+import { getLocale } from "@/lib/i18n/server";
+import { getDictionary } from "@/lib/i18n/dictionary";
 import styles from "./founder-section.module.css";
 
-export function FounderSection() {
+export async function FounderSection() {
+  const { home, meta } = getDictionary(await getLocale());
+  const copy = home.founder;
+
   return (
-    <section className={styles.section} aria-label="A message from our founder">
+    <section className={styles.section} aria-label={copy.sectionAria}>
       <figure className={styles.card}>
         <Image
           src="/images/founder/sakafat-artwork.png"
@@ -14,18 +19,18 @@ export function FounderSection() {
         />
         <Image
           src="/images/founder/founder.png"
-          alt="Meeran Nasir, founder of Sakafat Global"
+          alt={copy.portraitAlt}
           width={225}
           height={230}
           className={styles.portrait}
         />
         <div className={styles.message}>
           <blockquote className={styles.quote}>
-            <p>“<strong>Sakafat Global</strong> was established from a belief that culture has practical power. It shapes how people see themselves, communicate across difference, develop confidence and participate in the future of their communities.”</p>
+            <p>“<strong>{meta.siteName}</strong> {copy.quotePrefix}”</p>
           </blockquote>
           <figcaption className={styles.attribution}>
-            <span className={styles.name}>Meeran Nasir</span>
-            <span className={styles.role}>Founder, Director &amp; Chief Executive Officer</span>
+            <span className={styles.name}>{copy.name}</span>
+            <span className={styles.role}>{copy.role}</span>
           </figcaption>
         </div>
       </figure>

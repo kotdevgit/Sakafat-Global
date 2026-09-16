@@ -7,6 +7,14 @@
  * messages deliberately promise nothing Django would then contradict.
  */
 
+import { format, type Dictionary } from "@/lib/i18n/dictionary";
+
+/** A failed check: the dictionary key for the sentence, plus anything it interpolates. */
+export type AuthIssue = {
+  code: keyof Dictionary["validation"];
+  values?: Record<string, string | number>;
+};
+
 /** Django's own username rule: letters, digits and . @ + - _ in any script. */
 const USERNAME = /^[\w.@+-]+$/u;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/u;
@@ -28,16 +36,16 @@ export type AuthField = "username" | "email" | "password" | "new_password" | "co
  */
 export type AuthContext = "login" | "register";
 
-function validatePassword(value: string, username: string): string | null {
+function validatePassword(value: string, username: string): AuthIssue | null {
   if (value.length < passwordMinLength) {
-    return `Password must be at least ${passwordMinLength} characters.`;
+    return { code: "passwordMinLength", values: { min: passwordMinLength } };
   }
   if (value.length > passwordMaxLength) {
-    return `Password must be ${passwordMaxLength} characters or fewer.`;
+    return { code: "passwordMaxLength", values: { max: passwordMaxLength } };
   }
-  if (ALL_DIGITS.test(value)) return "Password cannot be only numbers.";
+  if (ALL_DIGITS.test(value)) return { code: "passwordAllNumbers" };
   if (username && value.toLowerCase().includes(username.toLowerCase())) {
-    return "Password cannot contain your username.";
+    return { code: "passwordContainsUsername" };
   }
   return null;
 }
@@ -54,45 +62,47 @@ export function validateAuthField(
     username?: string;
     password?: string;
   } = {},
-): string | null {
+): AuthIssue | null {
   const value = field === "password" || field === "new_password" || field === "confirmPassword"
     ? raw
     : raw.trim();
 
   switch (field) {
     case "username":
-      if (!value) return "Username is required.";
+      if (!value) return { code: "usernameRequired" };
       if (value.length > usernameMaxLength) {
-        return `Username must be ${usernameMaxLength} characters or fewer.`;
+        return { code: "usernameMaxLength", values: { max: usernameMaxLength } };
       }
       if (context === "login") return null;
-      if (value.length < 3) return "Username must be at least 3 characters.";
-      return USERNAME.test(value)
-        ? null
-        : "Use letters, digits and . @ + - _ only — no spaces.";
+      if (value.length < 3) return { code: "usernameMinLength", values: { min: 3 } };
+      return USERNAME.test(value) ? null : { code: "usernamePattern" };
 
     case "email":
-      if (!value) return "Email address is required.";
+      if (!value) return { code: "emailRequired" };
       if (value.length > emailMaxLength) {
-        return `Email address must be ${emailMaxLength} characters or fewer.`;
+        return { code: "emailMaxLength", values: { max: emailMaxLength } };
       }
-      return EMAIL.test(value) ? null : "Enter a complete email address, such as name@example.com.";
+      return EMAIL.test(value) ? null : { code: "emailPattern" };
 
     case "password":
     case "new_password":
-      if (!value) return "Password is required.";
+      if (!value) return { code: "passwordRequired" };
       return context === "login" ? null : validatePassword(value, username);
 
     case "confirmPassword":
-      if (!value) return "Please confirm your password.";
-      return value === password ? null : "Enter the same password in both fields.";
+      if (!value) return { code: "confirmPasswordRequired" };
+      return value === password ? null : { code: "confirmPasswordMismatch" };
 
     case "otp":
-      if (!value) return "Verification code is required.";
-      return SIX_DIGITS.test(value) ? null : `Enter the ${otpLength}-digit code from your email.`;
+      if (!value) return { code: "otpRequired" };
+      return SIX_DIGITS.test(value) ? null : { code: "otpPattern", values: { length: otpLength } };
   }
 }
 
+/** Turns an issue into a sentence in the language being read. */
+export function resolveAuthMessage(dict: Dictionary, issue: AuthIssue): string {
+  return format(dict.validation[issue.code], issue.values);
+}
 
 /** Characters each restricted field accepts; everything else is dropped as typed. */
 const allowedCharacters: Partial<Record<AuthField, RegExp>> = {
