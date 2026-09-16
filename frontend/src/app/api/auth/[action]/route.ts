@@ -272,6 +272,19 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
 
     const data = await upstream.json();
     if (!upstream.ok) {
+      // A login by someone who never verified their email is not a failure the
+      // visitor can fix on this form, so it is passed through as a code the page
+      // acts on rather than an error message.
+      if (action === "login" && data.code === "ACCOUNT_NOT_VERIFIED") {
+        return reply(
+          {
+            code: "ACCOUNT_NOT_VERIFIED",
+            username: typeof data.username === "string" ? data.username : "",
+            message: "Your email is not verified yet. Enter the code we sent you.",
+          },
+          upstream.status,
+        );
+      }
       const errors: Record<string, string> = {};
       for (const key of [...fields, "non_field_errors", "detail", "error"]) {
         const value = data[key];

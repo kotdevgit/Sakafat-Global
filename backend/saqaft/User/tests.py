@@ -28,7 +28,11 @@ class AuthenticationFlowTests(APITestCase):
         otp = OTPVerification.objects.get(user=user).otp
         self.assertIn(otp, mail.outbox[0].body)
         login = {k: self.credentials[k] for k in ('username', 'password')}
-        self.assertEqual(self.client.post('/api/login/', login).status_code, 400)
+        # Signing in before verifying now says so, so the site can carry the
+        # visitor into the code step instead of refusing them.
+        pending = self.client.post('/api/login/', login)
+        self.assertEqual(pending.status_code, 403)
+        self.assertEqual(pending.json()['code'], 'ACCOUNT_NOT_VERIFIED')
         self.assertEqual(self.client.post('/api/verify_otp/', {'username': user.username, 'otp': otp}).status_code, 200)
         response = self.client.post('/api/login/', login)
         self.assertEqual(response.status_code, 200)
@@ -244,3 +248,54 @@ class OtpShapeTests(APITestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertIn("otp", response.json())
+
+
+class UnverifiedLoginTests(APITestCase):
+    """Signing in to an unverified account should lead to verification, not a wall."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="pending", email="pending@example.test", password="heritage-archive-92"
+        )
+        self.user.is_active = False
+        self.user.save(update_fields=["is_active"])
+
+    def login(self, password):
+        return self.client.post(
+            "/api/login/", {"username": "pending", "password": password}, format="json"
+        )
+
+    def test_correct_password_reports_the_account_is_unverified(self):
+        response = self.login("heritage-archive-92")
+
+        self.assertEqual(response.status_code, 403)
+        body = response.json()
+        self.assertEqual(body["code"], "ACCOUNT_NOT_VERIFIED")
+        self.assertEqual(body["username"], "pending")
+
+    def test_no_session_is_issued_for_an_unverified_account(self):
+        body = self.login("heritage-archive-92").json()
+
+        self.assertNotIn("access", body)
+        self.assertNotIn("refresh", body)
+
+    def test_a_wrong_password_never_reveals_that_the_account_exists(self):
+        wrong = self.login("not-the-password").json()
+        unknown = self.client.post(
+            "/api/login/",
+            {"username": "nobody-here", "password": "heritage-archive-92"},
+            format="json",
+        ).json()
+
+        # Identical replies, so the endpoint cannot be used to discover usernames.
+        self.assertEqual(wrong, unknown)
+        self.assertNotIn("code", wrong)
+
+    def test_a_verified_account_still_logs_in_normally(self):
+        self.user.is_active = True
+        self.user.save(update_fields=["is_active"])
+
+        response = self.login("heritage-archive-92")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("access", response.json())

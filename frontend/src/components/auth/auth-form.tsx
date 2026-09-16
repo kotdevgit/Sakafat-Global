@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "./auth-provider";
 import {
   emailMaxLength,
@@ -16,10 +15,9 @@ import {
 import { filterInput } from "@/lib/validation/filter";
 import styles from "./auth.module.css";
 
-type Mode = "login" | "register" | "verify" | "forgot-password";
+type Mode = "login" | "register" | "forgot-password";
 
 export function AuthForm({ mode }: { mode: Mode }) {
-  const router = useRouter();
   const { authenticated, setAuthenticated } = useAuth();
   const [busy, setBusy] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -27,6 +25,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [verified, setVerified] = useState(false);
   const [resetDone, setResetDone] = useState(false);
   const [resetStep, setResetStep] = useState<"email" | "otp">("email");
+  // Registration continues into the code step on the same page. The username is
+  // kept here so the visitor never retypes what they just chose.
+  const [registerStep, setRegisterStep] = useState<"details" | "otp">("details");
+  const [registeredUsername, setRegisteredUsername] = useState("");
   const [resetEmail, setResetEmail] = useState("");
   const [notice, setNotice] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -96,11 +98,15 @@ export function AuthForm({ mode }: { mode: Mode }) {
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy) return;
-    const data = new FormData(event.currentTarget);
+    // Captured now: currentTarget is cleared once the handler yields at an await.
+    const form = event.currentTarget;
+    const data = new FormData(form);
     const username = String(data.get("username") || "").trim();
     const password = String(data.get("password") || "");
 
-    if (mode === "register" && password !== data.get("confirmPassword")) {
+    // Only the details step has password fields; the code step that follows it is
+    // still mode "register" and must not be held to this check.
+    if (mode === "register" && registerStep === "details" && password !== data.get("confirmPassword")) {
       showError("Your passwords don’t match.", { confirmPassword: "Enter the same password in both fields." });
       return;
     }
@@ -154,26 +160,50 @@ export function AuthForm({ mode }: { mode: Mode }) {
         }
       }
 
-      const payload =
-        mode === "verify"
-          ? { username, otp: String(data.get("otp") || "").trim() }
-          : mode === "register"
-          ? { username, email: String(data.get("email") || "").trim(), password }
-          : { username, password };
+      // The second step of registration verifies the account it just created, so
+      // it posts to the verify endpoint rather than to /api/auth/register.
+      const enteringCode = registerStep === "otp";
+      const action = enteringCode ? "verify" : mode;
+      const payload = enteringCode
+        ? {
+            username: registerStep === "otp" ? registeredUsername : username,
+            otp: String(data.get("otp") || "").trim(),
+          }
+        : mode === "register"
+        ? { username, email: String(data.get("email") || "").trim(), password }
+        : { username, password };
 
-      const response = await fetch(`/api/auth/${mode}`, {
+      const response = await fetch(`/api/auth/${action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const result = await response.json();
       if (!response.ok) {
+        // Signing in with an account that was never verified is not a wrong
+        // password: carry them into the code step instead of refusing them.
+        if (result.code === "ACCOUNT_NOT_VERIFIED") {
+          setRegisteredUsername(result.username || username);
+          setRegisterStep("otp");
+          setErrors({});
+          setNotice(result.message);
+          form.reset();
+          return;
+        }
         showError(result.message || "Please try again.", result.errors);
         return;
       }
-      if (mode === "register") router.push("/verify-email");
-      else if (mode === "verify") setVerified(true);
-      else setAuthenticated(true);
+      if (enteringCode) setVerified(true);
+      else if (mode === "register") {
+        // Registration succeeded: continue to the code step in place rather than
+        // sending the visitor to a page that asks for the username again.
+        setRegisteredUsername(username);
+        setRegisterStep("otp");
+        setNotice(result.message || "Check your email for your verification code.");
+        setTouched({});
+        setValues({});
+        form.reset();
+      } else setAuthenticated(true);
     } catch {
       showError("We couldn’t connect. Check your connection and try again.");
     } finally {
@@ -182,7 +212,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
   }
 
   async function resend() {
-    const username = (document.getElementById("username") as HTMLInputElement | null)?.value.trim();
+    // After registering the username is held in state; on the standalone verify
+    // page it still comes from the field on screen.
+    const username =
+      registeredUsername ||
+      (document.getElementById("username") as HTMLInputElement | null)?.value.trim();
     if (!username) {
       showError("Enter your username first.");
       return;
@@ -239,7 +273,9 @@ export function AuthForm({ mode }: { mode: Mode }) {
     }
   }
 
-  if (authenticated && mode !== "verify") {
+  // Someone part-way through entering a code is not signed in yet, so the
+  // signed-in panel must not replace the step they are on.
+  if (authenticated && registerStep === "details") {
     return (
       <>
         <p className={styles.eyebrow}>Your account</p>
@@ -284,8 +320,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
     );
   }
 
-  const registering = mode === "register";
   const isForgotPassword = mode === "forgot-password";
+  // True while the form is asking for a verification code — either straight after
+  // registering, or on the standalone page someone returns to later.
+  const enteringCode = registerStep === "otp";
+  // Only the details step collects a username, email and password.
+  const registering = mode === "register" && registerStep === "details";
 
   return (
     <>
@@ -299,7 +339,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       </nav>
 
       <h1 id="auth-heading">
-        {mode === "verify"
+        {enteringCode
           ? "Check your email."
           : isForgotPassword
           ? resetStep === "email"
@@ -311,8 +351,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
       </h1>
 
       <p className={styles.intro}>
-        {mode === "verify"
-          ? "Enter your username and the six-digit code sent to your email."
+        {enteringCode
+          ? `Enter the six-digit code we sent to activate ${registeredUsername}.`
           : isForgotPassword
           ? resetStep === "email"
             ? "Enter your account email to receive a password reset verification code."
@@ -322,7 +362,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
           : "Log in to your Sakafat Global account."}
       </p>
 
-      <form onSubmit={submit} aria-busy={busy}>
+      {/*
+        method="post" is a safety net, not the submit path: submit() calls
+        preventDefault and posts through fetch. It matters only if the page fails
+        to hydrate, when the browser would otherwise submit natively — and a form
+        without it defaults to GET, putting the password in the URL and from there
+        into server logs and browser history.
+      */}
+      <form method="post" onSubmit={submit} aria-busy={busy}>
         <div ref={feedback} tabIndex={-1} role="alert" className={message ? styles.error : undefined}>
           {message}
         </div>
@@ -428,6 +475,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
             )
           ) : (
             <>
+              {/* The code step is only ever reached once the username is known —
+                  from registering, or from signing in to an unverified account —
+                  so it is never asked for again. */}
+              {!enteringCode && (
               <div className={styles.field}>
                 <label htmlFor="username">Username</label>
                 <input
@@ -448,6 +499,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
                   </p>
                 )}
               </div>
+              )}
 
               {registering && (
                 <div className={styles.field}>
@@ -471,7 +523,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
                 </div>
               )}
 
-              {mode === "verify" ? (
+              {enteringCode ? (
                 <div className={styles.field}>
                   <label htmlFor="otp">Verification code</label>
                   <input
@@ -564,7 +616,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
               ? resetStep === "email"
                 ? "Send reset code"
                 : "Reset password"
-              : mode === "verify"
+              : enteringCode
               ? "Verify email"
               : registering
               ? "Create account"
@@ -574,7 +626,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         </fieldset>
       </form>
 
-      {mode === "verify" && (
+      {enteringCode && (
         <button type="button" className={styles.textButton} disabled={busy} onClick={resend}>
           Send a new code
         </button>
@@ -587,7 +639,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       )}
 
       <p className={styles.footnote}>
-        {mode === "verify" ? (
+        {enteringCode ? (
           <>
             Already verified? <Link href="/login">Log in</Link>
           </>
@@ -606,11 +658,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
         )}
       </p>
 
-      {!isForgotPassword && mode !== "verify" && (
-        <p className={styles.hint}>
-          Waiting to activate your account? <Link href="/verify-email">Verify email</Link>
-        </p>
-      )}
     </>
   );
 }

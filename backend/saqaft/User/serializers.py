@@ -55,14 +55,26 @@ class LoginSerializer(serializers.Serializer):
             password=data["password"]
         )
 
-        if not user:
-            raise serializers.ValidationError(
-                "Invalid username or password."
-            )
+        if user:
+            data["user"] = user
+            return data
 
-        data["user"] = user
+        # authenticate() refuses an inactive account, so a correct password for an
+        # unverified one lands here too. Tell those two apart, but only once the
+        # password checks out — saying "this account is unverified" to someone who
+        # got the password wrong would reveal which usernames exist.
+        pending = User.objects.filter(
+            username=data["username"],
+            is_active=False
+        ).first()
 
-        return data
+        if pending and pending.check_password(data["password"]):
+            data["unverified"] = pending
+            return data
+
+        raise serializers.ValidationError(
+            "Invalid username or password."
+        )
 
 
 class VerifyOTPSerializer(serializers.Serializer):

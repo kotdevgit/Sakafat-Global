@@ -182,7 +182,7 @@ export function ContactForm() {
           </div>
           <p className={styles.enquiryIntro}>This keeps the form relevant and avoids unnecessary data collection.</p>
         </header>
-        <form id={enquiryFormId} ref={formRef} className={styles.form} tabIndex={-1} onSubmit={submit} aria-busy={busy} aria-describedby="submission-note">
+        <form id={enquiryFormId} ref={formRef} method="post" className={styles.form} tabIndex={-1} onSubmit={submit} aria-busy={busy} aria-describedby="submission-note">
           <div ref={feedback} tabIndex={-1} role={sent ? "status" : "alert"} className={message ? (sent ? styles.notice : styles.error) : undefined}>{message}</div>
           <fieldset disabled={busy} className={styles.fieldset}>
           <div className={styles.fields}>

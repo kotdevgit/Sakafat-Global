@@ -60,6 +60,20 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        # The password was right but the account was never verified. Answer with a
+        # code the site can act on, so it can send them to finish verifying rather
+        # than showing a misleading "invalid username or password".
+        unverified = serializer.validated_data.get("unverified")
+        if unverified:
+            return Response(
+                {
+                    "code": "ACCOUNT_NOT_VERIFIED",
+                    "username": unverified.username,
+                    "error": "Your email is not verified yet. Enter the code we sent you.",
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         user = serializer.validated_data["user"]
 
         refresh = RefreshToken.for_user(user)

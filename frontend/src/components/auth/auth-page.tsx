@@ -2,7 +2,7 @@ import Image from "next/image";
 import { AuthForm } from "./auth-form";
 import styles from "./auth.module.css";
 
-export function AuthPage({ mode }: { mode: "login" | "register" | "verify" | "forgot-password" }) {
+export function AuthPage({ mode }: { mode: "login" | "register" | "forgot-password" }) {
   return <main id="main-content" tabIndex={-1} className={styles.page}>
     <div className={styles.layout}>
       <aside className={styles.story}>
