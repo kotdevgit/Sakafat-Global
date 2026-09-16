@@ -8,14 +8,22 @@ export const metadata: Metadata = {
   description: "Find your pathway to participate in Sakafat Global as a creator, guest, studio, institution or partner.",
 };
 
+/**
+ * Every pathway leads somewhere. Most open the enquiry form with the type and
+ * subject already set, so the visitor does not have to restate why they came;
+ * the two that have a page of their own link to it instead.
+ */
+const enquiry = (type: string, subject: string) =>
+  `/contact?type=${type}&subject=${encodeURIComponent(subject)}`;
+
 const pathways = [
-  { title: "Submit Your Story", description: "Share a cultural story, idea, creative work or perspective through an approved open call.", action: "View Open Calls" },
-  { title: "Become a Podcast Guest", description: "Propose yourself or another relevant voice for an interview, discussion or Sakafat production.", action: "Propose a Guest" },
-  { title: "Join as a Creator", description: "Express interest in writing, audio, video, music, performance or other creative work.", action: "Join the Creator Network" },
-  { title: "Register a Studio", description: "Submit production capabilities, facilities, portfolio and operational information.", action: "Register Your Studio" },
-  { title: "Propose a Production", description: "Submit a podcast, documentary, series or creative-format concept for consideration.", action: "Propose a Format" },
+  { title: "Submit Your Story", description: "Share a cultural story, idea, creative work or perspective through an approved open call.", action: "View Open Calls", href: "/programs" },
+  { title: "Become a Podcast Guest", description: "Propose yourself or another relevant voice for an interview, discussion or Sakafat production.", action: "Propose a Guest", href: enquiry("creative", "Podcast guest proposal") },
+  { title: "Join as a Creator", description: "Express interest in writing, audio, video, music, performance or other creative work.", action: "Join the Creator Network", href: enquiry("creative", "Creator network application") },
+  { title: "Register a Studio", description: "Submit production capabilities, facilities, portfolio and operational information.", action: "Register Your Studio", href: enquiry("partnership", "Studio registration") },
+  { title: "Propose a Production", description: "Submit a podcast, documentary, series or creative-format concept for consideration.", action: "Propose a Format", href: enquiry("creative", "Production proposal") },
   { title: "Join a Programme", description: "Explore active programmes, eligibility requirements and participation opportunities.", action: "Explore Programmes", href: "/programs" },
-  { title: "Partner With Sakafat", description: "Propose structured institutional, educational, media or responsible commercial collaboration.", action: "Start a Partnership Enquiry", href: "/contact" },
+  { title: "Partner With Sakafat", description: "Propose structured institutional, educational, media or responsible commercial collaboration.", action: "Start a Partnership Enquiry", href: enquiry("partnership", "Partnership enquiry") },
 ];
 
 function Arrow() {
@@ -47,7 +55,7 @@ export default function GetInvolvedPage() {
                 <summary><h3>{pathway.title}</h3><span className={styles.plus} aria-hidden="true" /></summary>
                 <div className={styles.panel}>
                   <p>{pathway.description}</p>
-                  {pathway.href ? <Link href={pathway.href} className={styles.action}>{pathway.action}<Arrow /></Link> : <button type="button" disabled className={styles.action} title="Coming soon">{pathway.action}<Arrow /></button>}
+                  <Link href={pathway.href} className={styles.action}>{pathway.action}<Arrow /></Link>
                 </div>
               </details>
             ))}

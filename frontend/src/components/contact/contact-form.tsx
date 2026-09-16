@@ -1,16 +1,37 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { contactFieldNames, contactFields, filterValue, validateContact, validateField, type ContactField } from "@/lib/validation/contact";
 import { filterInput } from "@/lib/validation/filter";
 import styles from "./contact.module.css";
 
 const noFile = "No file selected";
 
+/**
+ * The enquiry types this form offers, in the order they are listed. Other pages
+ * link here with ?type=<value> to preselect one; anything not on this list is
+ * ignored rather than trusted into the field.
+ */
+const enquiryOptions = [
+  ["general", "General enquiry"],
+  ["programme", "Programmes and participation"],
+  ["creative", "Creative collaboration"],
+  ["partnership", "Partnership enquiry"],
+  ["media", "Media enquiry"],
+] as const;
+
 /** Field errors are keyed by the browser field names used in this form. */
 type Errors = Record<string, string>;
 
 export function ContactForm() {
+  // Pathway and programme pages link here with the enquiry already framed, so the
+  // visitor lands on a form that knows why they came.
+  const params = useSearchParams();
+  const requestedType = params.get("type") ?? "";
+  const presetType = enquiryOptions.some(([value]) => value === requestedType) ? requestedType : "";
+  const presetSubject = filterValue("subject", params.get("subject") ?? "");
+
   const [fileName, setFileName] = useState(noFile);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -20,7 +41,7 @@ export function ContactForm() {
   // A field is only validated live once the visitor has left it, so an error never
   // appears while they are still part-way through typing it.
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [lengths, setLengths] = useState<Record<string, number>>({});
+  const [lengths, setLengths] = useState<Record<string, number>>({ subject: presetSubject.length });
 
   function check(field: ContactField, value: string) {
     setErrors((current) => {
@@ -127,8 +148,8 @@ export function ContactForm() {
             <div><label className={styles.srOnly} htmlFor="email">Email address</label><input id="email" name="email" type="email" autoComplete="email" placeholder="Email address" required {...liveProps("email")} />{errors.email && <p id="email-error" className={styles.fieldError}>{errors.email}</p>}</div>
             <div><label className={styles.srOnly} htmlFor="phone">Phone number</label><input id="phone" name="phone" type="tel" autoComplete="tel" placeholder="Phone number" required {...liveProps("phone")} />{errors.phone && <p id="phone-error" className={styles.fieldError}>{errors.phone}</p>}</div>
             <div><label className={styles.srOnly} htmlFor="location">Country and city</label><input id="location" name="location" placeholder="Country and city" {...liveProps("location")} />{errors.location && <p id="location-error" className={styles.fieldError}>{errors.location}</p>}</div>
-            <div><label className={styles.srOnly} htmlFor="enquiry-type">Enquiry type</label><select id="enquiry-type" name="enquiryType" defaultValue="" required {...liveProps("enquiryType")}><option value="" disabled>Enquiry type</option><option value="general">General enquiry</option><option value="programme">Programmes and participation</option><option value="creative">Creative collaboration</option><option value="partnership">Partnership enquiry</option><option value="media">Media enquiry</option></select>{errors.enquiryType && <p id="enquiryType-error" className={styles.fieldError}>{errors.enquiryType}</p>}</div>
-            <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="subject">Subject</label><input id="subject" name="subject" placeholder="Subject" required {...liveProps("subject")} /><p className={styles.counter} aria-live="polite">{lengths.subject ?? 0} / {contactFields.subject.maxLength}</p>{errors.subject && <p id="subject-error" className={styles.fieldError}>{errors.subject}</p>}</div>
+            <div><label className={styles.srOnly} htmlFor="enquiry-type">Enquiry type</label><select id="enquiry-type" name="enquiryType" defaultValue={presetType} required {...liveProps("enquiryType")}><option value="" disabled>Enquiry type</option>{enquiryOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>{errors.enquiryType && <p id="enquiryType-error" className={styles.fieldError}>{errors.enquiryType}</p>}</div>
+            <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="subject">Subject</label><input id="subject" name="subject" placeholder="Subject" defaultValue={presetSubject} required {...liveProps("subject")} /><p className={styles.counter} aria-live="polite">{lengths.subject ?? 0} / {contactFields.subject.maxLength}</p>{errors.subject && <p id="subject-error" className={styles.fieldError}>{errors.subject}</p>}</div>
             <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="message">Message</label><textarea id="message" name="message" placeholder="Message" rows={4} required {...liveProps("message")} /><p className={styles.counter} aria-live="polite">{lengths.message ?? 0} / {contactFields.message.maxLength}</p>{errors.message && <p id="message-error" className={styles.fieldError}>{errors.message}</p>}</div>
             <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="portfolio">Relevant link or portfolio</label><input id="portfolio" name="portfolio" type="url" placeholder="Relevant link or portfolio" {...liveProps("portfolio")} />{errors.portfolio && <p id="portfolio-error" className={styles.fieldError}>{errors.portfolio}</p>}</div>
           </div>

@@ -24,8 +24,7 @@
 .panel { padding: 0 56px 32px; }
 .panel p { margin: 0 0 20px; color: #66716e; font: var(--type-body); }
 .action { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; border: 0; padding: 0; background: transparent; color: #178f91; font: var(--type-button); text-decoration: none; }
-.action:disabled { cursor: not-allowed; }
-.action[href]:hover { text-decoration: underline; }
+.action:hover { text-decoration: underline; }
 .accordion summary:focus-visible, .action:focus-visible { outline: 3px solid #daa326; outline-offset: -5px; }
 .participation { background: #fff; padding: 84px 48px 180px; }
 .note { position: relative; max-width: 1140px; margin-inline: auto; border-radius: 20px; overflow: hidden; color: #fff; }
