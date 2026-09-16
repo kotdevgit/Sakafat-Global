@@ -55,3 +55,5 @@ backend/.local/
 
 # Uploaded enquiry attachments and other user media
 backend/saqaft/media/
+/backend/__MACOSX
+backend.zip
