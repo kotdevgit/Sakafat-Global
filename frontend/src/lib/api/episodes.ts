@@ -1,4 +1,5 @@
 import { getApiBaseUrl } from "./config";
+import { missingApiBaseUrl, reportUnavailable } from "./unavailable";
 
 /** Mirrors Django's Episode serializer; Django remains the authority for these values. */
 export type Episode = {
@@ -55,6 +56,7 @@ export async function getEpisodes(): Promise<Episode[]> {
   try {
     base = getApiBaseUrl();
   } catch {
+    reportUnavailable("Episodes", missingApiBaseUrl);
     return [];
   }
   try {
@@ -65,7 +67,10 @@ export async function getEpisodes(): Promise<Episode[]> {
       // Episodes change through the admin, so refresh them on a short cycle.
       next: { revalidate: 60 },
     });
-    if (!response.ok) return [];
+    if (!response.ok) {
+      reportUnavailable("Episodes", `Django answered ${response.status}. Check the backend is running and migrated.`);
+      return [];
+    }
     const data: unknown = await response.json();
     const entries = Array.isArray(data)
       ? data
@@ -76,7 +81,8 @@ export async function getEpisodes(): Promise<Episode[]> {
       .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object")
       .map((entry) => toEpisode(entry, base))
       .filter((episode): episode is Episode => episode !== null);
-  } catch {
+  } catch (error) {
+    reportUnavailable("Episodes", error);
     return [];
   }
 }

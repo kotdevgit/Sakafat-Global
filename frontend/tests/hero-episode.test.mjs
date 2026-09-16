@@ -13,7 +13,11 @@ function load() {
   const exports = {};
   vm.runInNewContext(code, {
     exports,
-    require: name => name === './config' ? { getApiBaseUrl: () => 'http://django.test/api/' } : require(name),
+    require: name => {
+      if (name === './config') return { getApiBaseUrl: () => 'http://django.test/api/' };
+      if (name === './unavailable') return { reportUnavailable() {}, missingApiBaseUrl: '' };
+      return require(name);
+    },
     URL, AbortSignal, Object, Array, fetch: async () => { throw Error('not used'); },
   });
   return exports;

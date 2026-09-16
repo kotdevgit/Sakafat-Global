@@ -1,4 +1,5 @@
 import { getApiBaseUrl } from "./config";
+import { missingApiBaseUrl, reportUnavailable } from "./unavailable";
 
 /** Mirrors Django's Programme serializer; Django remains the authority for these values. */
 export type Programme = {
@@ -75,6 +76,7 @@ export async function getProgrammes(): Promise<Programme[]> {
   try {
     base = getApiBaseUrl();
   } catch {
+    reportUnavailable("Programmes", missingApiBaseUrl);
     return [];
   }
   try {
@@ -85,7 +87,10 @@ export async function getProgrammes(): Promise<Programme[]> {
       // Programmes change through the admin, so refresh them on a short cycle.
       next: { revalidate: 60 },
     });
-    if (!response.ok) return [];
+    if (!response.ok) {
+      reportUnavailable("Programmes", `Django answered ${response.status}. Check the backend is running and migrated.`);
+      return [];
+    }
     const data: unknown = await response.json();
     const entries = Array.isArray(data)
       ? data
@@ -96,7 +101,8 @@ export async function getProgrammes(): Promise<Programme[]> {
       .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object")
       .map((entry) => toProgramme(entry, base))
       .filter((programme): programme is Programme => programme !== null);
-  } catch {
+  } catch (error) {
+    reportUnavailable("Programmes", error);
     return [];
   }
 }
@@ -110,6 +116,7 @@ export async function getProgrammeBySlug(slug: string): Promise<Programme | null
   try {
     base = getApiBaseUrl();
   } catch {
+    reportUnavailable("Programmes", missingApiBaseUrl);
     return null;
   }
   try {
