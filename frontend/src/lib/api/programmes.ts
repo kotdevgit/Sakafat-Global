@@ -127,3 +127,13 @@ export async function getProgrammeBySlug(slug: string): Promise<Programme | null
     return null;
   }
 }
+
+/**
+ * The programme the homepage call-to-action points at: the first one currently
+ * accepting participants. Returns null when nothing is open, so the caller can
+ * fall back to the full listing instead of linking somewhere dead.
+ */
+export async function getOpenProgramme(): Promise<Programme | null> {
+  const programmes = await getProgrammes();
+  return programmes.find((programme) => filterOf(programme) === "Open Now") ?? null;
+}

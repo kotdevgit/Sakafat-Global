@@ -8,7 +8,9 @@
 .message { line-height: 1.6; }
 .message h2 { display: inline; margin: 0;    }
 .message p { display: inline; margin: 0;   }
-.submit { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; margin-top: 12px; padding: 7px 16px; border: 0; border-radius: 999px; background: #ffb322; color: #050505;    cursor: not-allowed; }
+.submit { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; margin-top: 12px; padding: 7px 16px; border: 0; border-radius: 999px; background: #ffb322; color: #050505; text-decoration: none; }
+.submit:hover { background: #ffc352; }
+.submit:focus-visible { outline: 3px solid #fffefc; outline-offset: 3px; }
 @media (max-width: 1023px) {
   .section { padding: 48px 32px; }
   .content { padding: 36px 32px; }

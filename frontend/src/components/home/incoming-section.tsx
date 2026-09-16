@@ -1,7 +1,14 @@
 import Image from "next/image";
+import Link from "next/link";
+import { getOpenProgramme } from "@/lib/api/programmes";
 import styles from "./incoming-section.module.css";
 
-export function IncomingSection() {
+export async function IncomingSection() {
+  // Point at whichever programme is open rather than a fixed slug, so the call to
+  // action follows the admin. With nothing open it falls back to the full listing.
+  const open = await getOpenProgramme();
+  const href = open ? `/programs/${open.slug}` : "/programs";
+
   return (
     <section className={styles.section} aria-labelledby="incoming-heading">
       <div className={styles.banner}>
@@ -18,7 +25,7 @@ export function IncomingSection() {
             <h2 id="incoming-heading">Be part of the signal.</h2>{" "}
             <p>Sakafat Signals 01.0 is open to emerging cultural practitioners, writers, performers and creators.</p>
           </div>
-          <button className={styles.submit} type="button" disabled title="Registration — coming soon">Submit your interest</button>
+          <Link className={styles.submit} href={href}>Submit your interest</Link>
         </div>
       </div>
     </section>

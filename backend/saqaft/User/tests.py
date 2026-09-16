@@ -199,3 +199,48 @@ class RefreshRotationTests(APITestCase):
 
         reused = self.client.post("/api/token/refresh/", {"refresh": original}, content_type="application/json")
         self.assertEqual(reused.status_code, 401)
+
+
+class ResetPasswordStrengthTests(APITestCase):
+    """A reset must not be a way around the rules registration enforces."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="amina", email="amina@example.test", password="original-pass-123"
+        )
+        self.otp = PasswordResetOTP.objects.create(user=self.user, otp="123456")
+
+    def reset(self, new_password):
+        return self.client.post(
+            "/api/reset-password/",
+            {"email": "amina@example.test", "otp": "123456", "new_password": new_password},
+        )
+
+    def test_common_password_is_rejected(self):
+        response = self.reset("password123")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("new_password", response.json())
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("original-pass-123"))
+
+    def test_all_numeric_password_is_rejected(self):
+        response = self.reset("948172635104")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("new_password", response.json())
+
+    def test_a_strong_password_is_accepted(self):
+        response = self.reset("heritage-archive-92")
+
+        self.assertEqual(response.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("heritage-archive-92"))
+
+
+class OtpShapeTests(APITestCase):
+    def test_a_non_numeric_code_is_rejected_before_any_lookup(self):
+        response = self.client.post("/api/verify_otp/", {"username": "amina", "otp": "abcdef"})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("otp", response.json())

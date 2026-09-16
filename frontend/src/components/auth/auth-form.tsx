@@ -3,6 +3,17 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./auth-provider";
+import {
+  emailMaxLength,
+  otpLength,
+  passwordMaxLength,
+  passwordMinLength,
+  usernameMaxLength,
+  filterAuthValue,
+  validateAuthField,
+  type AuthField,
+} from "@/lib/validation/auth";
+import { filterInput } from "@/lib/validation/filter";
 import styles from "./auth.module.css";
 
 type Mode = "login" | "register" | "verify" | "forgot-password";
@@ -20,6 +31,61 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [notice, setNotice] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const feedback = useRef<HTMLDivElement>(null);
+  // Fields validate once the visitor has left them, then on every edit, so an
+  // error never appears while they are still part-way through typing.
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [values, setValues] = useState<Record<string, string>>({});
+
+  // Signing in checks only that something was entered: an account created before
+  // any rule tightening must still be able to log in.
+  const context = mode === "login" ? "login" : "register";
+
+  function messageFor(field: AuthField, value: string, all: Record<string, string>) {
+    return validateAuthField(field, value, {
+      context,
+      username: all.username ?? "",
+      password: all.newPassword ?? all.password ?? "",
+    });
+  }
+
+  /** Wires one field for live validation. `key` is where its error is reported. */
+  function liveProps(field: AuthField, key: string = field) {
+    return {
+      "aria-invalid": errors[key] ? true : undefined,
+      onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+        const { name, value } = event.currentTarget;
+        const all = { ...values, [name]: value };
+        setValues(all);
+        setTouched((current) => ({ ...current, [key]: true }));
+        setErrors((current) => {
+          const text = messageFor(field, value, all);
+          if ((current[key] ?? null) === text) return current;
+          const next = { ...current };
+          if (text) next[key] = text;
+          else delete next[key];
+          return next;
+        });
+      },
+      onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+        const element = event.currentTarget;
+        const { name } = element;
+        // Characters the field does not accept are removed as they are typed.
+        const value = filterInput(element, (raw) => filterAuthValue(field, raw));
+        const all = { ...values, [name]: value };
+        setValues(all);
+        if (!touched[key]) return;
+        setErrors((current) => {
+          const text = messageFor(field, value, all);
+          if ((current[key] ?? null) === text) return current;
+          const next = { ...current };
+          if (text) next[key] = text;
+          else delete next[key];
+          return next;
+        });
+      },
+    };
+  }
+
 
   function showError(text: string, fields: Record<string, string> = {}) {
     setMessage(text);
@@ -274,6 +340,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
                 <input
                   id="email"
                   name="email"
+                  maxLength={emailMaxLength}
+                  {...liveProps("email")}
                   type="email"
                   autoComplete="email"
                   required
@@ -293,11 +361,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
                   <input
                     id="otp"
                     name="otp"
+                    {...liveProps("otp")}
                     autoComplete="one-time-code"
                     inputMode="numeric"
                     pattern="[0-9]{6}"
-                    maxLength={6}
-                    minLength={6}
+                    maxLength={otpLength}
+                    minLength={otpLength}
                     required
                     className={styles.code}
                     aria-invalid={Boolean(errors.otp)}
@@ -313,10 +382,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
                     <input
                       id="newPassword"
                       name="newPassword"
+                      maxLength={passwordMaxLength}
+                      {...liveProps("new_password")}
                       type={visible ? "text" : "password"}
                       autoComplete="new-password"
                       required
-                      minLength={8}
+                      minLength={passwordMinLength}
                       aria-invalid={Boolean(errors.new_password)}
                       aria-describedby="password-hint"
                     />
@@ -338,10 +409,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
                   <input
                     id="confirmPassword"
                     name="confirmPassword"
+                    maxLength={passwordMaxLength}
+                    {...liveProps("confirmPassword")}
                     type={visible ? "text" : "password"}
                     autoComplete="new-password"
                     required
-                    minLength={8}
+                    minLength={passwordMinLength}
                     aria-invalid={Boolean(errors.confirmPassword)}
                     aria-describedby={errors.confirmPassword ? "confirm-error" : undefined}
                   />
@@ -360,11 +433,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
                 <input
                   id="username"
                   name="username"
+                  maxLength={usernameMaxLength}
+                  {...liveProps("username")}
                   autoComplete="username"
                   autoCapitalize="none"
                   spellCheck={false}
-                  maxLength={150}
-                  required
+                                    required
                   aria-invalid={Boolean(errors.username)}
                   aria-describedby={errors.username ? "username-error" : undefined}
                 />
@@ -381,6 +455,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
                   <input
                     id="email"
                     name="email"
+                    maxLength={emailMaxLength}
+                    {...liveProps("email")}
                     type="email"
                     autoComplete="email"
                     required
@@ -401,11 +477,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
                   <input
                     id="otp"
                     name="otp"
+                    {...liveProps("otp")}
                     autoComplete="one-time-code"
                     inputMode="numeric"
                     pattern="[0-9]{6}"
-                    maxLength={6}
-                    minLength={6}
+                    maxLength={otpLength}
+                    minLength={otpLength}
                     required
                     className={styles.code}
                     aria-invalid={Boolean(errors.otp)}
@@ -423,10 +500,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
                       <input
                         id="password"
                         name="password"
+                        maxLength={passwordMaxLength}
+                        {...liveProps("password")}
                         type={visible ? "text" : "password"}
                         autoComplete={registering ? "new-password" : "current-password"}
                         required
-                        minLength={registering ? 8 : undefined}
+                        minLength={registering ? passwordMinLength : undefined}
                         aria-invalid={Boolean(errors.password)}
                         aria-describedby={registering || errors.password ? "password-hint" : undefined}
                       />
@@ -457,10 +536,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
                       <input
                         id="confirmPassword"
                         name="confirmPassword"
+                        maxLength={passwordMaxLength}
+                        {...liveProps("confirmPassword")}
                         type={visible ? "text" : "password"}
                         autoComplete="new-password"
                         required
-                        minLength={8}
+                        minLength={passwordMinLength}
                         aria-invalid={Boolean(errors.confirmPassword)}
                         aria-describedby={errors.confirmPassword ? "confirm-error" : undefined}
                       />

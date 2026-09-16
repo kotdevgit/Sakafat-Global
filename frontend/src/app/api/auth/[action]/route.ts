@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getApiBaseUrl } from "@/lib/api/config";
+import { validateAuthField, type AuthField } from "@/lib/validation/auth";
 
 const cookieName = "sakafat_access";
 const refreshCookieName = "sakafat_refresh";
@@ -212,12 +213,32 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
       ? ["refresh"]
       : ["username", "password"];
 
+  // Registration rules are enforced here as well as in the browser. Signing in is
+  // only length-checked: an account created before any rule change must still work.
+  const ruleSet = action === "register" ? "register" : "login";
+  const checked = new Set<AuthField>(["username", "email", "password", "new_password", "otp"]);
+
   const payload: Record<string, string> = {};
+  const errors: Record<string, string> = {};
   for (const field of fields) {
-    if (typeof input[field] !== "string" || !input[field] || input[field].length > 1024) {
+    const value = input[field];
+    if (typeof value !== "string" || !value || value.length > 1024) {
       return reply({ message: "Please complete all required fields." }, 400);
     }
-    payload[field] = input[field];
+    if (checked.has(field as AuthField)) {
+      const problem = validateAuthField(field as AuthField, value, {
+        context: ruleSet,
+        username: typeof input.username === "string" ? input.username : "",
+      });
+      if (problem) {
+        errors[field] = problem;
+        continue;
+      }
+    }
+    payload[field] = value;
+  }
+  if (Object.keys(errors).length > 0) {
+    return reply({ message: "Please check the highlighted fields.", errors }, 400);
   }
 
   let base: string;

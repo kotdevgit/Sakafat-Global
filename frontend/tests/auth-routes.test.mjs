@@ -7,11 +7,26 @@ import ts from 'typescript';
 import { NextRequest } from 'next/server.js';
 
 const require = createRequire(import.meta.url);
-const source = readFileSync(new URL('../src/app/api/auth/[action]/route.ts', import.meta.url), 'utf8');
-const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+const compile = path => ts.transpileModule(
+  readFileSync(new URL(path, import.meta.url), 'utf8'),
+  { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
+).outputText;
+
+const code = compile('../src/app/api/auth/[action]/route.ts');
+
+/** The route shares its field rules with the browser form; load the real module. */
+function validation() {
+  const exports = {};
+  vm.runInNewContext(compile('../src/lib/validation/auth.ts'), { exports, Object, RegExp, Array });
+  return exports;
+}
 function handler(fetch, configured = true) {
   const exports = {};
-  vm.runInNewContext(code, { exports, require: name => name === '@/lib/api/config' ? { getApiBaseUrl: () => { if (!configured) throw Error('not configured'); return 'http://django.test/api/'; } } : require(name), fetch, URL, Buffer, AbortSignal, process: { env: { NODE_ENV: 'production' } } });
+  vm.runInNewContext(code, { exports, require: name => {
+    if (name === '@/lib/api/config') return { getApiBaseUrl: () => { if (!configured) throw Error('not configured'); return 'http://django.test/api/'; } };
+    if (name === '@/lib/validation/auth') return validation();
+    return require(name);
+  }, fetch, URL, Buffer, AbortSignal, process: { env: { NODE_ENV: 'production' } } });
   return exports;
 }
 const context = action => ({ params: Promise.resolve({ action }) });

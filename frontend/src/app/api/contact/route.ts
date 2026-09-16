@@ -1,26 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getApiBaseUrl } from "@/lib/api/config";
-
-/** Enquiry fields Django accepts, with the browser field name that supplies each. */
-const textFields: [browserField: string, djangoField: string, maxLength: number][] = [
-  ["fullName", "full_name", 150],
-  ["organisation", "organisation", 200],
-  ["email", "email", 254],
-  ["phone", "phone_number", 30],
-  ["location", "country_city", 150],
-  ["enquiryType", "enquiry_type", 30],
-  ["subject", "subject", 255],
-  ["message", "message", 5000],
-  ["portfolio", "relevant_link", 200],
-];
-const requiredFields = new Set(["fullName", "email", "enquiryType", "subject", "message"]);
-const enquiryTypes = new Set(["general", "partnership", "programme", "creative", "media", "other"]);
-const maxAttachmentBytes = 5 * 1024 * 1024;
+import {
+  contactFieldNames,
+  contactFields,
+  validateField,
+  type ContactField,
+} from "@/lib/validation/contact";
 
 /** Maps Django field names back to the browser field names the form marks up. */
 const browserFieldFor: Record<string, string> = Object.fromEntries(
-  textFields.map(([browserField, djangoField]) => [djangoField, browserField]),
+  contactFieldNames.map((field) => [contactFields[field].djangoField, field]),
 );
+
+const maxAttachmentBytes = 5 * 1024 * 1024;
 
 const reply = (body: unknown, status = 200) =>
   NextResponse.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -45,27 +37,19 @@ export async function POST(request: NextRequest) {
     return reply({ message: "Please check your form and try again." }, 400);
   }
 
+  // The browser validates the same rules live, but it is not trusted: every field
+  // is checked again here before anything reaches Django.
   const errors: Record<string, string> = {};
   const payload = new FormData();
-  for (const [browserField, djangoField, maxLength] of textFields) {
-    const raw = submitted.get(browserField);
-    if (typeof raw !== "string") {
-      if (requiredFields.has(browserField)) errors[browserField] = "This field is required.";
+  for (const field of contactFieldNames) {
+    const raw = submitted.get(field);
+    const value = typeof raw === "string" ? raw.trim() : "";
+    const message = validateField(field as ContactField, value);
+    if (message) {
+      errors[field] = message;
       continue;
     }
-    const value = raw.trim();
-    if (!value) {
-      if (requiredFields.has(browserField)) errors[browserField] = "This field is required.";
-      continue;
-    }
-    if (value.length > maxLength) {
-      errors[browserField] = `Please use ${maxLength} characters or fewer.`;
-      continue;
-    }
-    payload.set(djangoField, value);
-  }
-  if (payload.has("enquiry_type") && !enquiryTypes.has(String(payload.get("enquiry_type")))) {
-    errors.enquiryType = "Choose one of the listed enquiry types.";
+    if (value) payload.set(contactFields[field].djangoField, value);
   }
   if (submitted.get("consent") !== "true") {
     errors.consent = "Please confirm you agree before sending.";

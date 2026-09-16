@@ -67,10 +67,8 @@ class LoginSerializer(serializers.Serializer):
 
 class VerifyOTPSerializer(serializers.Serializer):
     username = serializers.CharField()
-    otp = serializers.CharField(
-        min_length=6,
-        max_length=6
-    )
+    # A code is six digits, so anything else is rejected before a lookup happens.
+    otp = serializers.RegexField(r"^[0-9]{6}$")
 
     def validate(self, data):
         try:
@@ -98,10 +96,7 @@ class ForgotPasswordSerializer(serializers.Serializer):
 
 class VerifyResetOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    otp = serializers.CharField(
-        min_length=6,
-        max_length=6
-    )
+    otp = serializers.RegexField(r"^[0-9]{6}$")
 
 
 class ResetPasswordSerializer(serializers.Serializer):
@@ -111,3 +106,13 @@ class ResetPasswordSerializer(serializers.Serializer):
         write_only=True,
         min_length=8
     )
+
+    def validate(self, data):
+        # Registration runs Django's password validators, so a reset must too —
+        # otherwise the weakest way into an account is to reset its password.
+        user = User.objects.filter(email__iexact=data["email"]).first()
+        try:
+            validate_password(data["new_password"], user)
+        except DjangoValidationError as error:
+            raise serializers.ValidationError({"new_password": error.messages})
+        return data

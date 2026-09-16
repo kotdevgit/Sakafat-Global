@@ -1,250 +1,102 @@
-.container {
-  font-family: var(--font-poppins), Arial, sans-serif;
-  color: #050505;
-  background: #fff;
-  min-height: 80vh;
+/*
+ * Themed by pillar, matching the programme cards, so a programme added in the
+ * admin is styled without anyone writing new CSS for it. The hero keeps the
+ * site's navy base and tints it with the pillar colour rather than replacing it,
+ * so every programme page still reads as the same site.
+ */
+.neutral { --tint: #2b4a6b; --accent: #1d5f63; --badge-bg: #e8eced; --badge-color: #2b373d; }
+.ikhlakiat { --tint: #006a6b; --accent: #007d7e; --badge-bg: #c6ffff; --badge-color: #064548; }
+.idraak { --tint: #84243e; --accent: #84243e; --badge-bg: #fff0c9; --badge-color: #704400; }
+.falah { --tint: #936f20; --accent: #946800; --badge-bg: #e7edff; --badge-color: #254678; }
+.rabta { --tint: #87462e; --accent: #a24c28; --badge-bg: #ffe8dd; --badge-color: #7a3418; }
+.sama { --tint: #157579; --accent: #157579; --badge-bg: #d9f3f2; --badge-color: #0f4f52; }
+
+/* Hero */
+.hero { position: relative; background: linear-gradient(100deg, #112b53, var(--tint) 58%, #92203e); background-size: cover; background-position: center; color: #fff; }
+/* An uploaded image replaces the gradient; the scrim keeps the text readable over it. */
+.hero[data-image]::before { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, #112b53f0, #0b1f3ccc 55%, #92203e99); }
+.heroInner { position: relative; max-width: 1280px; margin-inline: auto; padding: 96px 60px; }
+.breadcrumb { margin: 0 0 14px; color: #ffbf32; text-transform: uppercase; }
+.breadcrumb a { color: inherit; text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.badges { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 18px; }
+.status { border-radius: 999px; padding: 4px 14px; background: var(--badge-bg); color: var(--badge-color); }
+.pillarBadge { border-radius: 999px; padding: 4px 14px; border: 1px solid #ffffff59; background: #ffffff1f; color: #fff; }
+.hero h1 { margin: 0 0 20px; }
+.intro { max-width: 760px; margin: 0; }
+.actions { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 30px; }
+.primary, .secondary { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 48px; padding: 12px 24px; border-radius: 999px; text-align: center; text-decoration: none; }
+.primary { background: #e9a600; color: #050505; }
+.primary:hover { background: #ffbf32; }
+.secondary { border: 1px solid #fff; background: #ffffff12; color: #fff; }
+.secondary:hover { background: #ffffff26; }
+.primary svg, .secondary svg { flex-shrink: 0; }
+.hero a:focus-visible, .nextCard a:focus-visible { outline: 3px solid #fff; outline-offset: 5px; }
+
+/* At a glance */
+.detail { background: #fff; padding: 96px 48px; }
+.detailInner { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 60px; max-width: 1160px; margin-inline: auto; }
+.eyebrow { margin: 0 0 24px; color: #b57700; text-transform: uppercase; }
+.detail h2, .pillarBand h2 { margin: 0; color: #112b53; }
+.detailText { margin: 28px 0 0; color: #3f4a5c; }
+.facts { display: grid; gap: 0; margin: 0; padding: 30px 34px; border: 1px solid #f3d89e; border-radius: 12px; background: #fffdf8; }
+.facts > div { padding: 16px 0; border-top: 1px solid #f1e4c8; }
+.facts > div:first-child { padding-top: 0; border-top: 0; }
+.facts > div:last-child { padding-bottom: 0; }
+.facts dt { margin: 0 0 6px; color: #7a6538; text-transform: uppercase; }
+.facts dd { margin: 0; color: #112b53; }
+
+/* Pillar band */
+.pillarBand { background: #f8f4e9; padding: 96px 48px; }
+.inner { max-width: 1160px; margin-inline: auto; }
+.pillarText { max-width: 760px; margin: 28px 0 0; color: #3f4a5c; }
+.pillarLink { display: inline-flex; align-items: center; gap: 10px; margin-top: 24px; color: var(--accent); text-decoration: none; }
+.pillarLink:hover { text-decoration: underline; }
+.pillarLink:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.pillarLink svg { flex-shrink: 0; }
+
+/* Next step */
+.next { background: #fff; padding: 96px 48px 110px; }
+.nextCard { display: flex; align-items: center; justify-content: space-between; gap: 40px; max-width: 1160px; margin-inline: auto; padding: 56px 72px; border-radius: 24px; background: #112b53; color: #fff; }
+.nextCard .eyebrow { margin-bottom: 16px; color: #ffbf32; text-transform: none; }
+.nextCard h2 { margin: 0; }
+.nextCard .primary { flex-shrink: 0; }
+.back { display: inline-flex; align-items: center; gap: 8px; max-width: 1160px; margin: 28px auto 0; color: #52607a; text-decoration: none; }
+.back:hover { color: #112b53; text-decoration: underline; }
+.back:focus-visible { outline: 3px solid #28666d; outline-offset: 4px; }
+
+@media (max-width: 1023px) {
+  .heroInner { padding: 72px 32px; }
+  .detail, .pillarBand { padding: 64px 32px; }
+  .next { padding: 64px 32px 80px; }
+  .detailInner { gap: 36px; }
+  .nextCard { flex-direction: column; align-items: flex-start; gap: 28px; padding: 40px; }
+  .back { display: flex; margin-top: 24px; }
+}
+@media (max-width: 767px) {
+  .detailInner { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 639px) {
+  .heroInner { padding: 56px 24px; }
+  .detail, .pillarBand { padding: 48px 24px; }
+  .next { padding: 48px 24px 64px; }
+  .eyebrow { margin-bottom: 16px; }
+  .actions { gap: 12px; }
+  .primary, .secondary { width: 100%; padding: 12px 18px; }
+  .facts { padding: 24px 22px; }
+  .nextCard { padding: 32px 24px; }
 }
 
-/* Pillar Theme Variables */
-.ikhlakiat { --banner: linear-gradient(105deg, #009b9b, #006a6b); --accent: #007d7e; --badge-bg: #c6ffff; --badge-color: #064548; }
-.idraak { --banner: linear-gradient(105deg, #84243e, #74283d); --accent: #84243e; --badge-bg: #fff0c9; --badge-color: #704400; }
-.falah { --banner: linear-gradient(105deg, #b28724, #936f20); --accent: #946800; --badge-bg: #e7edff; --badge-color: #254678; }
-.rabta { --banner: linear-gradient(105deg, #b95830, #87462e); --accent: #a24c28; --badge-bg: #ffe8dd; --badge-color: #7a3418; }
-.sama { --banner: linear-gradient(105deg, #219b99, #157579); --accent: #157579; --badge-bg: #d9f3f2; --badge-color: #0f4f52; }
-
-.hero {
-  position: relative;
-  background: var(--banner, #2c3e50);
-  color: #fff;
-  padding: 48px 48px 64px;
-  overflow: hidden;
-}
-
-.hero[data-image] {
-  background-size: cover;
-  background-position: center;
-}
-
-.hero[data-image]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  z-index: 1;
-}
-
-.heroInner {
-  position: relative;
-  z-index: 2;
-  max-width: 1200px;
-  margin-inline: auto;
-}
-
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font: var(--type-caption);
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 24px;
-}
-
-.breadcrumb a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.breadcrumb a:hover {
-  text-decoration: underline;
-}
-
-.badgeGroup {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.statusBadge {
-  display: inline-block;
-  border-radius: 999px;
-  padding: 4px 12px;
-  background: var(--badge-bg, #fff);
-  color: var(--badge-color, #111);
-  font: var(--type-caption);
-  font-weight: 600;
-}
-
-.pillarBadge {
-  display: inline-block;
-  border-radius: 999px;
-  padding: 4px 12px;
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  font: var(--type-caption);
-  backdrop-filter: blur(4px);
-}
-
-.title {
-  font: var(--type-hero);
-  font-size: clamp(32px, 5vw, 52px);
-  margin: 0 0 16px;
-  line-height: 1.15;
-  color: #fff;
-}
-
-.heroIntro {
-  font: var(--type-body);
-  font-size: clamp(16px, 2vw, 19px);
-  max-width: 720px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
-}
-
-/* Content Area */
-.content {
-  padding: 64px 48px;
-  max-width: 1200px;
-  margin-inline: auto;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 48px;
-  align-items: start;
-}
-
-.overviewSection h2 {
-  font: var(--type-section);
-  font-size: 28px;
-  margin: 0 0 20px;
-  color: #050505;
-}
-
-.overviewText {
-  font: var(--type-body);
-  line-height: 1.8;
-  color: #333;
-  margin-bottom: 32px;
-  font-size: 17px;
-}
-
-.pillarsCard {
-  background: #fbfbfb;
-  border-left: 4px solid var(--accent, #007d7e);
-  padding: 24px 28px;
-  border-radius: 0 8px 8px 0;
-  margin-top: 32px;
-}
-
-.pillarsCard h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
-}
-
-.pillarsCard p {
-  margin: 0 0 16px;
-  color: #555;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-.pillarLink {
-  color: var(--accent, #007d7e);
-  font-weight: 600;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.pillarLink:hover {
-  text-decoration: underline;
-}
-
-/* Sidebar Info Card */
-.sidebarCard {
-  background: #f6f6f6;
-  border-radius: 12px;
-  padding: 32px;
-  border: 1px solid #eaeaea;
-}
-
-.sidebarTitle {
-  font-size: 20px;
-  margin: 0 0 20px;
-  font-weight: 700;
-  color: #050505;
-}
-
-.metaList {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  margin-bottom: 28px;
-}
-
-.metaItem dt {
-  font: var(--type-caption);
-  color: #777;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-}
-
-.metaItem dd {
-  font: var(--type-body);
-  font-weight: 600;
-  margin: 0;
-  color: #111;
-}
-
-.ctaButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 14px 24px;
-  background: var(--accent, #007d7e);
-  color: #fff;
-  border-radius: 999px;
-  font-weight: 600;
-  text-decoration: none;
-  font-size: 16px;
-  transition: opacity 0.2s ease;
-}
-
-.ctaButton:hover {
-  opacity: 0.9;
-}
-
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 16px;
-  color: #666;
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.backLink:hover {
-  color: #111;
-  text-decoration: underline;
-}
-
-@media (max-width: 900px) {
-  .hero {
-    padding: 36px 24px 48px;
-  }
-  .content {
-    padding: 40px 24px;
-  }
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 32px;
-  }
-}
+/* Shared typography roles; responsive sizes are defined in globals.css. */
+.breadcrumb { font: var(--type-label); letter-spacing: 0; }
+.status, .pillarBadge { font: var(--type-caption); letter-spacing: 0; }
+.hero h1 { font: var(--type-hero); letter-spacing: 0; }
+.intro { font: var(--type-body); letter-spacing: 0; }
+.primary, .secondary { font: var(--type-button); letter-spacing: 0; }
+.eyebrow { font: var(--type-label); letter-spacing: 0; }
+.detail h2, .pillarBand h2, .nextCard h2 { font: var(--type-section); letter-spacing: 0; }
+.detailText, .pillarText { font: var(--type-body); letter-spacing: 0; }
+.facts dt { font: var(--type-caption); letter-spacing: 0; }
+.facts dd { font: var(--type-card); letter-spacing: 0; }
+.pillarLink { font: var(--type-button); letter-spacing: 0; }
+.back { font: var(--type-small); letter-spacing: 0; }
