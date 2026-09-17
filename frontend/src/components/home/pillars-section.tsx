@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { LocaleLink } from "@/components/i18n/locale-link";
 import { getLocale } from "@/lib/i18n/server";
 import { getDictionary } from "@/lib/i18n/dictionary";
@@ -24,17 +25,22 @@ export async function PillarsSection() {
   return (
     <section id="pillars" className={styles.section} aria-labelledby="pillars-heading">
       <div className={styles.inner}>
-        <header className={styles.header}>
+        <header className={styles.header} data-reveal>
           <Image className={styles.artwork} src="/images/pillars/Pillars-artwork.png" alt="" width={276} height={81} />
           <p className={styles.eyebrow}>{copy.eyebrow}</p>
           <h2 id="pillars-heading">{copy.heading}</h2>
           <p className={styles.intro}>{copy.intro}</p>
         </header>
         <ul className={styles.grid}>
-          {pillars.map((pillar) => {
+          {pillars.map((pillar, index) => {
             const text = dict.pillarsSection[pillar.key];
             return (
-              <li className={`${styles.card} ${styles[pillar.key]}`} key={pillar.key}>
+              <li
+                className={`${styles.card} ${styles[pillar.key]}`}
+                key={pillar.key}
+                data-reveal
+                style={{ "--reveal-index": index } as CSSProperties}
+              >
                 <article className={styles.content}>
                   <div className={styles.logo}>
                     <Image src={`/images/pillars/${pillar.image}`} alt="" width={pillar.width} height={pillar.height} />

@@ -71,3 +71,34 @@
 
 .ask { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer; }
 .ask:focus-visible { outline: 3px solid #28666d; outline-offset: 4px; }
+
+/* ---------------------------------------------------------------------------
+   Motion. The filter row answers the pointer immediately; the five steps arrive
+   one after another as the band scrolls up, and the closing card scales in.
+   --------------------------------------------------------------------------- */
+.step:hover { box-shadow: 0 14px 22px #00000038; }
+.statusCard:hover { box-shadow: 0 12px 24px #00000047; }
+.ask:hover { background: #eeae22; }
+
+/*
+  A filter swap is a direct answer to a click, so the list comes back faster than
+  the 700ms an arriving section takes; any longer and the grid reads as empty.
+*/
+.results { --enter-duration: 360ms; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .filter { transition: background-color 200ms ease, color 200ms ease, box-shadow 200ms ease, transform 200ms ease; }
+  .filter:hover { transform: translateY(-2px); }
+  .filter:active { transform: translateY(0); }
+
+  .step { transition: transform 320ms cubic-bezier(0.22, 0.8, 0.3, 1), box-shadow 320ms ease; }
+  .step:hover { transform: translateY(-6px); }
+  /* The numeral is the one thing on the card that grows, so the eye lands on it. */
+  .number { display: inline-block; transition: transform 320ms cubic-bezier(0.22, 0.8, 0.3, 1), color 320ms ease; }
+  .step:hover .number { transform: scale(1.12); color: #b37f12; }
+
+  .statusCard { transition: box-shadow 400ms ease; }
+  .ask { transition: background-color 200ms ease, transform 200ms ease, box-shadow 200ms ease; }
+  .ask:hover { transform: translateY(-2px); box-shadow: 0 8px 18px #00000059; }
+  .ask:active { transform: translateY(0); box-shadow: none; }
+}

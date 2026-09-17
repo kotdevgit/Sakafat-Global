@@ -22,7 +22,7 @@ export async function ProgramsSection() {
   return (
     <section className={styles.section} aria-labelledby="programs-heading">
       <div className={styles.inner}>
-        <header className={styles.header}>
+        <header className={styles.header} data-reveal>
           <div className={styles.headingGroup}>
             <Image src="/images/programs/mic-icon.svg" alt="" width={75} height={77} className={styles.microphone} />
             <div>
@@ -34,14 +34,14 @@ export async function ProgramsSection() {
         </header>
         {programmes.length > 0 ? (
           <ul className={styles.grid}>
-            {programmes.map((programme) => (
-              <ProgrammeCard key={programme.id} programme={programme} dict={dict} />
+            {programmes.map((programme, index) => (
+              <ProgrammeCard key={programme.id} programme={programme} dict={dict} index={index} />
             ))}
           </ul>
         ) : (
           <p className={styles.intro}>{copy.empty}</p>
         )}
-        <div className={styles.footer}>
+        <div className={styles.footer} data-reveal="fade">
           <LocaleLink className={styles.explore} href="/programs">{copy.exploreAll}<ArrowIcon /></LocaleLink>
         </div>
       </div>

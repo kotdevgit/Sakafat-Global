@@ -41,3 +41,82 @@
 
 /* The submit arrow points the way the language runs. */
 [dir="rtl"] .arrow { display: inline-block; transform: scaleX(-1); }
+
+/* ---------------------------------------------------------------------------
+   Motion. One card on one screen, so nothing here is scroll-driven: the panel
+   and the form arrive together on load, and after that the movement belongs to
+   whatever the visitor is doing — a field taking focus, a step being reached,
+   a message arriving. Sign-in is a page people wait on, so it answers quickly.
+   --------------------------------------------------------------------------- */
+.tabs a:hover { color: #192b50; }
+.field input:hover { border-color: #b4b7b4; }
+.field input:focus { border-color: #28666d; box-shadow: 0 0 0 3px #28666d1f; }
+.field input[aria-invalid="true"]:focus { border-color: #9c2940; box-shadow: 0 0 0 3px #9c29401f; }
+.password button:hover { color: #17484d; }
+.textButton:hover { color: #17484d; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The card is the thing being asked for, so it arrives last and largest. */
+  @keyframes auth-panel-in { from { opacity: 0; transform: translateY(18px) scale(0.99); } }
+  .layout { animation: auth-panel-in 720ms cubic-bezier(0.22, 0.8, 0.3, 1) both; }
+
+  /*
+    The mark behind the story panel drifts, the one continuous movement on the
+    page — enough that a card waiting for a password does not feel frozen.
+  */
+  @keyframes auth-artwork-drift { 50% { transform: translateY(-12px); } }
+  .artwork { animation: auth-artwork-drift 10s ease-in-out infinite; }
+
+  .story .eyebrow { --enter-delay: 2; }
+  .story h2 { --enter-delay: 3; }
+  .story p:not(.eyebrow) { --enter-delay: 4; }
+  .signature { --enter-delay: 5; }
+  .tabs { --enter-delay: 3; }
+
+  /* A step change is an answer to a click, so it is quicker than a first load. */
+  .step { --enter-duration: 320ms; }
+
+  /*
+    The tab bar is two links to two pages, so the marker cannot slide between
+    them; each grows its own under the pointer instead, from the side the
+    language starts on.
+  */
+  .tabs a { position: relative; transition: color 180ms ease; }
+  .tabs a::after {
+    content: "";
+    position: absolute;
+    inset-block-end: -1px;
+    inset-inline-start: 0;
+    width: 100%;
+    height: 3px;
+    background: #e5ad32;
+    transform: scaleX(0);
+    /* transform-origin takes no logical keyword, so the mirror is written out. */
+    transform-origin: left;
+    transition: transform 240ms cubic-bezier(0.22, 0.8, 0.3, 1);
+  }
+  [dir="rtl"] .tabs a::after { transform-origin: right; }
+  .tabs a:hover::after { transform: scaleX(1); }
+  /* The current tab already draws its own border; it must not draw two. */
+  .tabs a[aria-current]::after { content: none; }
+
+  .field input { transition: border-color 180ms ease, box-shadow 180ms ease; }
+  .field label { transition: color 180ms ease; }
+  .password button, .textButton { transition: color 180ms ease, opacity 120ms ease; }
+
+  .submit { transition: background-color 200ms ease, transform 200ms ease, box-shadow 200ms ease; }
+  .submit:hover { transform: translateY(-2px); box-shadow: 0 10px 20px #0000002e; }
+  .submit:active { transform: translateY(0); box-shadow: none; }
+  .fields:disabled .submit:hover { transform: none; box-shadow: none; }
+  .arrow { display: inline-block; transition: transform 200ms ease; }
+  .submit:hover .arrow { transform: translateX(4px); }
+  [dir="rtl"] .submit:hover .arrow { transform: scaleX(-1) translateX(4px); }
+
+  /*
+    Both feedback lines keep their place whether or not they carry text, so a
+    message replacing an earlier one would otherwise change without being seen.
+  */
+  @keyframes auth-feedback-in { from { opacity: 0; transform: translateY(-6px); } }
+  .error, .notice { animation: auth-feedback-in 260ms ease-out both; }
+  .fieldError { animation: auth-feedback-in 200ms ease-out both; }
+}

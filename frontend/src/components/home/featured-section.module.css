@@ -48,3 +48,25 @@
 
 /* The arrow points the way the language runs. */
 [dir="rtl"] .arrow { transform: scaleX(-1); }
+
+/* ---------------------------------------------------------------------------
+   Motion. Cards rise as the grid scrolls in, one step behind the last, and
+   answer the pointer by lifting while the still behind them pushes in slightly.
+   --------------------------------------------------------------------------- */
+.viewAll:hover:not(:disabled) { background: #ffc352; }
+.card:hover { border-color: #ffd98a; box-shadow: 0 18px 30px #001b2459; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .card { transition: transform 320ms cubic-bezier(0.22, 0.8, 0.3, 1), box-shadow 320ms ease, border-color 320ms ease; }
+  .card:hover { transform: translateY(-8px); }
+  /* The image is inside a clipped card, so the zoom crops rather than overflows. */
+  .thumbnail { transition: transform 600ms cubic-bezier(0.22, 0.8, 0.3, 1); }
+  .card:hover .thumbnail { transform: scale(1.06); }
+  .play { transition: transform 220ms cubic-bezier(0.22, 0.8, 0.3, 1); }
+  .play:hover:not(:disabled), .card:hover .play:not(:disabled) { transform: scale(1.12); }
+  .viewAll { transition: background-color 200ms ease, transform 200ms ease; }
+  .viewAll:hover:not(:disabled) { transform: translateY(-1px); }
+  .viewAll:hover:not(:disabled) .arrow { transform: translateX(3px); }
+  .arrow { transition: transform 200ms ease; }
+  [dir="rtl"] .viewAll:hover:not(:disabled) .arrow { transform: scaleX(-1) translateX(3px); }
+}

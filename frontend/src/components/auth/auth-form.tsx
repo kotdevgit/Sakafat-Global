@@ -283,10 +283,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
   if (authenticated && registerStep === "details") {
     return (
       <>
-        <p className={styles.eyebrow}>{copy.signedIn.eyebrow}</p>
-        <h1 id="auth-heading">{copy.signedIn.heading}</h1>
-        <p className={styles.intro}>{copy.signedIn.body}</p>
-        <LocaleLink className={styles.submit} href="/programs">
+        <p className={styles.eyebrow} data-enter>{copy.signedIn.eyebrow}</p>
+        <h1 id="auth-heading" data-enter>{copy.signedIn.heading}</h1>
+        <p className={styles.intro} data-enter>{copy.signedIn.body}</p>
+        <LocaleLink className={styles.submit} href="/programs" data-enter>
           {copy.signedIn.explore} <span className={styles.arrow} aria-hidden="true">→</span>
         </LocaleLink>
         <button className={styles.textButton} disabled={busy} onClick={logout}>
@@ -302,10 +302,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
   if (verified) {
     return (
       <>
-        <p className={styles.eyebrow}>{copy.verified.eyebrow}</p>
-        <h1 id="auth-heading">{copy.verified.heading}</h1>
-        <p className={styles.intro}>{copy.verified.body}</p>
-        <LocaleLink className={styles.submit} href="/login">
+        <p className={styles.eyebrow} data-enter>{copy.verified.eyebrow}</p>
+        <h1 id="auth-heading" data-enter>{copy.verified.heading}</h1>
+        <p className={styles.intro} data-enter>{copy.verified.body}</p>
+        <LocaleLink className={styles.submit} href="/login" data-enter>
           {copy.verified.continue} <span className={styles.arrow} aria-hidden="true">→</span>
         </LocaleLink>
       </>
@@ -315,10 +315,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
   if (resetDone) {
     return (
       <>
-        <p className={styles.eyebrow}>{copy.resetDone.eyebrow}</p>
-        <h1 id="auth-heading">{copy.resetDone.heading}</h1>
-        <p className={styles.intro}>{copy.resetDone.body}</p>
-        <LocaleLink className={styles.submit} href="/login">
+        <p className={styles.eyebrow} data-enter>{copy.resetDone.eyebrow}</p>
+        <h1 id="auth-heading" data-enter>{copy.resetDone.heading}</h1>
+        <p className={styles.intro} data-enter>{copy.resetDone.body}</p>
+        <LocaleLink className={styles.submit} href="/login" data-enter>
           {copy.resetDone.continue} <span className={styles.arrow} aria-hidden="true">→</span>
         </LocaleLink>
       </>
@@ -331,10 +331,18 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const enteringCode = registerStep === "otp";
   // Only the details step collects a username, email and password.
   const registering = mode === "register" && registerStep === "details";
+  /*
+    Which step the card is showing. The heading, the introduction and the fields
+    are keyed on it so React rebuilds them when it changes and their entrance
+    plays again: the two steps of registering, and of resetting a password, are
+    otherwise a silent swap of one set of words for another. The three are
+    siblings, so each prefixes the step rather than using it as the whole key.
+  */
+  const step = enteringCode ? "otp" : isForgotPassword ? resetStep : mode;
 
   return (
     <>
-      <nav className={styles.tabs} aria-label={copy.tabsAria}>
+      <nav className={styles.tabs} aria-label={copy.tabsAria} data-enter>
         <LocaleLink href="/login" aria-current={mode === "login" ? "page" : undefined}>
           {copy.login}
         </LocaleLink>
@@ -343,7 +351,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         </LocaleLink>
       </nav>
 
-      <h1 id="auth-heading">
+      <h1 id="auth-heading" key={`heading-${step}`} className={styles.step} data-enter>
         {enteringCode
           ? copy.headings.checkEmail
           : isForgotPassword
@@ -355,7 +363,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           : copy.headings.welcomeBack}
       </h1>
 
-      <p className={styles.intro}>
+      <p className={`${styles.intro} ${styles.step}`} key={`intro-${step}`} data-enter>
         {enteringCode
           ? t(copy.intros.checkEmail, { username: registeredUsername })
           : isForgotPassword
@@ -384,7 +392,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           </p>
         )}
 
-        <fieldset disabled={busy} className={styles.fields}>
+        <fieldset disabled={busy} className={`${styles.fields} ${styles.step}`} key={`fields-${step}`} data-enter="fade">
           {isForgotPassword ? (
             resetStep === "email" ? (
               <div className={styles.field}>

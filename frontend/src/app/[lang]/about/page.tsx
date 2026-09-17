@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { getLocale } from "@/lib/i18n/server";
 import { format, getDictionary } from "@/lib/i18n/dictionary";
 import styles from "@/components/about/about.module.css";
@@ -26,13 +27,13 @@ export default async function AboutPage() {
       <section className={styles.hero} aria-label={copy.heroAria}>
         <Image src="/images/about/hero/bg.png" alt="" fill preload sizes="100vw" className={styles.heroImage} />
         <div className={styles.overlay} aria-hidden="true" />
-        <div className={styles.heroInner}><h1>{copy.heroHeading}</h1></div>
+        <div className={styles.heroInner}><h1 data-enter>{copy.heroHeading}</h1></div>
       </section>
       <section className={styles.identity} aria-labelledby="identity-heading">
         <Artwork />
         <div className={styles.inner}>
-          <h2 id="identity-heading" className={styles.identityLabel}>{copy.identityLabel}</h2>
-          <div className={styles.identityBody}>
+          <h2 id="identity-heading" className={styles.identityLabel} data-reveal>{copy.identityLabel}</h2>
+          <div className={styles.identityBody} data-reveal>
             <Image src="/images/about/who-we-are/Sakafat%20logo.svg" alt={dict.common.logoAlt} width={299} height={191} className={styles.logo} />
             {/*
               The emphasised words are separate entries rather than one sentence
@@ -51,8 +52,8 @@ export default async function AboutPage() {
             </p>
           </div>
           <div className={styles.purposeGrid}>
-            {purpose.map((item) => (
-              <article key={item.title} className={styles.purposeCard}>
+            {purpose.map((item, index) => (
+              <article key={item.title} className={styles.purposeCard} data-reveal style={{ "--reveal-index": index } as CSSProperties}>
                 <Image src={`/images/about/mission-vision/${item.image}`} alt="" width={64} height={64} />
                 <div><h3>{item.title}</h3><p>{item.body}</p></div>
               </article>
@@ -63,13 +64,18 @@ export default async function AboutPage() {
       <section className={styles.promise} aria-labelledby="promise-heading">
         <Artwork />
         <div className={styles.inner}>
-          <p className={styles.eyebrow}>{copy.promiseEyebrow}</p>
-          <h2 id="promise-heading">{copy.promiseHeading}</h2>
+          <p className={styles.eyebrow} data-reveal>{copy.promiseEyebrow}</p>
+          <h2 id="promise-heading" data-reveal>{copy.promiseHeading}</h2>
           <ol className={styles.promiseGrid}>
             {copy.promises.map((promise, index) => {
               const number = String(index + 1).padStart(2, "0");
               return (
-                <li key={promise.title} className={`${styles.promiseCard} ${styles[`tone${index + 1}`]}`}>
+                <li
+                  key={promise.title}
+                  className={`${styles.promiseCard} ${styles[`tone${index + 1}`]}`}
+                  data-reveal
+                  style={{ "--reveal-index": index % 3 } as CSSProperties}
+                >
                   <Image src={`/images/about/public-promise/${number}.svg`} alt="" width={68} height={68} />
                   <div className={styles.promiseBody}>
                     <span className={styles.number} aria-hidden="true">{number}</span>
@@ -91,7 +97,7 @@ export default async function AboutPage() {
         </div>
       </section>
       <section className={styles.statement} aria-label={copy.statusAria}>
-        <p>{copy.statement}</p>
+        <p data-reveal="fade">{copy.statement}</p>
       </section>
     </main>
   );

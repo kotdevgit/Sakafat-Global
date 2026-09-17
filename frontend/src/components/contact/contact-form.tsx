@@ -199,14 +199,14 @@ export function ContactForm() {
   return (
     <section className={styles.enquiry} aria-labelledby="enquiry-heading">
       <div className={styles.inner}>
-        <header className={styles.enquiryHeader}>
+        <header className={styles.enquiryHeader} data-reveal>
           <div>
             <p className={styles.enquiryEyebrow}>{copy.eyebrow}</p>
             <h2 id="enquiry-heading">{copy.heading}</h2>
           </div>
           <p className={styles.enquiryIntro}>{copy.intro}</p>
         </header>
-        <form id={enquiryFormId} ref={formRef} method="post" className={styles.form} tabIndex={-1} onSubmit={submit} aria-busy={busy} aria-describedby="submission-note">
+        <form id={enquiryFormId} ref={formRef} method="post" className={styles.form} data-reveal="zoom" tabIndex={-1} onSubmit={submit} aria-busy={busy} aria-describedby="submission-note">
           <div ref={feedback} tabIndex={-1} role={sent ? "status" : "alert"} className={message ? (sent ? styles.notice : styles.error) : undefined}>{message}</div>
           <fieldset disabled={busy} className={styles.fieldset}>
           <div className={styles.fields}>

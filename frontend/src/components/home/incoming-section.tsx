@@ -14,7 +14,7 @@ export async function IncomingSection() {
 
   return (
     <section className={styles.section} aria-labelledby="incoming-heading">
-      <div className={styles.banner}>
+      <div className={styles.banner} data-reveal>
         <Image src="/images/incoming/bg-img.png" alt="" fill sizes="(max-width: 1376px) 100vw, 1280px" className={styles.background} />
         <div className={styles.overlay} aria-hidden="true" />
         <svg className={styles.soundwave} viewBox="0 0 360 120" fill="none" aria-hidden="true">

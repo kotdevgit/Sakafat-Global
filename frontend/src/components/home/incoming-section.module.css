@@ -31,3 +31,23 @@
 .message h2 { font: var(--type-section); letter-spacing: 0; }
 .message p { font: var(--type-body); letter-spacing: 0; }
 .submit { font: var(--type-button); letter-spacing: 0; }
+
+/* ---------------------------------------------------------------------------
+   Motion. The soundwave behind the call to action breathes once the banner is
+   hovered, which is the one place a loop earns its keep: it is the visual pun
+   of the section. Everything else is a single, short response.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes incoming-pulse {
+    50% { opacity: .5; transform: scaleY(1.12); }
+  }
+  .banner { transition: box-shadow 400ms ease; }
+  .banner:hover { box-shadow: 0 14px 28px #00000066; }
+  .background { transition: transform 900ms cubic-bezier(0.22, 0.8, 0.3, 1); }
+  .banner:hover .background { transform: scale(1.04); }
+  .soundwave { transform-origin: bottom center; }
+  .banner:hover .soundwave { animation: incoming-pulse 1.8s ease-in-out infinite; }
+  .submit { transition: background-color 200ms ease, transform 200ms ease, box-shadow 200ms ease; }
+  .submit:hover { transform: translateY(-2px); box-shadow: 0 8px 18px #00000047; }
+  .submit:active { transform: translateY(0); box-shadow: none; }
+}

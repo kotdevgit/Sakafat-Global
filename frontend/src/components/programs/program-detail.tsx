@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { ScrollToTop } from "@/components/pillars/scroll-to-top";
 import { LocaleLink } from "@/components/i18n/locale-link";
 import type { Programme } from "@/lib/api/programmes";
@@ -48,18 +49,18 @@ export async function ProgramDetailView({ programme }: { programme: Programme })
           aria-labelledby="programme-heading"
         >
           <div className={styles.heroInner}>
-            <nav className={styles.breadcrumb} aria-label={copy.breadcrumb}>
+            <nav className={styles.breadcrumb} aria-label={copy.breadcrumb} data-enter>
               <LocaleLink href="/programs">{copy.programmesLink}</LocaleLink>
               <span aria-hidden="true"> — </span>
               <span aria-current="page" dir="auto">{programme.name}</span>
             </nav>
-            <p className={styles.badges}>
+            <p className={styles.badges} data-enter>
               <span className={styles.status} dir="auto">{programme.statusLabel}</span>
               <span className={styles.pillarBadge} dir="auto">{programme.pillarLabel}</span>
             </p>
-            <h1 id="programme-heading" dir="auto">{programme.name}</h1>
-            <p className={styles.intro} dir="auto">{programme.description}</p>
-            <div className={styles.actions}>
+            <h1 id="programme-heading" dir="auto" data-enter>{programme.name}</h1>
+            <p className={styles.intro} dir="auto" data-enter>{programme.description}</p>
+            <div className={styles.actions} data-enter>
               <LocaleLink href={contactHref} className={styles.primary}>
                 {isOpen ? copy.registerInterest : copy.askAbout}<Arrow />
               </LocaleLink>
@@ -70,12 +71,12 @@ export async function ProgramDetailView({ programme }: { programme: Programme })
 
         <section className={styles.detail} aria-labelledby="detail-heading">
           <div className={styles.detailInner}>
-            <div>
+            <div data-reveal>
               <p className={styles.eyebrow}>{copy.glanceEyebrow}</p>
               <h2 id="detail-heading">{isOpen ? copy.headingOpen : copy.headingClosed}</h2>
               <p className={styles.detailText}>{isOpen ? copy.bodyOpen : copy.bodyClosed}</p>
             </div>
-            <dl className={styles.facts}>
+            <dl className={styles.facts} data-reveal style={{ "--reveal-index": 1 } as CSSProperties}>
               {facts.map((fact) => (
                 <div key={fact.term}>
                   <dt>{fact.term}</dt>
@@ -87,7 +88,7 @@ export async function ProgramDetailView({ programme }: { programme: Programme })
         </section>
 
         <section className={styles.pillarBand} aria-labelledby="pillar-heading">
-          <div className={styles.inner}>
+          <div className={styles.inner} data-reveal>
             <p className={styles.eyebrow}>{copy.foundationEyebrow}</p>
             <h2 id="pillar-heading">{format(copy.foundationHeading, { pillar: programme.pillarLabel })}</h2>
             <p className={styles.pillarText}>
@@ -100,7 +101,7 @@ export async function ProgramDetailView({ programme }: { programme: Programme })
         </section>
 
         <section className={styles.next} aria-labelledby="next-heading">
-          <div className={styles.nextCard}>
+          <div className={styles.nextCard} data-reveal="zoom">
             <div>
               <p className={styles.eyebrow}>{copy.nextEyebrow}</p>
               <h2 id="next-heading">{isOpen ? copy.nextHeadingOpen : copy.nextHeadingClosed}</h2>
@@ -109,7 +110,7 @@ export async function ProgramDetailView({ programme }: { programme: Programme })
               {isOpen ? copy.nextActionOpen : copy.nextActionClosed}<Arrow />
             </LocaleLink>
           </div>
-          <LocaleLink href="/programs" className={styles.back}><ArrowBack />{copy.back}</LocaleLink>
+          <LocaleLink href="/programs" className={styles.back} data-reveal="fade"><ArrowBack />{copy.back}</LocaleLink>
         </section>
       </article>
     </>

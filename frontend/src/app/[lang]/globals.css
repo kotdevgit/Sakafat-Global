@@ -4,6 +4,11 @@
   background: #faf9f6;
   color: #24251f;
   font-family: Arial, Helvetica, sans-serif;
+  /*
+    Lets a height transition run to `auto` instead of snapping, which is what the
+    pathway accordions on /get-involved open with. Ignored where unsupported.
+  */
+  interpolate-size: allow-keywords;
 }
 body {
   margin: 0;
@@ -82,4 +87,79 @@ body {
 @media (max-width: 639px) {
   body { --section-size: 28px; --section-leading: 1.4; --hero-size: clamp(30px, 8vw, 40px); --hero-leading: 1.25; --quote-heading-size: 26px; }
   [lang="ur"] body { --section-leading: 1.7; --hero-leading: 1.6; }
+}
+
+/* ===========================================================================
+   Motion
+   ---------------------------------------------------------------------------
+   Two reveal mechanisms, both progressive enhancement: with the animations
+   stripped out the page renders exactly as it did before, fully visible.
+
+   * [data-enter]  runs once on load, for content already on screen (heroes).
+   * [data-reveal] is driven by a view() timeline, so an element animates as it
+     scrolls into the viewport with no JavaScript and no observer. Firefox has
+     no scroll-driven animations yet, and the @supports guard leaves it — and
+     anyone who asks for reduced motion — with the static page.
+
+   Only opacity and transform are animated, so the work stays on the compositor.
+   Nothing translates horizontally, which keeps every reveal identical in Urdu.
+   =========================================================================== */
+@keyframes motion-rise { from { opacity: 0; transform: translateY(28px); } }
+@keyframes motion-fade { from { opacity: 0; } }
+@keyframes motion-zoom { from { opacity: 0; transform: scale(0.94); } }
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-enter] {
+    animation: motion-rise var(--enter-duration, 700ms) cubic-bezier(0.22, 0.8, 0.3, 1) both;
+    animation-delay: calc(var(--enter-delay, 0) * 90ms);
+  }
+  [data-enter="fade"] { animation-name: motion-fade; }
+  [data-enter="zoom"] { animation-name: motion-zoom; animation-duration: 900ms; }
+
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    [data-reveal] {
+      animation: motion-rise auto cubic-bezier(0.22, 0.8, 0.3, 1) both;
+      animation-timeline: view();
+      /*
+        Staggered by shifting the whole range later for each step rather than by
+        an animation-delay, which a scroll timeline ignores. Cards in one grid
+        row cross the viewport edge together and so finish a beat apart.
+      */
+      --reveal-step: var(--reveal-index, 0);
+      /*
+        Held in variables so a component can move the finish line without
+        restating the whole animation: an element taller than the viewport never
+        reaches far into its cover range while its top is still on screen, and
+        would sit half-faded until the reader scrolled past it. Those end on
+        `entry` instead — see the enquiry form.
+      */
+      --reveal-start: entry calc(4% + var(--reveal-step) * 6%);
+      --reveal-end: cover calc(28% + var(--reveal-step) * 6%);
+      animation-range: var(--reveal-start) var(--reveal-end);
+    }
+    [data-reveal="fade"] { animation-name: motion-fade; }
+    [data-reveal="zoom"] { animation-name: motion-zoom; }
+
+    /*
+      A stagger reads as a wave only across a row. Once the grids collapse to one
+      column each card arrives on its own, and the offset would just make the
+      later ones lag behind their own scroll position, so it is dropped.
+    */
+    @media (max-width: 639px) {
+      [data-reveal] { --reveal-step: 0; }
+    }
+  }
+}
+
+/*
+  Press feedback. Every control answers a click, not only the ones with a hover
+  state written for them: a link in a paragraph, a footer column, a social row.
+  Controls that already carry a richer press — the pill buttons, which settle
+  back down as they are pushed — define their own transition and so opt out of
+  this one by replacing it; the dim still applies and reads the same.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  a, button, summary, label, [role="button"] { transition: opacity 120ms ease; }
+  a:active, summary:active, [role="button"]:active,
+  button:not(:disabled):active { opacity: 0.72; }
 }

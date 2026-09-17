@@ -47,14 +47,15 @@ export async function HeroSection({ pillarsHref, participateHref, episodeHref }:
             sizes="(max-width: 767px) 100vw, 733px"
             aria-hidden="true"
             loading="eager"
+            data-enter="fade"
           />
           <div className={styles.content}>
-            <p className={styles.eyebrow}>{copy.eyebrow}</p>
-            <h1 id="hero-heading" className={styles.heading}>
+            <p className={styles.eyebrow} data-enter>{copy.eyebrow}</p>
+            <h1 id="hero-heading" className={styles.heading} data-enter>
               {copy.headingLine1}<br />{copy.headingLine2}
             </h1>
-            <p className={styles.description}>{copy.description}</p>
-            <div className={styles.actions}>
+            <p className={styles.description} data-enter>{copy.description}</p>
+            <div className={styles.actions} data-enter>
               {pillarsHref === "/#pillars" ? (
                 <PillarsLink className={styles.primary}>{copy.explorePillars}</PillarsLink>
               ) : pillarsHref ? (
@@ -70,7 +71,7 @@ export async function HeroSection({ pillarsHref, participateHref, episodeHref }:
             </div>
           </div>
         </div>
-        <div className={styles.visual}>
+        <div className={styles.visual} data-enter="zoom">
           <div className={styles.backCard} aria-hidden="true" />
           {episodePhoto ? (
             <div className={styles.episodeFrame}>

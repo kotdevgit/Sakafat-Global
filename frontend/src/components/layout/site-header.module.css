@@ -48,8 +48,73 @@ a.navItem:hover { color: #a20e19; }
   .actions { justify-content: space-between; gap: 24px; padding-inline: 12px; }
   .login { min-height: 44px; }
 }
+/* ---------------------------------------------------------------------------
+   Motion. The header is the one thing on every page, so its movement is the
+   smallest on the site: a rule that grows under a nav item, a button that lifts,
+   and a mobile panel that slides rather than appearing.
+   --------------------------------------------------------------------------- */
+.login:hover { background: #21474b; border-color: #21474b; color: #fff; }
+.toggle:hover { background: #f4f8f8; border-color: #9fb3b6; }
+
 @media (prefers-reduced-motion: no-preference) {
   a.navItem { transition: color 150ms ease; }
+  .brand img { transition: transform 300ms cubic-bezier(0.22, 0.8, 0.3, 1); }
+  .brand:hover img { transform: scale(1.04); }
+  .login, .toggle { transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, transform 200ms ease; }
+  .login:hover { transform: translateY(-1px); }
+  .login:active, .toggle:active { transform: translateY(0); }
+  /* The bars and the cross are separate markup, so the button turns as it swaps. */
+  .toggle svg { transition: transform 260ms cubic-bezier(0.22, 0.8, 0.3, 1); }
+  .toggle[aria-expanded="true"] svg { transform: rotate(90deg); }
+}
+
+@media (min-width: 1100px) {
+  /*
+    A rule that grows from the start of the label on hover. It sits on a
+    pseudo-element so nothing in the row changes size, and it grows from the
+    right in Urdu, the way the text above it runs. The current page keeps the
+    colour it already had as its marker; the rule is hover alone.
+  */
+  .navItem { position: relative; }
+  a.navItem::after {
+    content: "";
+    position: absolute;
+    inset-block-end: 6px;
+    inset-inline-start: 0;
+    width: 100%;
+    height: 2px;
+    background: #a20e19;
+    transform: scaleX(0);
+    /* transform-origin takes no logical keyword, so the mirror is written out. */
+    transform-origin: left;
+  }
+  [dir="rtl"] a.navItem::after { transform-origin: right; }
+  a.navItem:hover::after { transform: scaleX(1); }
+  @media (prefers-reduced-motion: no-preference) {
+    a.navItem::after { transition: transform 220ms cubic-bezier(0.22, 0.8, 0.3, 1); }
+  }
+}
+
+@media (max-width: 1099px) {
+  .navItem:hover { background: #fbfaf7; }
+  @media (prefers-reduced-motion: no-preference) {
+    .navItem { transition: background-color 180ms ease, color 150ms ease; }
+    /*
+      The panel is display:none when closed, so it is transitioned with
+      allow-discrete and given a starting state: the open state is what it
+      animates to, and the same rule plays backwards on close. A browser without
+      @starting-style simply shows and hides it, as it does now.
+    */
+    .panel {
+      opacity: 0;
+      translate: 0 -8px;
+      transition: opacity 200ms ease, translate 240ms cubic-bezier(0.22, 0.8, 0.3, 1), display 240ms allow-discrete;
+    }
+    .panel.open { opacity: 1; translate: 0 0; }
+    @starting-style {
+      .panel.open { opacity: 0; translate: 0 -8px; }
+    }
+  }
 }
 
 /* Shared typography roles; responsive sizes are defined in globals.css. */

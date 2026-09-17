@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { PillarsLink } from "@/components/layout/pillars-link";
 import { LocaleLink } from "@/components/i18n/locale-link";
 import { ScrollToTop } from "./scroll-to-top";
@@ -25,14 +26,14 @@ export async function PillarDetailPage({ pillar }: { pillar: PillarDetail }) {
         <div className={styles.heroInner}>
           <Image src={assets + encodeURIComponent(pillar.artwork)} alt="" width={pillar.width} height={pillar.height} className={styles.artwork} loading="eager" />
           <div className={styles.heroContent}>
-            <nav className={styles.breadcrumb} aria-label={copy.breadcrumb}>
+            <nav className={styles.breadcrumb} aria-label={copy.breadcrumb} data-enter>
               <PillarsLink>{copy.pillarsLink}</PillarsLink>
               <span aria-hidden="true"> — </span>
               <span aria-current="page">{text.name}</span>
             </nav>
-            <h1 id="pillar-heading">{title}</h1>
-            <p>{text.introduction}</p>
-            <div className={styles.actions}>
+            <h1 id="pillar-heading" data-enter>{title}</h1>
+            <p data-enter>{text.introduction}</p>
+            <div className={styles.actions} data-enter>
               <LocaleLink href="/get-involved" className={styles.primary}>{copy.joinSakafat}<Arrow /></LocaleLink>
               <LocaleLink href={enquiryHref("general", title)} className={styles.secondary}>{copy.startConversation}</LocaleLink>
             </div>
@@ -41,21 +42,21 @@ export async function PillarDetailPage({ pillar }: { pillar: PillarDetail }) {
       </section>
       <section className={styles.foundation} aria-labelledby="foundation-heading">
         <div className={styles.foundationInner}>
-          <div>
+          <div data-reveal>
             <p className={styles.eyebrow}>{copy.foundationEyebrow}</p>
             <h2 id="foundation-heading">{format(copy.foundationHeading, { meaning: text.meaning })}</h2>
             <p className={styles.description}>{format(copy.foundationBody, { name: text.name })}</p>
           </div>
-          <Image src={assets + pillar.photo} alt={text.photoAlt} width={580} height={350} sizes="(max-width: 767px) calc(100vw - 48px), (max-width: 1279px) 45vw, 580px" className={styles.photo} />
+          <Image src={assets + pillar.photo} alt={text.photoAlt} width={580} height={350} sizes="(max-width: 767px) calc(100vw - 48px), (max-width: 1279px) 45vw, 580px" className={styles.photo} data-reveal="zoom" />
         </div>
       </section>
       <section className={styles.focus} aria-labelledby="focus-heading">
         <div className={styles.inner}>
-          <p className={styles.eyebrow}>{copy.focusEyebrow}</p>
-          <h2 id="focus-heading">{format(copy.focusHeading, { name: text.name })}</h2>
+          <p className={styles.eyebrow} data-reveal>{copy.focusEyebrow}</p>
+          <h2 id="focus-heading" data-reveal>{format(copy.focusHeading, { name: text.name })}</h2>
           <ol className={styles.cards}>
             {copy.focusCards.map((title, index) => (
-              <li key={title}>
+              <li key={title} data-reveal style={{ "--reveal-index": index } as CSSProperties}>
                 <span className={styles.number} aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                 <h3>{title}</h3>
                 <p>{format(copy.focusBody, { name: text.name })}</p>
@@ -65,7 +66,7 @@ export async function PillarDetailPage({ pillar }: { pillar: PillarDetail }) {
         </div>
       </section>
       <section className={styles.next} aria-labelledby="next-heading">
-        <div className={styles.nextCard}>
+        <div className={styles.nextCard} data-reveal="zoom">
           <div>
             <p className={styles.eyebrow}>{copy.nextEyebrow}</p>
             <h2 id="next-heading">{format(copy.nextHeading, { name: text.name })}</h2>

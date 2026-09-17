@@ -69,3 +69,24 @@
 
 /* The arrow points the way the language runs. */
 [dir="rtl"] .arrow { transform: scaleX(-1); }
+
+/* ---------------------------------------------------------------------------
+   Motion. Shared with the programmes listing, which renders the same card.
+   The banner brightens and the card lifts on hover; the arrow runs the way the
+   language does.
+   --------------------------------------------------------------------------- */
+.card:hover { box-shadow: 0 16px 26px #00000059; }
+.explore:hover { background: #f1e8d3; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .card { transition: transform 320ms cubic-bezier(0.22, 0.8, 0.3, 1), box-shadow 320ms ease; }
+  .card:hover { transform: translateY(-6px); }
+  /* Scaling the banner inside the clipped card reads as a slow push-in. */
+  .banner { transition: transform 600ms cubic-bezier(0.22, 0.8, 0.3, 1); }
+  .card:hover .banner { transform: scale(1.04); }
+  .arrow { transition: transform 200ms ease; }
+  .action:hover .arrow, .explore:hover .arrow { transform: translateX(3px); }
+  [dir="rtl"] .action:hover .arrow, [dir="rtl"] .explore:hover .arrow { transform: scaleX(-1) translateX(3px); }
+  .explore { transition: background-color 200ms ease, transform 200ms ease; }
+  .explore:hover { transform: translateY(-2px); }
+}

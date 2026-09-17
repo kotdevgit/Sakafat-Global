@@ -10,10 +10,10 @@ export async function ContactHero() {
     <section className={styles.hero} aria-labelledby="contact-heading">
       <Image src="/images/contact/hero/bg.png" alt="" fill preload sizes="100vw" className={styles.background} />
       <div className={styles.heroInner}>
-        <p className={styles.eyebrow}>{copy.eyebrow}</p>
-        <h1 id="contact-heading">{copy.headingLine1}<br />{copy.headingLine2}</h1>
-        <p className={styles.intro}>{copy.intro}</p>
-        <a href={`#${enquiryFormId}`} className={styles.getStarted}>{copy.getStarted}</a>
+        <p className={styles.eyebrow} data-enter>{copy.eyebrow}</p>
+        <h1 id="contact-heading" data-enter>{copy.headingLine1}<br />{copy.headingLine2}</h1>
+        <p className={styles.intro} data-enter>{copy.intro}</p>
+        <a href={`#${enquiryFormId}`} className={styles.getStarted} data-enter>{copy.getStarted}</a>
       </div>
     </section>
   );

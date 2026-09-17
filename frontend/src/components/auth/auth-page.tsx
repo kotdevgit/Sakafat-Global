@@ -11,10 +11,10 @@ export async function AuthPage({ mode }: { mode: "login" | "register" | "forgot-
       <aside className={styles.story}>
         <Image src="/images/get-involved/hero/Sakafat-logo%202.svg" alt="" fill sizes="(max-width: 767px) 100vw, 50vw" className={styles.artwork} loading="eager" />
         <div className={styles.storyContent}>
-          <p className={styles.eyebrow}>{copy.eyebrow}</p>
-          <h2>{copy.headingLine1}<br />{copy.headingLine2}</h2>
-          <p>{copy.body}</p>
-          <div className={styles.signature}>{copy.signature}</div>
+          <p className={styles.eyebrow} data-enter>{copy.eyebrow}</p>
+          <h2 data-enter>{copy.headingLine1}<br />{copy.headingLine2}</h2>
+          <p data-enter>{copy.body}</p>
+          <div className={styles.signature} data-enter>{copy.signature}</div>
         </div>
       </aside>
       <section className={styles.card} aria-labelledby="auth-heading"><AuthForm mode={mode} /></section>

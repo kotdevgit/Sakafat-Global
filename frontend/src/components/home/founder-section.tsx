@@ -9,7 +9,7 @@ export async function FounderSection() {
 
   return (
     <section className={styles.section} aria-label={copy.sectionAria}>
-      <figure className={styles.card}>
+      <figure className={styles.card} data-reveal="zoom">
         <Image
           src="/images/founder/sakafat-artwork.png"
           alt=""

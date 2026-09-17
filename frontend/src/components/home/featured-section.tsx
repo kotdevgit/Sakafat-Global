@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { getEpisodes, type Episode } from "@/lib/api/episodes";
 import { getLocale } from "@/lib/i18n/server";
 import { format, getDictionary, type Dictionary } from "@/lib/i18n/dictionary";
@@ -20,7 +21,7 @@ function EpisodeCard({ episode, index, dict }: { episode: Episode; index: number
   const playIcon = `/images/featured/${index === 0 ? "play-icon2.svg" : "play-icon.svg"}`;
   const copy = dict.home.featured;
   return (
-    <li className={styles.card}>
+    <li className={styles.card} data-reveal style={{ "--reveal-index": index } as CSSProperties}>
       <article>
         <div className={styles.media}>
           {episode.imageUrl && (
@@ -65,7 +66,7 @@ export async function FeaturedSection({ allEpisodesHref }: { allEpisodesHref?: s
   return (
     <section className={styles.section} aria-labelledby="featured-heading">
       <div className={styles.inner}>
-        <div className={styles.header}>
+        <div className={styles.header} data-reveal>
           <div className={styles.label}>
             <Image src="/images/featured/mic-icon.svg" alt="" width={75} height={77} className={styles.microphone} />
             <h2 id="featured-heading">{copy.heading}</h2>

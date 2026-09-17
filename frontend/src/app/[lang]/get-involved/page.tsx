@@ -42,23 +42,23 @@ export default async function GetInvolvedPage() {
     <main id="main-content" tabIndex={-1}>
       <section className={styles.hero} aria-labelledby="involved-heading">
         <div className={styles.heroInner}>
-          <Image src="/images/get-involved/hero/Sakafat-logo%202.svg" loading="eager" alt="" width={600} height={329} className={styles.artwork} />
+          <Image src="/images/get-involved/hero/Sakafat-logo%202.svg" loading="eager" alt="" width={600} height={329} className={styles.artwork} data-enter="fade" />
           <div className={styles.heroCopy}>
-            <h1 id="involved-heading">{copy.headingLine1}<br />{copy.headingLine2}</h1>
-            <p>{copy.intro}</p>
+            <h1 id="involved-heading" data-enter>{copy.headingLine1}<br />{copy.headingLine2}</h1>
+            <p data-enter>{copy.intro}</p>
           </div>
-          <p className={styles.guidance}>{copy.guidance}</p>
+          <p className={styles.guidance} data-enter>{copy.guidance}</p>
         </div>
       </section>
       <section className={styles.pathways} aria-labelledby="pathways-heading">
         <div className={styles.inner}>
-          <header className={styles.sectionHeader}>
+          <header className={styles.sectionHeader} data-reveal>
             <div><p className={styles.eyebrow}>{copy.eyebrow}</p><h2 id="pathways-heading">{copy.pathwaysHeading}</h2></div>
             <p className={styles.intro}>{copy.pathwaysIntro}</p>
           </header>
           <div className={styles.accordions}>
             {pathways.map((pathway) => (
-              <details className={styles.accordion} key={pathway.title}>
+              <details className={styles.accordion} key={pathway.title} data-reveal>
                 <summary><h3>{pathway.title}</h3><span className={styles.plus} aria-hidden="true" /></summary>
                 <div className={styles.panel}>
                   <p>{pathway.description}</p>
@@ -70,7 +70,7 @@ export default async function GetInvolvedPage() {
         </div>
       </section>
       <section className={styles.participation} aria-labelledby="participation-note-heading">
-        <div className={styles.note}>
+        <div className={styles.note} data-reveal="zoom">
           <Image src="/images/get-involved/participation/bg-image.png" alt="" fill sizes="(max-width: 1199px) 100vw, 1140px" className={styles.noteImage} />
           <div className={styles.noteOverlay} aria-hidden="true" />
           <div className={styles.noteCopy}>

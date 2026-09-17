@@ -55,7 +55,7 @@ export async function SiteFooter() {
     <footer className={styles.footer}>
       <div className={styles.inner}>
         <div className={styles.grid}>
-          <div className={styles.brand}>
+          <div className={styles.brand} data-reveal="fade">
             <LocaleLink href="/" className={styles.logo} aria-label={footer.homeAria}>
               <Image src="/images/footer/logo.svg" alt={common.logoAlt} width={128} height={89} />
             </LocaleLink>
@@ -76,7 +76,7 @@ export async function SiteFooter() {
             </ul>
           </div>
           {columns.map((column) => (
-            <nav className={styles.column} aria-label={format(footer.columnAria, { title: column.title })} key={column.title}>
+            <nav className={styles.column} aria-label={format(footer.columnAria, { title: column.title })} key={column.title} data-reveal="fade">
               <h2>{column.title}</h2>
               <ul>
                 {column.items.map((item, index) => (
@@ -85,7 +85,7 @@ export async function SiteFooter() {
               </ul>
             </nav>
           ))}
-          <div className={styles.column}>
+          <div className={styles.column} data-reveal="fade">
             <h2>{footer.contact.title}</h2>
             <address className={styles.contact}>
               <p>{footer.contact.email}</p>

@@ -99,3 +99,36 @@
 */
 [dir="rtl"] .backCard { transform: rotate(-10deg); box-shadow: -10px 18px 26px #0003; }
 [dir="rtl"] .episodePhoto { box-shadow: -8px 14px 24px #00000038; }
+
+/* ---------------------------------------------------------------------------
+   Motion. The hero is above the fold, so it plays once on load, top to bottom,
+   with the episode card arriving last. Delays are set here rather than in the
+   markup so the sequence is readable in one place. Hover and press states are
+   guarded, because a lift and a zoom are motion; the colour shifts are not.
+   --------------------------------------------------------------------------- */
+.artwork { --enter-delay: 0; }
+.eyebrow { --enter-delay: 1; }
+.heading { --enter-delay: 2; }
+.description { --enter-delay: 3; }
+.actions { --enter-delay: 4; }
+.visual { --enter-delay: 3; }
+
+/* The disabled variants stay inert — nothing to hover towards. */
+.primary:hover:not(:disabled) { background: #ffc352; border-color: #ffc352; }
+.secondary:hover:not(:disabled) { background: #111; color: #fff; }
+.episodePill:hover:not([aria-disabled="true"]) { background: #fff; color: #5d1a20; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .primary, .secondary { transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease; }
+  .primary:hover:not(:disabled), .secondary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 18px #0000002e; }
+  .primary:active:not(:disabled), .secondary:active:not(:disabled) { transform: translateY(0); box-shadow: none; }
+
+  .episodePill { transition: background-color 200ms ease, color 200ms ease, transform 200ms ease, box-shadow 200ms ease; }
+  .episodePill:hover:not([aria-disabled="true"]) { transform: scale(1.04); box-shadow: 0 6px 18px #00000040; }
+
+  /* The card and the tilted panel behind it answer together, so the depth holds. */
+  .backCard, .episodePhoto, .episode { transition: transform 450ms cubic-bezier(0.22, 0.8, 0.3, 1), box-shadow 450ms ease; }
+  .visual:hover .episodePhoto, .visual:hover .episode { transform: translateY(-6px); }
+  .visual:hover .backCard { transform: rotate(13deg) translateY(-4px); }
+  [dir="rtl"] .visual:hover .backCard { transform: rotate(-13deg) translateY(-4px); }
+}

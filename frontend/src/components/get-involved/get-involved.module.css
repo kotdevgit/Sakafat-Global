@@ -20,7 +20,7 @@
 .plus::before, .plus::after { content: ""; position: absolute; background: currentColor; }
 .plus::before { width: 18px; height: 2px; top: 8px; inset-inline-start: 0; }
 .plus::after { height: 18px; width: 2px; top: 0; inset-inline-start: 8px; }
-.accordion[open] .plus::after { display: none; }
+.accordion[open] .plus::after { transform: rotate(90deg); }
 .panel { padding: 0 56px 32px; }
 .panel p { margin: 0 0 20px; color: #66716e; font: var(--type-body); }
 .action { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; border: 0; padding: 0; background: transparent; color: #178f91; font: var(--type-button); text-decoration: none; }
@@ -56,3 +56,44 @@
 
 /* The arrow points the way the language runs. */
 [dir="rtl"] .arrow { transform: scaleX(-1); }
+
+/* ---------------------------------------------------------------------------
+   Motion. The pathways are a stacked column, so they are revealed one by one as
+   each reaches the viewport rather than staggered: a stagger across a column
+   only makes the lower rows lag behind their own scroll position.
+   --------------------------------------------------------------------------- */
+.accordion:hover { border-color: #c2b79f; box-shadow: 0 10px 18px #00000038; }
+.accordion summary:hover h3 { color: #0f1d38; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .heroCopy h1 { --enter-delay: 1; }
+  .heroCopy p { --enter-delay: 2; }
+  .guidance { --enter-delay: 3; }
+  .artwork { --enter-duration: 1200ms; }
+
+  .accordion { transition: box-shadow 280ms ease, border-color 280ms ease; }
+  .accordion summary h3 { transition: color 200ms ease; }
+
+  /*
+    The vertical bar turns onto the horizontal one rather than disappearing, so
+    the plus becomes a minus in a single movement. The end state is identical to
+    hiding it, which is what a browser without the transition still shows.
+  */
+  .plus::after { transition: transform 260ms cubic-bezier(0.22, 0.8, 0.3, 1); transform-origin: center; }
+  .action .arrow { transition: transform 200ms ease; }
+  .action:hover .arrow { transform: translateX(4px); }
+  [dir="rtl"] .action:hover .arrow { transform: scaleX(-1) translateX(4px); }
+
+  /*
+    The panel slides open instead of snapping. ::details-content and the keyword
+    interpolation it animates against are Chromium-and-Safari features today; a
+    browser without them drops these rules and opens the panel as it does now.
+  */
+  .accordion::details-content {
+    block-size: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: block-size 320ms cubic-bezier(0.22, 0.8, 0.3, 1), opacity 240ms ease, content-visibility 320ms allow-discrete;
+  }
+  .accordion[open]::details-content { block-size: auto; opacity: 1; }
+}

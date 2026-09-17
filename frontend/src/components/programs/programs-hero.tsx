@@ -12,9 +12,9 @@ export async function ProgramsHero() {
       <div className={styles.overlay} aria-hidden="true" />
       <div className={styles.inner}>
         <div className={styles.copy}>
-          <h1 id="programs-hero-heading">{copy.heading}</h1>
-          <p>{copy.body}</p>
-          <LocaleLink className={styles.join} href="/get-involved">{copy.join}</LocaleLink>
+          <h1 id="programs-hero-heading" data-enter>{copy.heading}</h1>
+          <p data-enter>{copy.body}</p>
+          <LocaleLink className={styles.join} href="/get-involved" data-enter>{copy.join}</LocaleLink>
         </div>
       </div>
     </section>

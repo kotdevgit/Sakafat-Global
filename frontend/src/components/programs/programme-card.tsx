@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { LocaleLink } from "@/components/i18n/locale-link";
 import { actionLabel, type Programme } from "@/lib/api/programmes";
 import { format, type Dictionary } from "@/lib/i18n/dictionary";
@@ -21,10 +22,14 @@ function ArrowIcon() {
  * first letter: English inside an Urdu page keeps its own punctuation order
  * instead of having the full stop thrown to the front of the line.
  */
-export function ProgrammeCard({ programme, dict }: { programme: Programme; dict: Dictionary }) {
+export function ProgrammeCard({ programme, dict, index = 0 }: { programme: Programme; dict: Dictionary; index?: number }) {
   const action = actionLabel(programme, dict);
   return (
-    <li className={`${styles.card} ${styles[programme.pillar] ?? ""}`}>
+    <li
+      className={`${styles.card} ${styles[programme.pillar] ?? ""}`}
+      data-reveal
+      style={{ "--reveal-index": index } as CSSProperties}
+    >
       <article className={styles.program}>
         <div
           className={styles.banner}

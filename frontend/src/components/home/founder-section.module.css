@@ -26,3 +26,16 @@
 .quote strong { font: var(--type-quoteHeading); letter-spacing: 0; }
 .name { font: var(--type-smallBold); letter-spacing: 0; }
 .role { font: var(--type-caption); letter-spacing: 0; }
+
+/* ---------------------------------------------------------------------------
+   Motion. The card scales in as it scrolls up, and the background artwork
+   settles from its wash towards full strength while the pointer rests on it.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .card { transition: box-shadow 400ms ease; }
+  .card:hover { box-shadow: 0 14px 26px #00000059; }
+  .artwork { transition: opacity 600ms ease, transform 900ms cubic-bezier(0.22, 0.8, 0.3, 1); }
+  .card:hover .artwork { opacity: .42; transform: scale(1.03); }
+  .portrait { transition: transform 400ms cubic-bezier(0.22, 0.8, 0.3, 1); }
+  .card:hover .portrait { transform: translateY(-4px); }
+}

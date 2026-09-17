@@ -24,3 +24,29 @@
 
 .join { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer; }
 .join:focus-visible { outline: 3px solid #28666d; outline-offset: 4px; }
+
+/* ---------------------------------------------------------------------------
+   Motion. The banner fills the first screen, so it plays on load rather than on
+   scroll: the photograph settles out of a slow push-in while the heading, the
+   paragraph and the button arrive in reading order on top of it.
+   --------------------------------------------------------------------------- */
+.copy h1 { --enter-delay: 1; }
+.copy p { --enter-delay: 2; }
+.join { --enter-delay: 3; }
+
+.join:hover { background: #ffc352; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /*
+    Its own keyframes rather than a [data-enter] hook: the photograph both fades
+    and settles, and one animation declaration cannot be split across two rules
+    of equal weight without the order deciding which survives.
+  */
+  @keyframes programs-hero-settle {
+    from { opacity: 0; transform: scale(1.06); }
+  }
+  .background { animation: programs-hero-settle 1600ms cubic-bezier(0.22, 0.8, 0.3, 1) both; }
+  .join { transition: background-color 200ms ease, transform 200ms ease, box-shadow 200ms ease; }
+  .join:hover { transform: translateY(-2px); box-shadow: 0 8px 18px #00000047; }
+  .join:active { transform: translateY(0); box-shadow: none; }
+}

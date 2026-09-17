@@ -55,3 +55,63 @@
 
 /* The chevron points the way the language runs. */
 [dir="rtl"] .chevron { transform: scaleX(-1); }
+
+/* ---------------------------------------------------------------------------
+   Motion. Five cards in a row, revealed left to right a beat apart. Each one
+   carries its own colour already, so the hover uses it: the tile floods, the
+   card lifts onto its own coloured shadow, and a rule runs along the top edge.
+   The word behind the heading drifts, which is what keeps the band from
+   reading as a flat grid when nothing is being pointed at.
+   --------------------------------------------------------------------------- */
+.card:hover { border-color: var(--pillar-color); }
+.card:hover .question { color: var(--pillar-color); }
+.explore:hover { background: var(--pillar-color); color: #fff; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Slow enough to be felt rather than watched. */
+  @keyframes pillars-artwork-drift {
+    50% { transform: translateY(-8px); }
+  }
+  .artwork { animation: pillars-artwork-drift 9s ease-in-out infinite; }
+
+  /*
+    The shadow is tinted with the card's own colour, so the five cards lift into
+    five different lights rather than one grey one.
+  */
+  .card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 340ms cubic-bezier(0.22, 0.8, 0.3, 1), box-shadow 340ms ease, border-color 340ms ease;
+  }
+  .card:hover { transform: translateY(-8px); box-shadow: 0 18px 30px color-mix(in srgb, var(--pillar-color) 26%, transparent); }
+  .card::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--pillar-color);
+    transform: scaleX(0);
+    /* transform-origin takes no logical keyword, so the mirror is written out. */
+    transform-origin: left;
+    transition: transform 380ms cubic-bezier(0.22, 0.8, 0.3, 1);
+  }
+  [dir="rtl"] .card::before { transform-origin: right; }
+  .card:hover::before { transform: scaleX(1); }
+
+  /* The tile deepens towards the pillar's colour while its mark grows. */
+  .logo { transition: background-color 380ms ease; }
+  .card:hover .logo { background: color-mix(in srgb, var(--pillar-color) 22%, #fff); }
+  .logo img { transition: transform 420ms cubic-bezier(0.22, 0.8, 0.3, 1); }
+  .card:hover .logo img { transform: scale(1.09) rotate(-1.5deg); }
+  [dir="rtl"] .card:hover .logo img { transform: scale(1.09) rotate(1.5deg); }
+
+  .question { transition: color 300ms ease; }
+  .explore { transition: background-color 220ms ease, color 220ms ease, transform 220ms ease; }
+  .explore:hover { transform: translateY(-1px); }
+  .explore:active { transform: translateY(0); }
+  .chevron { transition: transform 220ms ease; }
+  .explore:hover .chevron { transform: translateX(3px); }
+  [dir="rtl"] .explore:hover .chevron { transform: scaleX(-1) translateX(3px); }
+}

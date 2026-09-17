@@ -74,3 +74,64 @@
 
 /* The arrow points the way the language runs. */
 [dir="rtl"] .arrow { transform: scaleX(-1); }
+
+/* ---------------------------------------------------------------------------
+   Motion. The hero plays on load; everything below arrives on scroll. The two
+   purpose cards and the six promises are staggered across their row — the
+   promise stagger restarts every third card, because that is where the grid
+   wraps and a running count would leave the second row lagging behind itself.
+   --------------------------------------------------------------------------- */
+.purposeCard:hover { border-color: #c2a375; box-shadow: 0 14px 24px #00000026; }
+.promiseCard:hover { border-color: var(--accent); box-shadow: 0 14px 24px #0000003d; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Its own keyframes, not [data-enter]: the photograph fades and settles at once. */
+  @keyframes about-hero-settle {
+    from { opacity: 0; transform: scale(1.05); }
+  }
+  .heroImage { animation: about-hero-settle 1600ms cubic-bezier(0.22, 0.8, 0.3, 1) both; }
+  .hero h1 { --enter-delay: 2; }
+
+  .purposeCard, .promiseCard { transition: transform 320ms cubic-bezier(0.22, 0.8, 0.3, 1), box-shadow 320ms ease, border-color 320ms ease; }
+  .purposeCard:hover, .promiseCard:hover { transform: translateY(-6px); }
+  .purposeCard img, .promiseCard img { transition: transform 400ms cubic-bezier(0.22, 0.8, 0.3, 1); }
+  .purposeCard:hover img, .promiseCard:hover img { transform: scale(1.08); }
+}
+
+/* ---------------------------------------------------------------------------
+   The artwork down both sides of the identity and promise bands. It is one
+   full-bleed image per band rather than two separate flourishes, so it is given
+   depth instead of choreography: it fades in as the band arrives and then drifts
+   against the scroll, which is what makes a fixed backdrop read as a layer
+   behind the page rather than a picture printed on it.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    .identity, .promise {
+      /* The band drives the drift, and clips whatever hangs over its edges. */
+      view-timeline: --about-band;
+      overflow: clip;
+    }
+    /*
+      Stretched past the top and bottom of the band so there is room to travel
+      without ever exposing an edge. It has to be a scale rather than a negative
+      inset, because next/image's `fill` writes the insets as inline styles that
+      a stylesheet cannot reach. Only the block axis is stretched, so the lines
+      stay exactly where they were drawn on the left and right.
+    */
+    .artwork { scale: 1 1.14; }
+    @keyframes about-artwork-drift {
+      from { translate: 0 -5%; }
+      to { translate: 0 5%; }
+    }
+    @keyframes about-artwork-in {
+      from { opacity: 0; }
+    }
+    .artwork {
+      animation: about-artwork-drift linear both, about-artwork-in linear both;
+      animation-timeline: --about-band, --about-band;
+      /* The drift runs the whole time the band is on screen; the fade only as it arrives. */
+      animation-range: cover 0% cover 100%, entry 0% entry 85%;
+    }
+  }
+}

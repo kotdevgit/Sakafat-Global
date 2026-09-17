@@ -103,3 +103,32 @@
 
 /* The arrows point the way the language runs; "back" flips with them. */
 [dir="rtl"] .arrow { transform: scaleX(-1); }
+
+/* ---------------------------------------------------------------------------
+   Motion. The hero fills the first screen, so it plays on load, top to bottom;
+   the three bands below arrive on scroll, the facts panel a beat after the copy
+   beside it. Buttons lift under the pointer and settle back as they are pressed.
+   --------------------------------------------------------------------------- */
+.facts > div:hover { background: #fffaf0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .breadcrumb { --enter-delay: 0; }
+  .badges { --enter-delay: 1; }
+  .hero h1 { --enter-delay: 2; }
+  .intro { --enter-delay: 3; }
+  .actions { --enter-delay: 4; }
+
+  .primary, .secondary { transition: background-color 200ms ease, transform 200ms ease, box-shadow 200ms ease; }
+  .primary:hover, .secondary:hover { transform: translateY(-2px); box-shadow: 0 8px 18px #00000047; }
+  .primary:active, .secondary:active { transform: translateY(0); box-shadow: none; }
+
+  .arrow { transition: transform 200ms ease; }
+  .primary:hover .arrow, .pillarLink:hover .arrow { transform: translateX(4px); }
+  /* "Back" points against the reading direction, so it leads the other way. */
+  .back:hover .arrow { transform: translateX(-4px); }
+  [dir="rtl"] .primary:hover .arrow, [dir="rtl"] .pillarLink:hover .arrow { transform: scaleX(-1) translateX(4px); }
+  [dir="rtl"] .back:hover .arrow { transform: scaleX(-1) translateX(-4px); }
+
+  .facts > div { transition: background-color 200ms ease; }
+  .back { transition: color 200ms ease; }
+}
