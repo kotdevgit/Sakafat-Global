@@ -5,8 +5,8 @@ from .models import Episode, EpisodeCategory
 
 @admin.register(EpisodeCategory)
 class EpisodeCategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "position", "episode_count",)
-    search_fields = ("name",)
+    list_display = ("name", "name_ur", "position", "episode_count",)
+    search_fields = ("name", "name_ur",)
     prepopulated_fields = {"slug": ("name",)}
 
     @admin.display(description="episodes")
@@ -21,9 +21,9 @@ HERO_MIN_HEIGHT = 1188
 
 @admin.register(Episode)
 class EpisodeAdmin(admin.ModelAdmin):
-    list_display = ("title", "category", "artwork_size", "hero_artwork", "position", "is_active", "created_at",)
+    list_display = ("title", "title_ur", "category", "artwork_size", "hero_artwork", "position", "is_active", "created_at",)
     list_filter = ("category", "is_active", "created_at",)
-    search_fields = ("title", "description",)
+    search_fields = ("title", "title_ur", "description", "description_ur",)
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ("created_at", "updated_at",)
     list_select_related = ("category",)

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { getLocale } from "@/lib/i18n/server";
-import { format, getDictionary } from "@/lib/i18n/dictionary";
+import { getDictionary } from "@/lib/i18n/dictionary";
+import { LocaleLink } from "@/components/i18n/locale-link";
+import { PublicPromises } from "@/components/about/public-promises";
 import styles from "@/components/about/about.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -66,33 +68,12 @@ export default async function AboutPage() {
         <div className={styles.inner}>
           <p className={styles.eyebrow} data-reveal>{copy.promiseEyebrow}</p>
           <h2 id="promise-heading" data-reveal>{copy.promiseHeading}</h2>
-          <ol className={styles.promiseGrid}>
-            {copy.promises.map((promise, index) => {
-              const number = String(index + 1).padStart(2, "0");
-              return (
-                <li
-                  key={promise.title}
-                  className={`${styles.promiseCard} ${styles[`tone${index + 1}`]}`}
-                  data-reveal
-                  style={{ "--reveal-index": index % 3 } as CSSProperties}
-                >
-                  <Image src={`/images/about/public-promise/${number}.svg`} alt="" width={68} height={68} />
-                  <div className={styles.promiseBody}>
-                    <span className={styles.number} aria-hidden="true">{number}</span>
-                    <h3>{promise.title}</h3><p>{promise.text}</p>
-                    <button type="button" disabled className={styles.learn} aria-label={format(copy.learnMoreAria, { title: promise.title })}>
-                      {copy.learnMore} <span aria-hidden="true">+</span>
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
+          <PublicPromises dict={dict} />
           <div className={styles.governance}>
-            <button type="button" disabled title={copy.governanceComingSoon}>
+            <LocaleLink href="/editorial-charter">
               {copy.governance}
               <svg className={styles.arrow} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4 12h16m-7-7 7 7-7 7" /></svg>
-            </button>
+            </LocaleLink>
           </div>
         </div>
       </section>

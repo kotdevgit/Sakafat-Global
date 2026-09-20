@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteMotion } from "@/components/layout/site-motion";
 import { SiteHeader } from "@/components/layout/site-header";
 import { I18nProvider } from "@/lib/i18n/context";
 import { directionOf, isLocale, locales } from "@/lib/i18n/config";
@@ -62,6 +63,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
         <I18nProvider locale={lang} dict={dict}>
           <AuthProvider>
             <SiteHeader />
+            <SiteMotion />
             {children}
             <SiteFooter />
           </AuthProvider>

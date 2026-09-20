@@ -77,9 +77,8 @@ for path in /en /en/programs /ur /ur/programs; do
   code=$(curl -s -o /tmp/_sakafat_page -w '%{http_code}' --max-time 15 "http://localhost:3000$path" 2>/dev/null)
   if [ "$code" != "200" ]; then fail "GET localhost:3000$path -> ${code} (is npm run dev running?)"
   else
-    # Programme and episode names come from Django in one language, so the same
-    # names are expected on the Urdu pages as on the English ones.
-    hits=$(grep -oE 'Sakafat Signals|Career Rasta|Culture in Motion|Living Heritage' /tmp/_sakafat_page 2>/dev/null | sort -u | wc -l | tr -d ' ')
+    # Programme and episode names come from Django in English or Urdu depending on page language.
+    hits=$(grep -oE 'Sakafat Signals|Career Rasta|Culture in Motion|Living Heritage|ثقافت سگنلز|کیریئر راستہ|کلچر اِن موشن|زندہ ورثہ' /tmp/_sakafat_page 2>/dev/null | sort -u | wc -l | tr -d ' ')
     [ "$hits" -gt 0 ] && pass "localhost:3000$path renders content ($hits known item(s))" || fail "localhost:3000$path renders NO programme/episode content"
   fi
 done

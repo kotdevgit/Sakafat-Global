@@ -23,9 +23,11 @@ function PlayIcon() {
 
 /** Destinations stay unavailable until their sections or episode URL are ready. */
 export async function HeroSection({ pillarsHref, participateHref, episodeHref }: HeroSectionProps) {
-  const [heroEpisode, dict] = await Promise.all([getHeroEpisode(), getLocale().then(getDictionary)]);
+  const locale = await getLocale();
+  const [heroEpisode, dict] = await Promise.all([getHeroEpisode(locale), getDictionary(locale)]);
   const copy = dict.home.hero;
-  const episodeUrl = episodeHref ?? heroEpisode?.videoUrl ?? null;
+  const fallbackEpisodeUrl = "https://www.youtube.com/@sakafat-global";
+  const episodeUrl = episodeHref ?? heroEpisode?.videoUrl ?? fallbackEpisodeUrl;
   const episodeLabel = heroEpisode
     ? format(copy.watchLatestNamed, { title: heroEpisode.title })
     : copy.watchLatest;
@@ -85,7 +87,12 @@ export async function HeroSection({ pillarsHref, participateHref, episodeHref }:
                 preload
               />
               {episodeUrl ? (
-                <a className={styles.episodePill} href={episodeUrl} aria-label={episodeLabel}>
+                <a
+                  className={styles.episodePill}
+                  href={episodeUrl}
+                  aria-label={episodeLabel}
+                  {...(episodeUrl.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                >
                   {copy.latestEpisode}<PlayIcon />
                 </a>
               ) : (
@@ -106,7 +113,12 @@ export async function HeroSection({ pillarsHref, participateHref, episodeHref }:
                 preload
               />
               {episodeUrl ? (
-                <a className={styles.episodeLink} href={episodeUrl} aria-label={episodeLabel} />
+                <a
+                  className={styles.episodeLink}
+                  href={episodeUrl}
+                  aria-label={episodeLabel}
+                  {...(episodeUrl.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                />
               ) : (
                 <span className={styles.episodeLink} role="link" aria-disabled="true" aria-label={copy.latestEpisodeComingSoon} title={copy.latestEpisodeComingSoon} />
               )}

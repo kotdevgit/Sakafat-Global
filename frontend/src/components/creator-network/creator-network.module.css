@@ -1,0 +1,266 @@
+/* Hero */
+.hero {
+  position: relative;
+  background: linear-gradient(115deg, #0c233c, #0e3b4d 55%, #13525e);
+  color: #fff;
+  padding: 96px 48px 80px;
+}
+
+.heroInner {
+  max-width: 1200px;
+  margin-inline: auto;
+}
+
+.eyebrow {
+  margin: 0 0 16px;
+  color: #ffbf32;
+  font: var(--type-label);
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0 0 20px;
+  font: var(--type-hero);
+  letter-spacing: 0;
+}
+
+.heroIntro {
+  max-width: 780px;
+  margin: 0 0 36px;
+  font: var(--type-body);
+  letter-spacing: 0;
+  color: #e2e8f0;
+}
+
+.primaryAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: #e9a600;
+  color: #050505;
+  font: var(--type-button);
+  letter-spacing: 0;
+  text-decoration: none;
+  text-align: center;
+  transition: background 180ms ease;
+}
+
+.primaryAction:hover {
+  background: #ffbf32;
+}
+
+.primaryAction:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
+.primaryAction svg {
+  flex-shrink: 0;
+}
+
+/* Sections */
+.section {
+  padding: 88px 48px;
+  background: #fff;
+  color: #1e293b;
+}
+
+.sectionAlt {
+  background: #f8f6f0;
+}
+
+.inner {
+  max-width: 1200px;
+  margin-inline: auto;
+}
+
+.sectionHeader {
+  margin-bottom: 56px;
+}
+
+.sectionHeader h2 {
+  margin: 0 0 14px;
+  color: #0f2b48;
+  font: var(--type-section);
+  letter-spacing: 0;
+}
+
+.sectionHeader p {
+  max-width: 720px;
+  margin: 0;
+  color: #475569;
+  font: var(--type-body);
+  letter-spacing: 0;
+}
+
+/* Grids */
+.grid4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Cards */
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 28px 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 4px 12px #0000000a;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 20px #00000014;
+}
+
+.card h3 {
+  margin: 0 0 12px;
+  color: #0f2b48;
+  font: var(--type-card);
+  letter-spacing: 0;
+}
+
+.card p {
+  margin: 0 0 20px;
+  color: #475569;
+  font: var(--type-small);
+  line-height: var(--leading-relaxed);
+  letter-spacing: 0;
+}
+
+.tag {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: #e6f7f8;
+  color: #0b545c;
+  font: var(--type-caption);
+  letter-spacing: 0;
+}
+
+.badge {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: #fff3d6;
+  color: #784800;
+  font: var(--type-caption);
+  letter-spacing: 0;
+}
+
+/* Steps */
+.stepNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #0f2b48;
+  color: #ffbf32;
+  font: var(--type-card);
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Bottom CTA Banner */
+.ctaBanner {
+  background: #0c233c;
+  color: #fff;
+  padding: 88px 48px;
+}
+
+.ctaCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding: 56px 64px;
+  border-radius: 24px;
+  background: linear-gradient(115deg, #112d4e, #164057);
+  border: 1px solid #ffffff1f;
+}
+
+.ctaCopy h2 {
+  margin: 0 0 12px;
+  font: var(--type-section);
+  letter-spacing: 0;
+}
+
+.ctaCopy p {
+  max-width: 600px;
+  margin: 0;
+  color: #e2e8f0;
+  font: var(--type-body);
+  letter-spacing: 0;
+}
+
+.ctaCard .primaryAction {
+  flex-shrink: 0;
+}
+
+/* RTL Arrow */
+[dir="rtl"] .primaryAction svg {
+  transform: scaleX(-1);
+}
+
+@media (max-width: 1023px) {
+  .hero {
+    padding: 72px 32px 64px;
+  }
+  .section {
+    padding: 64px 32px;
+  }
+  .grid4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .grid3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ctaCard {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 40px 32px;
+  }
+}
+
+@media (max-width: 639px) {
+  .hero {
+    padding: 56px 24px 48px;
+  }
+  .section {
+    padding: 48px 24px;
+  }
+  .grid4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .primaryAction {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -5,6 +5,7 @@ class EpisodeCategory(models.Model):
     """Editorial categories. Staff add these in the admin; no migration needed."""
 
     name = models.CharField(max_length=60, unique=True)
+    name_ur = models.CharField(max_length=60, blank=True, default="")
     slug = models.SlugField(unique=True)
     # Controls the order categories appear in, lowest first.
     position = models.PositiveSmallIntegerField(default=0)
@@ -19,6 +20,7 @@ class EpisodeCategory(models.Model):
 
 class Episode(models.Model):
     title = models.CharField(max_length=200)
+    title_ur = models.CharField(max_length=200, blank=True, default="")
     slug = models.SlugField(unique=True)
     category = models.ForeignKey(
         EpisodeCategory,
@@ -26,6 +28,7 @@ class Episode(models.Model):
         related_name="episodes",
     )
     description = models.TextField()
+    description_ur = models.TextField(blank=True, default="")
     image = models.ImageField(
         upload_to="episodes/",
         blank=True,
@@ -60,6 +63,12 @@ class Episode(models.Model):
         max_length=200,
         blank=True,
         help_text="Describes the image for screen readers. Leave blank if it adds nothing beyond the title.",
+    )
+    image_alt_ur = models.CharField(
+        max_length=200,
+        blank=True,
+        default="",
+        help_text="Describes the image for screen readers in Urdu. Leave blank if it adds nothing beyond the title.",
     )
     video_url = models.URLField(
         blank=True,

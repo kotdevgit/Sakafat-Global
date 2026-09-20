@@ -6,21 +6,24 @@ import { enquiryHref } from "@/lib/validation/contact";
 import { getLocale } from "@/lib/i18n/server";
 import { getDictionary, format } from "@/lib/i18n/dictionary";
 
-const socials = [
-  { name: "Instagram", image: "insta-icon.png", width: 14 },
-  { name: "LinkedIn", image: "linkden-icon.png", width: 14 },
-  { name: "Facebook", image: "fb-icon.png", width: 15 },
-  { name: "X", image: "x-icon.png", width: 12 },
+type SocialItem = {
+  name: string;
+  image: string;
+  width: number;
+  href?: string;
+};
+
+const socials: SocialItem[] = [
+  { name: "Instagram", image: "insta-icon.png", width: 14, href: "https://www.instagram.com/" },
+  { name: "LinkedIn", image: "linkden-icon.png", width: 14, href: "https://www.linkedin.com/" },
+  { name: "Facebook", image: "fb-icon.png", width: 15, href: "https://www.facebook.com/" },
+  { name: "X", image: "x-icon.png", width: 12, href: "https://x.com/" },
+  { name: "YouTube", image: "youtube-icon.svg", width: 16, href: "https://www.youtube.com/@sakafat-global" },
 ];
 
 export async function SiteFooter() {
   const dict = getDictionary(await getLocale());
   const { footer, common } = dict;
-
-  /** A destination that has no page yet is named but not linked. */
-  const pending = (label: string) => (
-    <span aria-disabled="true" title={`${label} — ${common.comingSoon}`}>{label}</span>
-  );
 
   const columns = [
     {
@@ -35,7 +38,7 @@ export async function SiteFooter() {
       title: footer.participate.title,
       items: [
         <LocaleLink key="pathways" href="/get-involved">{footer.participate.openPathways}</LocaleLink>,
-        pending(footer.participate.creatorNetwork),
+        <LocaleLink key="creator-network" href="/creator-network">{footer.participate.creatorNetwork}</LocaleLink>,
         <LocaleLink key="partner" href={enquiryHref("partnership", footer.partnershipSubject)}>
           {footer.participate.partnerWithUs}
         </LocaleLink>,
@@ -44,9 +47,9 @@ export async function SiteFooter() {
     {
       title: footer.governance.title,
       items: [
-        pending(footer.governance.editorialCharter),
-        pending(footer.governance.privacyNotice),
-        pending(footer.governance.accessibility),
+        <LocaleLink key="editorial-charter" href="/editorial-charter">{footer.governance.editorialCharter}</LocaleLink>,
+        <LocaleLink key="privacy" href="/privacy">{footer.governance.privacyNotice}</LocaleLink>,
+        <LocaleLink key="accessibility" href="/accessibility">{footer.governance.accessibility}</LocaleLink>,
       ],
     },
   ];
@@ -63,14 +66,26 @@ export async function SiteFooter() {
             <ul className={styles.socials} aria-label={footer.socials}>
               {socials.map((social) => (
                 <li key={social.name}>
-                  <button
-                    type="button"
-                    disabled
-                    aria-label={`${social.name} — ${common.comingSoon}`}
-                    title={`${social.name} — ${common.comingSoon}`}
-                  >
-                    <Image src={`/images/footer/${social.image}`} alt="" width={social.width} height={14} />
-                  </button>
+                  {social.href ? (
+                    <a
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.name}
+                      title={social.name}
+                    >
+                      <Image src={`/images/footer/${social.image}`} alt="" width={social.width} height={14} />
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled
+                      aria-label={`${social.name} — ${common.comingSoon}`}
+                      title={`${social.name} — ${common.comingSoon}`}
+                    >
+                      <Image src={`/images/footer/${social.image}`} alt="" width={social.width} height={14} />
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

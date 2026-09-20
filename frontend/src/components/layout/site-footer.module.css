@@ -5,7 +5,11 @@
 .logo img { display: block; width: 128px; height: 89px; }
 .description { max-width: 290px; margin: 10px 0 0;   }
 .socials { display: flex; align-items: center; gap: 6px; margin: 36px 0 0; padding: 0; list-style: none; }
-.socials button { display: grid; place-items: center; min-width: 14px; min-height: 20px; padding: 0; border: 0; background: transparent; cursor: not-allowed; }
+.socials a, .socials button { display: grid; place-items: center; min-width: 14px; min-height: 20px; padding: 0; border: 0; background: transparent; }
+.socials button { cursor: not-allowed; }
+.socials a { cursor: pointer; color: inherit; text-decoration: none; }
+.socials a:hover { opacity: 0.8; }
+.socials a:focus-visible { outline: 3px solid #ffbf32; outline-offset: 4px; }
 .socials img { display: block; }
 .column { padding-top: 26px; min-width: 0; }
 .column h2 { color: #ffbf32; margin: 0 0 20px;    }
@@ -20,7 +24,7 @@
   .brand { grid-column: 1 / -1; }
   .description { max-width: 420px; }
   .socials { margin-top: 18px; gap: 4px; }
-  .socials button { min-width: 44px; min-height: 44px; }
+  .socials a, .socials button { min-width: 44px; min-height: 44px; }
   .column { padding-top: 0; }
 }
 @media (max-width: 767px) {

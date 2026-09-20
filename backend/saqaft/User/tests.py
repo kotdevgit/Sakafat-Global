@@ -299,3 +299,27 @@ class UnverifiedLoginTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("access", response.json())
+
+
+class RegistrationCodeIsolationTests(APITestCase):
+    def test_same_code_on_two_accounts_verifies_only_requested_username(self):
+        one = User.objects.create_user("code_one", is_active=False)
+        two = User.objects.create_user("code_two", is_active=False)
+        OTPVerification.objects.create(user=one, otp="123456")
+        OTPVerification.objects.create(user=two, otp="123456")
+        response = self.client.post("/api/verify_otp/", {"username": one.username, "otp": "123456"})
+        self.assertEqual(response.status_code, 200)
+        one.refresh_from_db(); two.refresh_from_db()
+        self.assertTrue(one.is_active)
+        self.assertFalse(two.is_active)
+
+    def test_another_accounts_code_does_not_activate_requested_user(self):
+        one = User.objects.create_user("code_one", is_active=False)
+        two = User.objects.create_user("code_two", is_active=False)
+        OTPVerification.objects.create(user=one, otp="123456")
+        OTPVerification.objects.create(user=two, otp="654321")
+        response = self.client.post("/api/verify_otp/", {"username": one.username, "otp": "654321"})
+        self.assertEqual(response.status_code, 400)
+        one.refresh_from_db(); two.refresh_from_db()
+        self.assertFalse(one.is_active)
+        self.assertFalse(two.is_active)

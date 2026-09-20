@@ -15,7 +15,8 @@ function ArrowIcon() {
 }
 
 export async function ProgramsSection() {
-  const [all, dict] = await Promise.all([getProgrammes(), getLocale().then(getDictionary)]);
+  const locale = await getLocale();
+  const [all, dict] = await Promise.all([getProgrammes(locale), getDictionary(locale)]);
   const programmes = all.slice(0, 3);
   const copy = dict.home.programs;
 

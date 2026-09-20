@@ -13,6 +13,10 @@ export type Programme = {
   status: string;
   statusLabel: string;
   imageUrl: string | null;
+  nameUr?: string;
+  descriptionUr?: string;
+  pillarLabelUr?: string;
+  statusLabelUr?: string;
 };
 
 /** Discovery filters on the programmes page, in the order they are shown. */
@@ -51,7 +55,7 @@ export function filterLabel(filter: ProgrammeFilter, dict: Dictionary): string {
   return dict.programs.discovery.filters[filter];
 }
 
-function toProgramme(entry: Record<string, unknown>, base: string): Programme | null {
+function toProgramme(entry: Record<string, unknown>, base: string, locale?: string): Programme | null {
   const { id, name, slug, pillar, description, status } = entry;
   if (typeof id !== "number" || typeof name !== "string" || typeof slug !== "string") return null;
   if (typeof description !== "string" || typeof status !== "string" || typeof pillar !== "string") return null;
@@ -64,16 +68,39 @@ function toProgramme(entry: Record<string, unknown>, base: string): Programme | 
       imageUrl = null;
     }
   }
+  const isUrdu = locale === "ur";
+  const nameUr = typeof entry.name_ur === "string" ? entry.name_ur : undefined;
+  const descriptionUr = typeof entry.description_ur === "string" ? entry.description_ur : undefined;
+  const pillarLabelUr = typeof entry.pillar_label_ur === "string" ? entry.pillar_label_ur : undefined;
+  const statusLabelUr = typeof entry.status_label_ur === "string" ? entry.status_label_ur : undefined;
+
+  const resolvedName = isUrdu && nameUr ? nameUr : name;
+  const resolvedDescription = isUrdu && descriptionUr ? descriptionUr : description;
+  const resolvedPillarLabel = isUrdu && pillarLabelUr
+    ? pillarLabelUr
+    : typeof entry.pillar_label === "string"
+      ? entry.pillar_label
+      : pillar;
+  const resolvedStatusLabel = isUrdu && statusLabelUr
+    ? statusLabelUr
+    : typeof entry.status_label === "string"
+      ? entry.status_label
+      : status;
+
   return {
     id,
-    name,
+    name: resolvedName,
     slug,
     pillar,
-    pillarLabel: typeof entry.pillar_label === "string" ? entry.pillar_label : pillar,
-    description,
+    pillarLabel: resolvedPillarLabel,
+    description: resolvedDescription,
     status,
-    statusLabel: typeof entry.status_label === "string" ? entry.status_label : status,
+    statusLabel: resolvedStatusLabel,
     imageUrl,
+    nameUr,
+    descriptionUr,
+    pillarLabelUr,
+    statusLabelUr,
   };
 }
 
@@ -81,7 +108,7 @@ function toProgramme(entry: Record<string, unknown>, base: string): Programme | 
  * Reads the published programmes from Django.
  * Returns an empty list when the backend is unavailable so a page still renders.
  */
-export async function getProgrammes(): Promise<Programme[]> {
+export async function getProgrammes(locale?: string): Promise<Programme[]> {
   let base: string;
   try {
     base = getApiBaseUrl();
@@ -90,8 +117,10 @@ export async function getProgrammes(): Promise<Programme[]> {
     return [];
   }
   try {
+    const headers: Record<string, string> = { Accept: "application/json" };
+    if (locale) headers["Accept-Language"] = locale;
     const response = await fetch(new URL("programme/", base), {
-      headers: { Accept: "application/json" },
+      headers,
       redirect: "error",
       signal: AbortSignal.timeout(10000),
       // Programmes change through the admin, so refresh them on a short cycle.
@@ -109,7 +138,7 @@ export async function getProgrammes(): Promise<Programme[]> {
         : [];
     return entries
       .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object")
-      .map((entry) => toProgramme(entry, base))
+      .map((entry) => toProgramme(entry, base, locale))
       .filter((programme): programme is Programme => programme !== null);
   } catch (error) {
     reportUnavailable("Programmes", error);
@@ -121,7 +150,7 @@ export async function getProgrammes(): Promise<Programme[]> {
  * Reads a single programme by slug from Django.
  * Returns null if not found or if the backend is unreachable.
  */
-export async function getProgrammeBySlug(slug: string): Promise<Programme | null> {
+export async function getProgrammeBySlug(slug: string, locale?: string): Promise<Programme | null> {
   let base: string;
   try {
     base = getApiBaseUrl();
@@ -130,8 +159,10 @@ export async function getProgrammeBySlug(slug: string): Promise<Programme | null
     return null;
   }
   try {
+    const headers: Record<string, string> = { Accept: "application/json" };
+    if (locale) headers["Accept-Language"] = locale;
     const response = await fetch(new URL(`programme/${encodeURIComponent(slug)}/`, base), {
-      headers: { Accept: "application/json" },
+      headers,
       redirect: "error",
       signal: AbortSignal.timeout(10000),
       next: { revalidate: 60 },
@@ -139,7 +170,7 @@ export async function getProgrammeBySlug(slug: string): Promise<Programme | null
     if (!response.ok) return null;
     const data: unknown = await response.json();
     if (!data || typeof data !== "object" || Array.isArray(data)) return null;
-    return toProgramme(data as Record<string, unknown>, base);
+    return toProgramme(data as Record<string, unknown>, base, locale);
   } catch {
     return null;
   }
@@ -150,7 +181,7 @@ export async function getProgrammeBySlug(slug: string): Promise<Programme | null
  * accepting participants. Returns null when nothing is open, so the caller can
  * fall back to the full listing instead of linking somewhere dead.
  */
-export async function getOpenProgramme(): Promise<Programme | null> {
-  const programmes = await getProgrammes();
+export async function getOpenProgramme(locale?: string): Promise<Programme | null> {
+  const programmes = await getProgrammes(locale);
   return programmes.find((programme) => filterOf(programme) === "Open Now") ?? null;
 }

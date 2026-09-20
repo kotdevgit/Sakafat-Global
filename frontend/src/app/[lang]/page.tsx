@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <main id="main-content" tabIndex={-1}>
       <HeroSection pillarsHref="/#pillars" participateHref="/get-involved" />
-      <FeaturedSection />
+      <FeaturedSection allEpisodesHref="https://www.youtube.com/@sakafat-global" />
       <PillarsSection />
       <ProgramsSection />
       <FounderSection />

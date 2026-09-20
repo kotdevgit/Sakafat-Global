@@ -78,32 +78,20 @@ class LoginSerializer(serializers.Serializer):
 
 
 class VerifyOTPSerializer(serializers.Serializer):
-    otp = serializers.CharField(
-            min_length=6,
-            max_length=6
-        )
+    username = serializers.CharField()
+    otp = serializers.RegexField(r"^[0-9]{6}$")
 
     def validate(self, data):
-        try:
-            verification = OTPVerification.objects.get(
-                otp=data["otp"],
-                is_verified=False
-            )
-        except OTPVerification.DoesNotExist:
-            raise serializers.ValidationError(
-                "Invalid OTP."
-            )
-
-        user = verification.user
-
+        user = User.objects.filter(username=data["username"]).first()
+        if not user:
+            raise serializers.ValidationError("Invalid OTP.")
         if user.is_active:
-            raise serializers.ValidationError(
-                "This account is already verified."
-            )
-
+            raise serializers.ValidationError("This account is already verified.")
+        verification = OTPVerification.objects.filter(user=user, is_verified=False).order_by("-created_at").first()
+        if not verification:
+            raise serializers.ValidationError("Invalid OTP.")
         data["verification"] = verification
         data["user"] = user
-
         return data
 
 
@@ -126,3 +114,10 @@ class ResetPasswordSerializer(serializers.Serializer):
         write_only=True,
         min_length=8
     )
+    def validate(self, data):
+        user = User.objects.filter(email__iexact=data["email"]).first()
+        try:
+            validate_password(data["new_password"], user)
+        except DjangoValidationError as error:
+            raise serializers.ValidationError({"new_password": error.messages})
+        return data

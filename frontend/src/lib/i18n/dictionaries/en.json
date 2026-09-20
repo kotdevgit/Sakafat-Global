@@ -30,6 +30,22 @@
     },
     "forgotPassword": {
       "title": "Reset Password | Sakafat Global"
+    },
+    "editorialCharter": {
+      "title": "Editorial Charter | Sakafat Global",
+      "description": "Our editorial standards, cultural commitments, and principles of integrity guiding every production and narrative."
+    },
+    "privacy": {
+      "title": "Privacy Notice | Sakafat Global",
+      "description": "How Sakafat Global collects, uses, protects, and respects your personal information."
+    },
+    "accessibility": {
+      "title": "Accessibility Statement | Sakafat Global",
+      "description": "Our ongoing commitment to ensuring an inclusive, barrier-free digital experience for all visitors."
+    },
+    "creatorNetwork": {
+      "title": "Creator Network | Sakafat Global",
+      "description": "Join the Sakafat Global Creator Network. Collaborative opportunities for filmmakers, researchers, writers, and cultural practitioners."
     }
   },
   "common": {
@@ -157,21 +173,21 @@
       "question": "How do we connect?",
       "description": "Connected people, collective power.",
       "flagship": "Rabta Live.",
-      "action": "Explore Rabtaa"
+      "action": "Explore Rabta"
     },
     "ikhlakiat": {
       "name": "Ikhlakiat",
       "question": "How should we act?",
-      "description": "Work ethics ethics that empower.",
+      "description": "Work ethics that empower.",
       "flagship": "Lawtency.",
       "action": "Explore Ikhlakiat"
     },
     "falah": {
-      "name": "Hayee Ya Lal Falah",
+      "name": "Falah",
       "question": "How do we build and progress?",
       "description": "Business coaching: purpose driven growth, lasting impact.",
       "flagship": "Falah Ki Kahani.",
-      "action": "Explore Hayee Ya Lal Falah"
+      "action": "Explore Falah"
     },
     "sama": {
       "name": "Sama",
@@ -354,38 +370,46 @@
     },
     "vision": {
       "title": "Our Vision",
-      "body": "To use media, production and dialogue to strengthen values, understanding, connection, opportunity and cultural heritage."
+      "body": "To establish culture as a dynamic socioeconomic force, where Pakistani heritage and creative dialogue inspire confidence, connection and opportunity across generations."
     },
     "promiseEyebrow": "Our public promise",
     "promiseHeading": "Trust, Made Visible.",
     "promises": [
       {
         "title": "Honest Communication",
-        "text": "We share programme status clearly."
+        "text": "We share programme status clearly.",
+        "detail": "We never publish misleading deadlines, false availability, or fabricated participation tiers. Every open call, deadline, fee structure, and eligibility criterion is disclosed accurately before registration opens."
       },
       {
         "title": "Privacy & Context",
-        "text": "We respect personal data and cultural sensitivity."
+        "text": "We respect personal data and cultural sensitivity.",
+        "detail": "Personal contact details and contributor materials are kept secure and confidential. Cultural narratives, indigenous oral histories, and community traditions are contextualized with utmost respect and community consultation."
       },
       {
         "title": "Transparent Content",
-        "text": "We identify sponsored and commissioned work."
+        "text": "We identify sponsored and commissioned work.",
+        "detail": "We maintain clear separation between independent editorial production and commercial or institutional sponsorships. All supported, funded, or branded media carries unambiguous disclosures for complete audience trust."
       },
       {
         "title": "Rights & Consent",
-        "text": "We protect contributors and creative ownership."
+        "text": "We protect contributors and creative ownership.",
+        "detail": "Artists, writers, musicians, and filmmakers retain moral and intellectual rights to their original creations. We establish fair licensing agreements and obtain informed consent prior to recording, broadcasting, or publishing."
       },
       {
         "title": "English & Urdu",
-        "text": "We design meaningful experiences in both languages."
+        "text": "We design meaningful experiences in both languages.",
+        "detail": "Both English and Urdu are treated as primary languages of dialogue and cultural transmission. We invest in high-calibre translation, Nastaliq typography, and native cultural expressions rather than automated machine translations."
       },
       {
         "title": "Impact With Purpose",
-        "text": "We measure value beyond views and followers."
+        "text": "We measure value beyond views and followers.",
+        "detail": "Success is evaluated through depth of understanding, long-term educational relevance, and the tangible cultural capabilities fostered within communities—not fleeting viral metrics or sensationalism."
       }
     ],
     "learnMore": "Learn More",
-    "learnMoreAria": "Learn more about {title} — coming soon",
+    "learnMoreAria": "Learn more about {title}",
+    "showLess": "Show Less",
+    "showLessAria": "Show less about {title}",
     "governance": "Read our governance standards",
     "governanceComingSoon": "Governance standards — coming soon",
     "statusAria": "Company status",
@@ -650,6 +674,214 @@
       "loginIncomplete": "We couldn’t complete login. Please try again.",
       "sessionExpired": "Your session has expired. Please log in again.",
       "unreachable": "We couldn’t reach account services. Please try again shortly. If you were registering, check your email before trying again."
+    }
+  },
+  "editorialCharter": {
+    "eyebrow": "Governance & Standards",
+    "title": "Editorial Charter",
+    "intro": "Our editorial standards, cultural commitments, and principles of integrity guiding every production, narrative, and dialogue.",
+    "lastUpdated": "Last updated: September 2026",
+    "sections": [
+      {
+        "title": "Cultural Integrity & Heritage",
+        "content": "Sakafat Global is committed to representing Pakistan's diverse regional cultures, traditions, and artistic heritage with authenticity, nuance, and historical accuracy. We reject superficial caricatures and prioritize voices rooted in lived community experience."
+      },
+      {
+        "title": "Editorial Independence",
+        "content": "Our creative decisions and intellectual pursuits are free from external commercial or partisan influences. Our editorial board evaluates proposals based on artistic merit, public value, ethical grounding, and alignment with our foundational pillars."
+      },
+      {
+        "title": "Research & Factual Rigour",
+        "content": "Every documentary, podcast, article, and educational programme undergoes thorough fact-checking and contextual research. When presenting contested histories or complex cultural discourses, we provide balanced perspectives and transparent sourcing."
+      },
+      {
+        "title": "Respect & Inclusivity",
+        "content": "We foster open dialogue that honours diverse viewpoints while upholding fundamental human dignity. We do not tolerate hate speech, incitement, or discrimination based on gender, ethnicity, religion, or background."
+      },
+      {
+        "title": "Corrections & Accountability",
+        "content": "We believe transparency builds trust. When substantive factual errors occur, we correct them promptly, clearly, and visibly across all affected platforms and media releases."
+      }
+    ],
+    "contactNote": {
+      "heading": "Questions or Editorial Feedback",
+      "body": "If you have questions about our editorial standards or wish to request a correction, please reach out to our editorial team.",
+      "action": "Contact Editorial Team"
+    }
+  },
+  "privacy": {
+    "eyebrow": "Legal & Data Protection",
+    "title": "Privacy Notice",
+    "intro": "How Sakafat Global collects, uses, protects, and respects your personal information across our website and digital services.",
+    "lastUpdated": "Last updated: September 2026",
+    "sections": [
+      {
+        "title": "Information We Collect",
+        "content": "We collect information you provide directly to us when you submit an enquiry form, register an account, apply for a programme, or subscribe to updates. This includes your name, email address, phone number, organization, and any message or portfolio attachments."
+      },
+      {
+        "title": "How We Use Your Information",
+        "content": "We use your data solely to respond to your enquiries, process programme applications, manage your account session, provide access to collaborative tools, and communicate important updates regarding our productions and events."
+      },
+      {
+        "title": "Cookies & Authentication",
+        "content": "We use essential cookies to maintain secure authentication sessions and remember your language preference (English or Urdu). We do not use invasive third-party tracking or advertising cookies."
+      },
+      {
+        "title": "Media & Third-Party Services",
+        "content": "Our platform links to and embeds external media services such as YouTube to provide video playback. These services may collect viewer telemetry according to their own privacy policies when you interact with their players."
+      },
+      {
+        "title": "Data Security & Retention",
+        "content": "Your data is stored securely in encrypted databases and protected using industry-standard security protocols. We retain your information only as long as necessary to fulfill the purpose for which it was gathered or as required by law."
+      },
+      {
+        "title": "Your Rights",
+        "content": "You have the right to access, rectify, or request the deletion of your personal data at any time. You may also withdraw consent for communications by contacting us."
+      }
+    ],
+    "contactNote": {
+      "heading": "Data Protection Inquiries",
+      "body": "To exercise your data privacy rights or ask questions regarding our data practices, please contact our data protection team.",
+      "action": "Contact Data Team"
+    }
+  },
+  "accessibility": {
+    "eyebrow": "Commitment & Standards",
+    "title": "Accessibility Statement",
+    "intro": "Our ongoing commitment to ensuring an inclusive, barrier-free digital experience for all visitors, creators, and participants.",
+    "lastUpdated": "Last updated: September 2026",
+    "sections": [
+      {
+        "title": "Conformance Standard",
+        "content": "Sakafat Global strives to conform with the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA standards. We regularly audit and refine our interface to ensure our content is accessible to users with varied abilities and assistive technologies."
+      },
+      {
+        "title": "Bilingual & RTL Layout Architecture",
+        "content": "Our website provides first-class support for both English (LTR) and Urdu (RTL). For Urdu, we employ authentic Noto Nastaliq typography with calibrated line heights and proportional font scaling, ensuring comfortable reading without descender collisions."
+      },
+      {
+        "title": "Keyboard Navigation & Focus",
+        "content": "All interactive elements, including navigation menus, forms, accordion panels, and dialogue triggers, are fully navigable via keyboard. High-contrast focus indicators are maintained across light and dark backgrounds."
+      },
+      {
+        "title": "Visual Contrast & Motion Preferences",
+        "content": "Color palettes are designed to meet or exceed WCAG AA contrast ratios for text and graphical elements. We respect the user's prefers-reduced-motion system preference by disabling non-essential decorative animations."
+      },
+      {
+        "title": "Assistive Technologies & Semantic HTML",
+        "content": "We build with semantic HTML5 elements and appropriate ARIA attributes, ensuring that screen readers and assistive tools can accurately interpret document structure, landmarks, form fields, and status messages."
+      }
+    ],
+    "contactNote": {
+      "heading": "Accessibility Feedback",
+      "body": "If you experience any accessibility barriers on our site or have suggestions for improvement, we welcome your feedback.",
+      "action": "Submit Feedback"
+    }
+  },
+  "creatorNetwork": {
+    "hero": {
+      "eyebrow": "Participate & Collaborate",
+      "headingLine1": "A home for creators",
+      "headingLine2": "shaping cultural narrative.",
+      "intro": "The Sakafat Global Creator Network brings together filmmakers, researchers, writers, and audio producers to create substantive cultural media grounded in authenticity and community.",
+      "cta": "Apply to the Network"
+    },
+    "disciplines": {
+      "heading": "Who We Collaborate With",
+      "intro": "We partner with creative minds across disciplines who share a commitment to responsible, impactful cultural storytelling.",
+      "items": [
+        {
+          "title": "Filmmakers & Documentarians",
+          "description": "Visual storytellers capturing Pakistan's living heritage, regional traditions, architecture, and contemporary cultural movements.",
+          "tag": "Cinematography & Directing"
+        },
+        {
+          "title": "Researchers & Cultural Historians",
+          "description": "Scholars and archivists documenting oral histories, indigenous knowledge, literature, and folklore with academic rigor.",
+          "tag": "Research & Archives"
+        },
+        {
+          "title": "Writers & Essayists",
+          "description": "Thinkers crafting thoughtful cultural critique, biographical profiles, bilingual essays, and in-depth analytical pieces.",
+          "tag": "Writing & Journalism"
+        },
+        {
+          "title": "Podcasters & Audio Producers",
+          "description": "Audio creators capturing nuanced conversations, sacred and folk soundscapes, musical traditions, and oral storytelling.",
+          "tag": "Audio & Soundscapes"
+        }
+      ]
+    },
+    "models": {
+      "heading": "How We Work Together",
+      "intro": "Flexible collaboration pathways tailored to project scale, creative autonomy, and mutual cultural goals.",
+      "items": [
+        {
+          "title": "Commissioned Originals",
+          "description": "Full production support, financial backing, and editorial mentorship for original documentary films, series, and podcasts.",
+          "badge": "Full Production Support"
+        },
+        {
+          "title": "Co-Production & Distribution",
+          "description": "Partnering with independent creators and studios to provide post-production finishing, translation, and multi-platform distribution.",
+          "badge": "Distribution & Amplification"
+        },
+        {
+          "title": "Fellowships & Creative Residencies",
+          "description": "Targeted grants, research stipends, and access to production resources for emerging and regional creators.",
+          "badge": "Grants & Mentorship"
+        }
+      ]
+    },
+    "criteria": {
+      "heading": "What We Look For",
+      "intro": "Every proposal and partnership is evaluated against four foundational standards.",
+      "items": [
+        {
+          "title": "Pillar Alignment",
+          "description": "Projects must resonate with one of our five pillars: Ikhlakiat, Idraak, Hayya Alal Falah, Rabta, or Sama."
+        },
+        {
+          "title": "Cultural Authenticity",
+          "description": "Grounding in genuine community relationships, avoiding stereotypes, and honouring local historical contexts."
+        },
+        {
+          "title": "Ethical Sourcing & Consent",
+          "description": "Fair compensation, transparent credits, and informed consent for all interviewees and traditional culture bearers."
+        },
+        {
+          "title": "Original Voice & Craft",
+          "description": "Distinctive creative vision, compelling narrative structure, and high standards of visual and technical execution."
+        }
+      ]
+    },
+    "process": {
+      "heading": "Application Process",
+      "intro": "A straightforward, transparent pathway from initial pitch to greenlight.",
+      "steps": [
+        {
+          "number": "01",
+          "title": "Submit Pitch & Portfolio",
+          "description": "Share your project concept, background, previous work samples, and estimated timeline."
+        },
+        {
+          "number": "02",
+          "title": "Editorial Review",
+          "description": "Our editorial board assesses cultural resonance, feasibility, and alignment with our charter."
+        },
+        {
+          "number": "03",
+          "title": "Collaborative Development",
+          "description": "Selected creators are invited to a creative briefing to agree on production scope, timeline, and deliverables."
+        }
+      ]
+    },
+    "cta": {
+      "heading": "Ready to bring your vision to life?",
+      "body": "Submit your portfolio and concept to start a dialogue with our creative and production team.",
+      "action": "Submit Your Pitch",
+      "subject": "Creator Network Application"
     }
   }
 }

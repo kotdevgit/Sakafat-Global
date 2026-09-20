@@ -8,7 +8,8 @@ import styles from "./incoming-section.module.css";
 export async function IncomingSection() {
   // Point at whichever programme is open rather than a fixed slug, so the call to
   // action follows the admin. With nothing open it falls back to the full listing.
-  const [open, dict] = await Promise.all([getOpenProgramme(), getLocale().then(getDictionary)]);
+  const locale = await getLocale();
+  const [open, dict] = await Promise.all([getOpenProgramme(locale), getDictionary(locale)]);
   const href = open ? `/programs/${open.slug}` : "/programs";
   const copy = dict.home.incoming;
 

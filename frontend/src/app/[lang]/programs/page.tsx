@@ -12,7 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ProgramsPage() {
-  const programmes = await getProgrammes();
+  const locale = await getLocale();
+  const programmes = await getProgrammes(locale);
 
   return (
     <main id="main-content" tabIndex={-1}>

@@ -60,7 +60,8 @@ function EpisodeCard({ episode, index, dict }: { episode: Episode; index: number
 }
 
 export async function FeaturedSection({ allEpisodesHref }: { allEpisodesHref?: string }) {
-  const [episodes, dict] = await Promise.all([getEpisodes(), getLocale().then(getDictionary)]);
+  const locale = await getLocale();
+  const [episodes, dict] = await Promise.all([getEpisodes(locale), getDictionary(locale)]);
   const copy = dict.home.featured;
 
   return (
@@ -72,7 +73,11 @@ export async function FeaturedSection({ allEpisodesHref }: { allEpisodesHref?: s
             <h2 id="featured-heading">{copy.heading}</h2>
           </div>
           {allEpisodesHref ? (
-            <a className={styles.viewAll} href={allEpisodesHref}>
+            <a
+              className={styles.viewAll}
+              href={allEpisodesHref}
+              {...(allEpisodesHref.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            >
               <span>{copy.viewAll}</span><ArrowIcon />
             </a>
           ) : (

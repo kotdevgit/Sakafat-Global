@@ -1,0 +1,203 @@
+/* Hero */
+.hero {
+  position: relative;
+  background: linear-gradient(115deg, #0e2445, #183b6c 60%, #1a4968);
+  color: #fff;
+  padding: 88px 48px 72px;
+}
+
+.heroInner {
+  max-width: 1080px;
+  margin-inline: auto;
+}
+
+.eyebrow {
+  margin: 0 0 14px;
+  color: #ffbf32;
+  font: var(--type-label);
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0 0 18px;
+  font: var(--type-section);
+  letter-spacing: 0;
+}
+
+.intro {
+  max-width: 780px;
+  margin: 0;
+  font: var(--type-body);
+  letter-spacing: 0;
+  color: #e2e8f0;
+}
+
+.lastUpdated {
+  margin: 20px 0 0;
+  font: var(--type-caption);
+  letter-spacing: 0;
+  color: #94a3b8;
+}
+
+/* Content */
+.content {
+  background: #fff;
+  color: #1e293b;
+  padding: 80px 48px 96px;
+}
+
+.contentInner {
+  max-width: 1080px;
+  margin-inline: auto;
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 64px;
+}
+
+.section {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  padding-bottom: 40px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.section:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.sectionNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  color: #0f365c;
+  font: var(--type-card);
+  font-weight: 700;
+}
+
+.sectionBody h2 {
+  margin: 0 0 12px;
+  color: #0f2b48;
+  font: var(--type-card);
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+.sectionBody p {
+  margin: 0;
+  color: #3f4a5c;
+  font: var(--type-body);
+  letter-spacing: 0;
+  line-height: var(--leading-relaxed);
+}
+
+/* Contact / Action Card */
+.contactCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 40px 48px;
+  border-radius: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.contactCopy h3 {
+  margin: 0 0 8px;
+  color: #0f2b48;
+  font: var(--type-card);
+  letter-spacing: 0;
+}
+
+.contactCopy p {
+  margin: 0;
+  color: #475569;
+  font: var(--type-body);
+  letter-spacing: 0;
+}
+
+.contactAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  min-height: 48px;
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: #e9a600;
+  color: #050505;
+  font: var(--type-button);
+  letter-spacing: 0;
+  text-decoration: none;
+  text-align: center;
+}
+
+.contactAction:hover {
+  background: #ffbf32;
+}
+
+.contactAction:focus-visible {
+  outline: 3px solid #0f365c;
+  outline-offset: 4px;
+}
+
+.contactAction svg {
+  flex-shrink: 0;
+}
+
+[dir="rtl"] .contactAction svg {
+  transform: scaleX(-1);
+}
+
+@media (max-width: 1023px) {
+  .hero {
+    padding: 72px 32px 56px;
+  }
+  .content {
+    padding: 64px 32px 80px;
+  }
+  .contactCard {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 32px;
+  }
+}
+
+@media (max-width: 639px) {
+  .hero {
+    padding: 56px 24px 44px;
+  }
+  .content {
+    padding: 48px 24px 64px;
+  }
+  .section {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .sectionNumber {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  .contactCard {
+    padding: 24px 20px;
+  }
+  .contactAction {
+    width: 100%;
+    justify-content: center;
+  }
+}

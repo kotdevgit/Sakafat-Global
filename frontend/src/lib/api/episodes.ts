@@ -16,9 +16,13 @@ export type Episode = {
   heroImageUrl: string | null;
   imageAlt: string;
   videoUrl: string | null;
+  titleUr?: string;
+  descriptionUr?: string;
+  categoryLabelUr?: string;
+  imageAltUr?: string;
 };
 
-function toEpisode(entry: Record<string, unknown>, base: string): Episode | null {
+function toEpisode(entry: Record<string, unknown>, base: string, locale?: string): Episode | null {
   const { id, title, slug, category, description } = entry;
   if (typeof id !== "number" || typeof title !== "string" || typeof slug !== "string") return null;
   if (typeof category !== "string" || typeof description !== "string") return null;
@@ -31,19 +35,42 @@ function toEpisode(entry: Record<string, unknown>, base: string): Episode | null
       return null;
     }
   };
+  const isUrdu = locale === "ur";
+  const titleUr = typeof entry.title_ur === "string" ? entry.title_ur : undefined;
+  const descriptionUr = typeof entry.description_ur === "string" ? entry.description_ur : undefined;
+  const categoryLabelUr = typeof entry.category_label_ur === "string" ? entry.category_label_ur : undefined;
+  const imageAltUr = typeof entry.image_alt_ur === "string" ? entry.image_alt_ur : undefined;
+
+  const resolvedTitle = isUrdu && titleUr ? titleUr : title;
+  const resolvedDescription = isUrdu && descriptionUr ? descriptionUr : description;
+  const resolvedCategoryLabel = isUrdu && categoryLabelUr
+    ? categoryLabelUr
+    : typeof entry.category_label === "string"
+      ? entry.category_label
+      : category;
+  const resolvedImageAlt = isUrdu && imageAltUr
+    ? imageAltUr
+    : typeof entry.image_alt === "string"
+      ? entry.image_alt
+      : "";
+
   return {
     id,
-    title,
+    title: resolvedTitle,
     slug,
     category,
-    categoryLabel: typeof entry.category_label === "string" ? entry.category_label : category,
-    description,
+    categoryLabel: resolvedCategoryLabel,
+    description: resolvedDescription,
     imageUrl: absolute(entry.image),
     imageWidth: typeof entry.image_width === "number" ? entry.image_width : null,
     imageHeight: typeof entry.image_height === "number" ? entry.image_height : null,
     heroImageUrl: absolute(entry.hero_image),
-    imageAlt: typeof entry.image_alt === "string" ? entry.image_alt : "",
+    imageAlt: resolvedImageAlt,
     videoUrl: absolute(entry.video_url),
+    titleUr,
+    descriptionUr,
+    categoryLabelUr,
+    imageAltUr,
   };
 }
 
@@ -51,7 +78,7 @@ function toEpisode(entry: Record<string, unknown>, base: string): Episode | null
  * Reads the published episodes from Django.
  * Returns an empty list when the backend is unavailable so a page still renders.
  */
-export async function getEpisodes(): Promise<Episode[]> {
+export async function getEpisodes(locale?: string): Promise<Episode[]> {
   let base: string;
   try {
     base = getApiBaseUrl();
@@ -60,8 +87,10 @@ export async function getEpisodes(): Promise<Episode[]> {
     return [];
   }
   try {
+    const headers: Record<string, string> = { Accept: "application/json" };
+    if (locale) headers["Accept-Language"] = locale;
     const response = await fetch(new URL("episode/", base), {
-      headers: { Accept: "application/json" },
+      headers,
       redirect: "error",
       signal: AbortSignal.timeout(10000),
       // Episodes change through the admin, so refresh them on a short cycle.
@@ -79,7 +108,7 @@ export async function getEpisodes(): Promise<Episode[]> {
         : [];
     return entries
       .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object")
-      .map((entry) => toEpisode(entry, base))
+      .map((entry) => toEpisode(entry, base, locale))
       .filter((episode): episode is Episode => episode !== null);
   } catch (error) {
     reportUnavailable("Episodes", error);
@@ -101,7 +130,7 @@ export function heroPhotoUrl(episode: Episode): string | null {
 }
 
 /** The episode the homepage hero features: the first one editors have ordered. */
-export async function getHeroEpisode(): Promise<Episode | null> {
-  const [first] = await getEpisodes();
+export async function getHeroEpisode(locale?: string): Promise<Episode | null> {
+  const [first] = await getEpisodes(locale);
   return first ?? null;
 }

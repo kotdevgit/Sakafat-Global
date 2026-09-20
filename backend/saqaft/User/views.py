@@ -102,6 +102,9 @@ class VerifyOTPView(APIView):
         with transaction.atomic():
             record = OTPVerification.objects.select_for_update().get(id=verification.id)
 
+            if record.is_verified:
+                return Response({"error": "This code has already been used."}, status=400)
+
             if record.created_at < timezone.now() - timedelta(minutes=10):
                 return Response(
                     {
