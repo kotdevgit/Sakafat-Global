@@ -133,7 +133,7 @@ class SeededEpisodeTests(TestCase):
     def test_seed_publishes_the_original_episodes_in_order(self):
         self.assertEqual(
             list(Episode.objects.values_list("slug", flat=True)),
-            ["culture-in-motion", "conversations-that-matter", "living-heritage"],
+            ["living-heritage", "culture-in-motion", "conversations-that-matter"],
         )
 
     def test_seeded_episodes_keep_their_images_and_alt_text(self):

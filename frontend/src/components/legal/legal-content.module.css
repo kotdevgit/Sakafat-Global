@@ -21,7 +21,7 @@
 
 .hero h1 {
   margin: 0 0 18px;
-  font: var(--type-section);
+  font: var(--type-hero);
   letter-spacing: 0;
 }
 
@@ -42,8 +42,8 @@
 
 /* Content */
 .content {
-  background: #fff;
-  color: #1e293b;
+  background: #faf9f6;
+  color: #24251f;
   padding: 80px 48px 96px;
 }
 
@@ -67,7 +67,7 @@
   gap: 24px;
   align-items: start;
   padding-bottom: 40px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e4dacb;
 }
 
 .section:last-child {
@@ -82,15 +82,16 @@
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: #f1f5f9;
-  color: #0f365c;
+  background: #f5ede0;
+  color: #112b53;
+  border: 1px solid #dbc9ae;
   font: var(--type-card);
   font-weight: 700;
 }
 
 .sectionBody h2 {
   margin: 0 0 12px;
-  color: #0f2b48;
+  color: #112b53;
   font: var(--type-card);
   font-size: 20px;
   letter-spacing: 0;
@@ -112,20 +113,21 @@
   gap: 32px;
   padding: 40px 48px;
   border-radius: 20px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #fff;
+  border: 1px solid #dbc9ae;
+  box-shadow: 0 6px 14px #0000000d;
 }
 
 .contactCopy h3 {
   margin: 0 0 8px;
-  color: #0f2b48;
+  color: #112b53;
   font: var(--type-card);
   letter-spacing: 0;
 }
 
 .contactCopy p {
   margin: 0;
-  color: #475569;
+  color: #5d5f57;
   font: var(--type-body);
   letter-spacing: 0;
 }
@@ -138,20 +140,21 @@
   min-height: 48px;
   padding: 12px 28px;
   border-radius: 999px;
-  background: #e9a600;
+  background: #ffbf32;
   color: #050505;
   font: var(--type-button);
   letter-spacing: 0;
   text-decoration: none;
   text-align: center;
+  transition: background 180ms ease, transform 180ms ease;
 }
 
 .contactAction:hover {
-  background: #ffbf32;
+  background: #ffcd5c;
 }
 
 .contactAction:focus-visible {
-  outline: 3px solid #0f365c;
+  outline: 3px solid #d59b20;
   outline-offset: 4px;
 }
 
