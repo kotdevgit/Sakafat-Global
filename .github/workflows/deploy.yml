@@ -1,0 +1,109 @@
+name: Verify and Deploy to cPanel
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "Deploy release to cPanel production"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sakafat-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/saqaft/requirements.txt
+
+      # 1. Frontend verification
+      - name: Verify Frontend (Tests, Lint, Types)
+        working-directory: frontend
+        run: |
+          npm ci
+          npm test
+          npm run lint
+          npm run typecheck
+
+      # 2. Backend verification
+      - name: Verify Backend (Django Checks & Tests)
+        working-directory: backend/saqaft
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+          cp .env.example .env
+          python manage.py check
+          python manage.py test
+
+      # 3. Create clean cPanel package
+      - name: Package cPanel bundle
+        if: github.event_name != 'pull_request'
+        run: |
+          node scripts/package-cpanel.js
+
+      - name: Upload deployment artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sakafat-cpanel-${{ github.sha }}
+          path: sakafat-cpanel-bundle.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    concurrency:
+      group: sakafat-cpanel-production
+      cancel-in-progress: false
+    env:
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+      DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
+      DEPLOY_APP_ROOT: ${{ vars.DEPLOY_APP_ROOT }}
+      DEPLOY_NODE_BIN: ${{ vars.DEPLOY_NODE_BIN }}
+      DEPLOY_PYTHON_BIN: ${{ vars.DEPLOY_PYTHON_BIN }}
+      DEPLOY_HEALTH_URL: ${{ vars.DEPLOY_HEALTH_URL }}
+      RELEASE_ID: ${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download bundle artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sakafat-cpanel-${{ github.sha }}
+
+      - name: Deploy to cPanel over SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: bash scripts/deploy-cpanel.sh

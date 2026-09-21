@@ -65,3 +65,5 @@ backend/saqaft/media/
 /backend/__MACOSX
 backend.zip
 /archive-fznAw1
+*.zip
+sakafat-cpanel-bundle.zip
