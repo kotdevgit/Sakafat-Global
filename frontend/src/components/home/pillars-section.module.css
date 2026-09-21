@@ -18,13 +18,13 @@
 .copy { margin: 18px 8px 16px;   }
 .question { margin: 0 0 4px; color: var(--pillar-color);    }
 .description h3 { display: inline; margin: 0;    }
-.explore { align-self: flex-end; display: inline-flex; align-items: center; justify-content: center; gap: 2px; margin-top: auto; padding: 4px 5px; border: 0; border-radius: 999px; background: var(--pillar-bg); color: #050505;     cursor: pointer; text-decoration: none; }
+.explore { align-self: flex-end; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-top: auto; padding: 7px 16px; border: 0; border-radius: 999px; background: var(--pillar-bg); color: #050505; cursor: pointer; text-decoration: none; }
 .explore svg { flex-shrink: 0; }
 @media (max-width: 1199px) {
   .header { grid-template-columns: auto 1fr; }
   .intro { grid-column: 1 / -1; max-width: 620px; margin-top: 0; }
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-  .explore { min-height: 44px; padding: 8px 12px;  }
+  .explore { min-height: 44px; padding: 8px 18px; }
 }
 @media (max-width: 767px) {
   .section { padding: 32px 24px 56px; }

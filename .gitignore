@@ -62,6 +62,9 @@ backend/.local/
 
 # Uploaded enquiry attachments and other user media
 backend/saqaft/media/
+
+# collectstatic output, rebuilt on every deploy
+backend/saqaft/staticfiles/
 /backend/__MACOSX
 backend.zip
 /archive-fznAw1

@@ -22,12 +22,22 @@ const PLACE = /^\p{L}[\p{L}\p{M} '’.,-]*$/u;
 /** Digits with the punctuation phone numbers are written with; length checked separately. */
 const PHONE = /^\+?[\d\s()-]+$/u;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/u;
+/**
+ * A subject must start with a letter, digit or opening quote/bracket,
+ * and contain only letters, numbers, spaces and standard enquiry punctuation
+ * (hyphens, dashes, quotes, colons, slashes, commas, periods, brackets, hash, currency).
+ * It rejects symbols like < > { } [ ] \ ^ ~ ` | = * @ % + ;.
+ */
+const SUBJECT = /^[\p{L}\p{N}'’"”“(][\p{L}\p{M}\p{N}\s'’"”“–—.,:;?!()/&#£$€\-]*$/u;
 /** Free text still has to contain a letter, so "...." is not a subject. */
 const HAS_LETTER = /\p{L}/u;
 
 const PHONE_MIN_DIGITS = 7;
 /** E.164 caps a number at 15 digits including the country code. */
 const PHONE_MAX_DIGITS = 15;
+
+/** Attachments are limited to 5 MB. */
+export const maxAttachmentBytes = 5 * 1024 * 1024;
 
 export const enquiryTypes = ["general", "programme", "creative", "partnership", "media", "other"] as const;
 
@@ -100,7 +110,7 @@ export const contactFields = {
   enquiryType: { djangoField: "enquiry_type", required: true, maxLength: 30 },
   subject: {
     djangoField: "subject", required: true, maxLength: 100, minLength: 3,
-    pattern: HAS_LETTER, patternCode: "subjectPattern",
+    pattern: SUBJECT, patternCode: "subjectPattern",
   },
   message: {
     djangoField: "message", required: true, maxLength: 500, minLength: 20,
@@ -132,6 +142,7 @@ const allowedCharacters: Partial<Record<ContactField, RegExp>> = {
   organisation: /[\p{L}\p{M}\p{N} &'’.,()/-]/u,
   location: /[\p{L}\p{M} '’.,-]/u,
   phone: /[\d+\s()-]/u,
+  subject: /[\p{L}\p{M}\p{N}\s'’"”“–—.,:;?!()/&#£$€\-]/u,
 };
 
 /**
@@ -154,8 +165,14 @@ export function filterValue(field: ContactField, value: string): string {
   // The maxlength attribute stops typing and pasting past the limit, but not an
   // autofilled or scripted value, so the cap is applied here as well.
   const visible = value.replace(INVISIBLE, "").slice(0, contactFields[field].maxLength);
-  if (field === "subject") return visible.replace(/[\r\n\t]+/gu, " ");
-  if (field === "message") return visible;
+  if (field === "subject") {
+    const singleLine = visible.replace(/[\r\n\t]+/gu, " ");
+    const allowed = allowedCharacters.subject;
+    return allowed ? Array.from(singleLine).filter((char) => allowed.test(char)).join("") : singleLine;
+  }
+  if (field === "message") {
+    return visible.replace(/[<>]/gu, "");
+  }
 
   const allowed = allowedCharacters[field];
   if (!allowed) return visible;

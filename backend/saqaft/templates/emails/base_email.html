@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Sakafat Global{% endblock %}</title>
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+  </style>
+  <![endif]-->
+  <style>
+    @media only screen and (max-width: 620px) {
+      .email-container { width: 100% !important; }
+      .email-content { padding: 24px 20px !important; }
+      .email-header { padding: 24px 20px 20px !important; }
+      .email-footer { padding: 20px !important; }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #faf9f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; color: #24251f;">
+  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #faf9f6; width: 100%; min-height: 100%;">
+    <tr>
+      <td align="center" style="padding: 40px 16px;">
+        <!-- Email Container -->
+        <table role="presentation" class="email-container" width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);">
+          <!-- Brand Header -->
+          <tr>
+            <td class="email-header" style="background-color: #21474b; padding: 28px 32px 24px; text-align: center;">
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td align="center">
+                    <span style="font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 4px;">Sakafat Global</span>
+                    <span style="font-size: 12px; font-weight: 400; color: #a6d7db; letter-spacing: 0.5px; text-transform: uppercase; display: block;">Preserving & Celebrating Cultural Heritage</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Accent Stripe -->
+          <tr>
+            <td height="3" style="background-color: #a20e19; font-size: 0; line-height: 0; height: 3px;">&nbsp;</td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td class="email-content" style="padding: 32px; background-color: #ffffff; color: #24251f; font-size: 15px; line-height: 1.6;">
+              {% block content %}
+              {% endblock %}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td class="email-footer" style="padding: 24px 32px; background-color: #fcfbfa; border-top: 1px solid #edf0ee; text-align: center; color: #6b7280; font-size: 12px; line-height: 1.6;">
+              {% block footer %}
+              <p style="margin: 0 0 8px;">
+                <strong>Sakafat Global</strong> — Dedicated to cultural storytelling, archives, and heritage preservation.
+              </p>
+              <p style="margin: 0 0 8px;">
+                <a href="https://sakafatglobal.com" style="color: #007d7e; text-decoration: none; font-weight: 500;">Visit Website</a>
+                &nbsp;|&nbsp;
+                <a href="https://sakafatglobal.com/contact" style="color: #007d7e; text-decoration: none; font-weight: 500;">Contact Us</a>
+              </p>
+              <p style="margin: 0; color: #9ca3af; font-size: 11px;">
+                &copy; 2026 Sakafat Global. All rights reserved.
+              </p>
+              {% endblock %}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

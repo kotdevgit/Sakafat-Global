@@ -8,6 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import (AllowAny,)
 from rest_framework.views import APIView
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from .models import OTPVerification,PasswordResetOTP
 from .serializers import (LoginSerializer,RegisterSerializer, VerifyOTPSerializer,
                           ForgotPasswordSerializer,VerifyResetOTPSerializer,ResetPasswordSerializer)
@@ -42,11 +43,24 @@ class RegisterView(generics.CreateAPIView):
                 user = serializer.save()
                 otp = str(secrets.randbelow(900000) + 100000)
                 OTPVerification.objects.create(user=user, otp=otp,)
+                html_message = render_to_string(
+                    "emails/auth_otp.html",
+                    {
+                        "title": "Email Verification Code",
+                        "heading": "Verify Your Email Address",
+                        "greeting": f"Welcome, {user.username}!",
+                        "lead_text": "Thank you for registering with Sakafat Global. Please use the 6-digit verification code below to activate your account.",
+                        "otp": otp,
+                        "expires_in": "10 minutes",
+                        "warning_text": "If you did not create an account on Sakafat Global, you can safely ignore this email.",
+                    },
+                )
                 send_mail(
                     subject="Email Verification Code",
-                    message=f"Your verification code is: {otp}",
+                    message=f"Your verification code is: {otp}\nThis code expires in 10 minutes.",
                     from_email=None,
                     recipient_list=[user.email],
+                    html_message=html_message,
                 )
         except (OSError, SMTPException):
             return Response({"error": "We couldn’t send your verification email. Please try again."}, status=503)
@@ -161,7 +175,25 @@ class ResendOTPView(APIView):
                     OTPVerification.objects.filter(user=user, is_verified=False).delete()
                     otp = str(secrets.randbelow(900000) + 100000)
                     OTPVerification.objects.create(user=user, otp=otp)
-                    send_mail("Email Verification Code", f"Your verification code is: {otp}\nThis code expires in 10 minutes.", None, [user.email])
+                    html_message = render_to_string(
+                        "emails/auth_otp.html",
+                        {
+                            "title": "Email Verification Code",
+                            "heading": "Verify Your Email Address",
+                            "greeting": f"Hello, {user.username},",
+                            "lead_text": "Here is your requested verification code to activate your Sakafat Global account.",
+                            "otp": otp,
+                            "expires_in": "10 minutes",
+                            "warning_text": "If you did not request a new verification code, please ignore this email.",
+                        },
+                    )
+                    send_mail(
+                        subject="Email Verification Code",
+                        message=f"Your verification code is: {otp}\nThis code expires in 10 minutes.",
+                        from_email=None,
+                        recipient_list=[user.email],
+                        html_message=html_message,
+                    )
             except (OSError, SMTPException):
                 return Response({"error": "We couldn’t send your verification email. Please try again."}, status=503)
         return Response({"message": "If your account is awaiting verification, a new code has been sent."})
@@ -194,11 +226,24 @@ class ForgotPasswordView(APIView):
                         PasswordResetOTP.objects.filter(user=user, is_verified=False).delete()
                         otp = str(secrets.randbelow(900000) + 100000)
                         PasswordResetOTP.objects.create(user=user, otp=otp)
+                        html_message = render_to_string(
+                            "emails/auth_otp.html",
+                            {
+                                "title": "Password Reset OTP",
+                                "heading": "Reset Your Password",
+                                "greeting": "Hello,",
+                                "lead_text": "We received a request to reset the password for your Sakafat Global account. Please use the 6-digit code below to proceed.",
+                                "otp": otp,
+                                "expires_in": f"{OTP_TTL_MINUTES} minute{'s' if OTP_TTL_MINUTES > 1 else ''}",
+                                "warning_text": "If you did not request a password reset, please ignore this email. Your password will remain unchanged.",
+                            },
+                        )
                         send_mail(
                             subject="Password Reset OTP",
                             message=f"Your password reset code is: {otp}\nThis code expires in {OTP_TTL_MINUTES} minutes.",
                             from_email=None,
                             recipient_list=[user.email],
+                            html_message=html_message,
                         )
                 except (OSError, SMTPException):
                     return Response(

@@ -13,6 +13,7 @@ def make_image(width, height):
 
 from django.db.models import ProtectedError
 from django.test import TestCase
+from django.urls import reverse
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Episode, EpisodeCategory
@@ -276,3 +277,44 @@ class HeroPortraitTests(TestCase):
         self.assertIn("episodes/hero/upright", self.episode.hero_image.name)
         self.assertEqual((self.episode.image_width, self.episode.image_height), (400, 222))
         self.assertEqual((self.episode.hero_image_width, self.episode.hero_image_height), (900, 1100))
+
+
+class UnfoldAdminTests(TestCase):
+    """Every registered admin page must render through Unfold's templates."""
+
+    CHANGELISTS = (
+        "admin:Programme_programme_changelist",
+        "admin:Episode_episode_changelist",
+        "admin:Episode_episodecategory_changelist",
+        "admin:Contact_contact_changelist",
+        "admin:auth_user_changelist",
+        "admin:auth_group_changelist",
+        "admin:User_otpverification_changelist",
+        "admin:User_passwordresetotp_changelist",
+    )
+
+    def setUp(self):
+        self.admin = User.objects.create_superuser("curator", "curator@example.test", "example-test-password")
+        self.client.force_login(self.admin)
+
+    def used_unfold(self, response):
+        return any(template.name and template.name.startswith("unfold/") for template in response.templates)
+
+    def test_dashboard_renders_with_site_branding(self):
+        response = self.client.get(reverse("admin:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.used_unfold(response))
+        self.assertContains(response, "Sakafat Global")
+
+    def test_every_changelist_renders(self):
+        for name in self.CHANGELISTS:
+            with self.subTest(view=name):
+                response = self.client.get(reverse(name))
+                self.assertEqual(response.status_code, 200)
+                self.assertTrue(self.used_unfold(response), f"{name} fell back to the stock admin")
+
+    def test_add_forms_render(self):
+        # The auth forms are the ones Unfold has to swap out, so check one of each.
+        for name in ("admin:Episode_episode_add", "admin:auth_user_add"):
+            with self.subTest(view=name):
+                self.assertEqual(self.client.get(reverse(name)).status_code, 200)

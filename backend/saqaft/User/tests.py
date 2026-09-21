@@ -27,6 +27,9 @@ class AuthenticationFlowTests(APITestCase):
         self.assertEqual(len(mail.outbox), 1)
         otp = OTPVerification.objects.get(user=user).otp
         self.assertIn(otp, mail.outbox[0].body)
+        self.assertEqual(mail.outbox[0].alternatives[0][1], "text/html")
+        self.assertIn(otp, mail.outbox[0].alternatives[0][0])
+        self.assertIn("Sakafat Global", mail.outbox[0].alternatives[0][0])
         login = {k: self.credentials[k] for k in ('username', 'password')}
         # Signing in before verifying now says so, so the site can carry the
         # visitor into the code step instead of refusing them.

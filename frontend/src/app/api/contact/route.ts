@@ -3,6 +3,7 @@ import { getApiBaseUrl } from "@/lib/api/config";
 import {
   contactFieldNames,
   contactFields,
+  maxAttachmentBytes,
   resolveContactMessage,
   validateField,
   type ContactField,
@@ -14,8 +15,6 @@ import { localeFromRequest } from "@/lib/i18n/request";
 const browserFieldFor: Record<string, string> = Object.fromEntries(
   contactFieldNames.map((field) => [contactFields[field].djangoField, field]),
 );
-
-const maxAttachmentBytes = 5 * 1024 * 1024;
 
 const reply = (body: unknown, status = 200) =>
   NextResponse.json(body, { status, headers: { "Cache-Control": "no-store" } });

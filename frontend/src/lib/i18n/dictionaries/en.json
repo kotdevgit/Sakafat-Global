@@ -501,6 +501,7 @@
       "attachmentLabel": "Attachment (optional, 5 MB maximum)",
       "noFile": "No file selected",
       "chooseFile": "Choose file",
+      "optional": "optional",
       "consent": "I agree that Sakafat Global may use these details to respond to my enquiry. This does not create any partnership, engagement or contractual commitment.",
       "send": "Send inquiry",
       "sending": "Sending…",

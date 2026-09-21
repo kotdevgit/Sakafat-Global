@@ -22,7 +22,9 @@ Settings read from `saqaft/.env` via `python-decouple`; it is gitignored and mus
 stay that way — database credentials, `SECRET_KEY` and mail passwords live there.
 `.env.example` selects Django's file-based mail backend, which writes messages to
 `backend/.local/emails` instead of sending them; keep that locally, or every
-registration fails when SMTP is unreachable.
+registration fails when SMTP is unreachable. All outgoing emails are rendered as
+multipart messages (plain text + branded responsive HTML) via templates in
+`saqaft/templates/emails/`.
 
 Uploaded images are served from `/media/`. The browser does not call this API
 directly — Next.js proxies every request server-side — so `CORS_ALLOWED_ORIGINS`

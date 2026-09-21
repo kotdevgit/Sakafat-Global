@@ -1,10 +1,11 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 
 from .models import Episode, EpisodeCategory
 
 
 @admin.register(EpisodeCategory)
-class EpisodeCategoryAdmin(admin.ModelAdmin):
+class EpisodeCategoryAdmin(ModelAdmin):
     list_display = ("name", "name_ur", "position", "episode_count",)
     search_fields = ("name", "name_ur",)
     prepopulated_fields = {"slug": ("name",)}
@@ -20,7 +21,7 @@ HERO_MIN_HEIGHT = 1188
 
 
 @admin.register(Episode)
-class EpisodeAdmin(admin.ModelAdmin):
+class EpisodeAdmin(ModelAdmin):
     list_display = ("title", "title_ur", "category", "artwork_size", "hero_artwork", "position", "is_active", "created_at",)
     list_filter = ("category", "is_active", "created_at",)
     search_fields = ("title", "title_ur", "description", "description_ur",)

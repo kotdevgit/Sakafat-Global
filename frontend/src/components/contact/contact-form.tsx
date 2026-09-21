@@ -8,6 +8,7 @@ import {
   enquiryFormId,
   enquiryOptions,
   filterValue,
+  maxAttachmentBytes,
   resolveContactMessage,
   validateContact,
   validateField,
@@ -125,19 +126,62 @@ export function ContactForm() {
       maxLength: contactFields[field].maxLength,
       onBlur: (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setTouched((current) => ({ ...current, [field]: true }));
-        check(field, event.currentTarget.value);
+        check(field, (event.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).value);
       },
       onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const element = event.currentTarget;
+        const element = event.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
         // Characters the field does not accept are removed as they are typed, so
         // a digit never lands in a name nor a letter in a phone number.
         const value = element instanceof HTMLSelectElement
           ? element.value
           : filterInput(element, (raw) => filterValue(field, raw));
         setLengths((current) => ({ ...current, [field]: value.length }));
-        if (touched[field]) check(field, value);
+        if (touched[field]) {
+          // If the field already has an error, re-validate to clear it as soon as it becomes valid.
+          const issue = validateField(field, value);
+          if (!issue) {
+            setErrors((current) => {
+              if (!current[field]) return current;
+              const next = { ...current };
+              delete next[field];
+              return next;
+            });
+          }
+        }
       },
     };
+  }
+
+  function handleAttachment(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setFileName(copy.noFile);
+      setErrors((current) => {
+        if (!current.attachment) return current;
+        const next = { ...current };
+        delete next.attachment;
+        return next;
+      });
+      return;
+    }
+
+    if (file.size > maxAttachmentBytes) {
+      event.target.value = "";
+      setFileName(copy.noFile);
+      setErrors((current) => ({
+        ...current,
+        attachment: dict.validation.attachmentTooLarge,
+      }));
+      return;
+    }
+
+    setFileName(file.name);
+    setErrors((current) => {
+      if (!current.attachment) return current;
+      const next = { ...current };
+      delete next.attachment;
+      return next;
+    });
   }
 
   function showError(text: string, fields: Errors = {}) {
@@ -166,6 +210,10 @@ export function ContactForm() {
       if (issue) found[field] = resolveContactMessage(dict, field, issue);
     }
     if (data.get("consent") !== "true") found.consent = dict.validation.consentRequired;
+    const attachment = data.get("attachment");
+    if (attachment instanceof File && attachment.size > maxAttachmentBytes) {
+      found.attachment = dict.validation.attachmentTooLarge;
+    }
     setTouched(Object.fromEntries(contactFieldNames.map((field) => [field, true])));
     if (Object.keys(found).length > 0) {
       showError(copy.checkFields, found);
@@ -199,33 +247,111 @@ export function ContactForm() {
   return (
     <section className={styles.enquiry} aria-labelledby="enquiry-heading">
       <div className={styles.inner}>
-        <header className={styles.enquiryHeader} data-reveal>
+        <header className={styles.enquiryHeader} data-reveal suppressHydrationWarning>
           <div>
             <p className={styles.enquiryEyebrow}>{copy.eyebrow}</p>
             <h2 id="enquiry-heading">{copy.heading}</h2>
           </div>
           <p className={styles.enquiryIntro}>{copy.intro}</p>
         </header>
-        <form id={enquiryFormId} ref={formRef} method="post" className={styles.form} data-reveal="zoom" tabIndex={-1} onSubmit={submit} aria-busy={busy} aria-describedby="submission-note">
+        <form id={enquiryFormId} ref={formRef} method="post" className={styles.form} data-reveal="zoom" suppressHydrationWarning tabIndex={-1} onSubmit={submit} aria-busy={busy} aria-describedby="submission-note">
           <div ref={feedback} tabIndex={-1} role={sent ? "status" : "alert"} className={message ? (sent ? styles.notice : styles.error) : undefined}>{message}</div>
           <fieldset disabled={busy} className={styles.fieldset}>
           <div className={styles.fields}>
-            <div><label className={styles.srOnly} htmlFor="full-name">{copy.labels.fullName}</label><input id="full-name" name="fullName" autoComplete="name" placeholder={copy.labels.fullName} required {...liveProps("fullName")} />{errors.fullName && <p id="fullName-error" className={styles.fieldError}>{errors.fullName}</p>}</div>
-            <div><label className={styles.srOnly} htmlFor="organisation">{copy.labels.organisation}</label><input id="organisation" name="organisation" autoComplete="organization" placeholder={copy.labels.organisation} {...liveProps("organisation")} />{errors.organisation && <p id="organisation-error" className={styles.fieldError}>{errors.organisation}</p>}</div>
-            <div><label className={styles.srOnly} htmlFor="email">{copy.labels.email}</label><input id="email" name="email" type="email" autoComplete="email" placeholder={copy.labels.email} required {...liveProps("email")} />{errors.email && <p id="email-error" className={styles.fieldError}>{errors.email}</p>}</div>
-            <div><label className={styles.srOnly} htmlFor="phone">{copy.labels.phone}</label><input id="phone" name="phone" type="tel" autoComplete="tel" placeholder={copy.labels.phone} required {...liveProps("phone")} />{errors.phone && <p id="phone-error" className={styles.fieldError}>{errors.phone}</p>}</div>
-            <div><label className={styles.srOnly} htmlFor="location">{copy.labels.location}</label><input id="location" name="location" placeholder={copy.labels.location} {...liveProps("location")} />{errors.location && <p id="location-error" className={styles.fieldError}>{errors.location}</p>}</div>
-            <div><label className={styles.srOnly} htmlFor="enquiry-type">{copy.labels.enquiryType}</label><select id="enquiry-type" name="enquiryType" defaultValue={presetType} required {...liveProps("enquiryType")}><option value="" disabled>{copy.labels.enquiryType}</option>{options.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>{errors.enquiryType && <p id="enquiryType-error" className={styles.fieldError}>{errors.enquiryType}</p>}</div>
-            <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="subject">{copy.labels.subject}</label><input id="subject" name="subject" placeholder={copy.labels.subject} defaultValue={presetSubject} required {...liveProps("subject")} /><p className={styles.counter} aria-live="polite"><span dir="ltr">{lengths.subject ?? 0} / {contactFields.subject.maxLength}</span></p>{errors.subject && <p id="subject-error" className={styles.fieldError}>{errors.subject}</p>}</div>
-            <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="message">{copy.labels.message}</label><textarea id="message" name="message" placeholder={copy.labels.message} rows={4} required {...liveProps("message")} /><p className={styles.counter} aria-live="polite"><span dir="ltr">{lengths.message ?? 0} / {contactFields.message.maxLength}</span></p>{errors.message && <p id="message-error" className={styles.fieldError}>{errors.message}</p>}</div>
-            <div className={styles.fullWidth}><label className={styles.srOnly} htmlFor="portfolio">{copy.labels.portfolio}</label><input id="portfolio" name="portfolio" type="url" placeholder={copy.labels.portfolio} {...liveProps("portfolio")} />{errors.portfolio && <p id="portfolio-error" className={styles.fieldError}>{errors.portfolio}</p>}</div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="full-name">
+                {copy.labels.fullName} <span className={styles.required} aria-hidden="true">*</span>
+              </label>
+              <input id="full-name" name="fullName" autoComplete="name" placeholder={copy.labels.fullName} required {...liveProps("fullName")} />
+              {errors.fullName && <p id="fullName-error" className={styles.fieldError}>{errors.fullName}</p>}
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="organisation">
+                {copy.labels.organisation} <span className={styles.optional}>({copy.optional})</span>
+              </label>
+              <input id="organisation" name="organisation" autoComplete="organization" placeholder={copy.labels.organisation} {...liveProps("organisation")} />
+              {errors.organisation && <p id="organisation-error" className={styles.fieldError}>{errors.organisation}</p>}
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="email">
+                {copy.labels.email} <span className={styles.required} aria-hidden="true">*</span>
+              </label>
+              <input id="email" name="email" type="email" autoComplete="email" placeholder={copy.labels.email} required {...liveProps("email")} />
+              {errors.email && <p id="email-error" className={styles.fieldError}>{errors.email}</p>}
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="phone">
+                {copy.labels.phone} <span className={styles.required} aria-hidden="true">*</span>
+              </label>
+              <input id="phone" name="phone" type="tel" autoComplete="tel" placeholder={copy.labels.phone} required {...liveProps("phone")} />
+              {errors.phone && <p id="phone-error" className={styles.fieldError}>{errors.phone}</p>}
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="location">
+                {copy.labels.location} <span className={styles.optional}>({copy.optional})</span>
+              </label>
+              <input id="location" name="location" placeholder={copy.labels.location} {...liveProps("location")} />
+              {errors.location && <p id="location-error" className={styles.fieldError}>{errors.location}</p>}
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="enquiry-type">
+                {copy.labels.enquiryType} <span className={styles.required} aria-hidden="true">*</span>
+              </label>
+              <select id="enquiry-type" name="enquiryType" defaultValue={presetType} required {...liveProps("enquiryType")}>
+                <option value="" disabled>{copy.labels.enquiryType}</option>
+                {options.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+              {errors.enquiryType && <p id="enquiryType-error" className={styles.fieldError}>{errors.enquiryType}</p>}
+            </div>
+
+            <div className={`${styles.field} ${styles.fullWidth}`}>
+              <div className={styles.fieldHeader}>
+                <label className={styles.label} htmlFor="subject">
+                  {copy.labels.subject} <span className={styles.required} aria-hidden="true">*</span>
+                </label>
+                <p className={styles.counter} aria-live="polite"><span dir="ltr">{lengths.subject ?? 0} / {contactFields.subject.maxLength}</span></p>
+              </div>
+              <input id="subject" name="subject" placeholder={copy.labels.subject} defaultValue={presetSubject} required {...liveProps("subject")} />
+              {errors.subject && <p id="subject-error" className={styles.fieldError}>{errors.subject}</p>}
+            </div>
+
+            <div className={`${styles.field} ${styles.fullWidth}`}>
+              <div className={styles.fieldHeader}>
+                <label className={styles.label} htmlFor="message">
+                  {copy.labels.message} <span className={styles.required} aria-hidden="true">*</span>
+                </label>
+                <p className={styles.counter} aria-live="polite"><span dir="ltr">{lengths.message ?? 0} / {contactFields.message.maxLength}</span></p>
+              </div>
+              <textarea id="message" name="message" placeholder={copy.labels.message} rows={4} required {...liveProps("message")} />
+              {errors.message && <p id="message-error" className={styles.fieldError}>{errors.message}</p>}
+            </div>
+
+            <div className={`${styles.field} ${styles.fullWidth}`}>
+              <label className={styles.label} htmlFor="portfolio">
+                {copy.labels.portfolio} <span className={styles.optional}>({copy.optional})</span>
+              </label>
+              <input id="portfolio" name="portfolio" type="url" placeholder={copy.labels.portfolio} {...liveProps("portfolio")} />
+              {errors.portfolio && <p id="portfolio-error" className={styles.fieldError}>{errors.portfolio}</p>}
+            </div>
           </div>
           <div className={styles.attachment}>
             <label htmlFor="attachment">{copy.attachmentLabel}</label>
             <div className={styles.fileControl}>
               <span className={styles.fileName} aria-live="polite">{fileName}</span>
               <span className={styles.chooseFile} aria-hidden="true">{copy.chooseFile}</span>
-              <input id="attachment" name="attachment" type="file" onChange={(event) => setFileName(event.currentTarget.files?.[0]?.name ?? copy.noFile)} aria-invalid={errors.attachment ? true : undefined} aria-describedby={errors.attachment ? "attachment-error" : undefined} />
+              <input
+                id="attachment"
+                name="attachment"
+                type="file"
+                onChange={handleAttachment}
+                aria-invalid={errors.attachment ? true : undefined}
+                aria-describedby={errors.attachment ? "attachment-error" : undefined}
+              />
             </div>
             {errors.attachment && <p id="attachment-error" className={styles.fieldError}>{errors.attachment}</p>}
           </div>
@@ -236,14 +362,15 @@ export function ContactForm() {
               required
               aria-invalid={errors.consent ? true : undefined}
               aria-describedby={errors.consent ? "consent-error" : undefined}
-              onChange={(event) =>
+              onChange={(event) => {
+                const isChecked = Boolean(event.target?.checked ?? event.currentTarget?.checked);
                 setErrors((current) => {
-                  if (!event.currentTarget.checked || !current.consent) return current;
+                  if (!isChecked || !current.consent) return current;
                   const next = { ...current };
                   delete next.consent;
                   return next;
-                })
-              }
+                });
+              }}
             />
             <span>{copy.consent}</span>
           </label>

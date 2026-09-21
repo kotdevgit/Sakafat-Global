@@ -11,29 +11,44 @@
 .enquiry h2 { max-width: 780px; margin: 0 0 56px; color: #122b52;      text-transform: uppercase; }
 .form { max-width: 1000px; margin-inline: auto; padding: 72px; border: 1px solid #e8d5ad; border-radius: 40px; background: #fff; box-shadow: 0 3px 9px #0004; scroll-margin-top: 24px; }
 .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
-.fields > div { min-width: 0; }
+.fields > div, .field { min-width: 0; }
 .fullWidth { grid-column: 1 / -1; }
-.fields input, .fields select, .fields textarea { display: block; width: 100%; min-height: 48px; padding: 14px 18px; border: 1px solid #d4d4d4; border-radius: 10px; background: #fff; color: #050505;    box-shadow: 0 0 2px #0002; }
-.fields input::placeholder, .fields textarea::placeholder { color: #050505; opacity: 1; }
+.label { display: block; font: var(--type-smallBold); margin-bottom: 8px; color: #122b52; }
+.required { color: #9c2940; margin-inline-start: 4px; font-weight: 700; }
+.optional { color: #687074; font-weight: 400; font-size: 0.85em; margin-inline-start: 6px; }
+.fieldHeader { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.fieldHeader .label { margin-bottom: 0; }
+.fieldHeader .counter { margin: 0; }
+.fields input, .fields select, .fields textarea { display: block; width: 100%; min-height: 48px; padding: 14px 18px; border: 1px solid #d4d4d4; border-radius: 10px; background: #fff; color: #050505; box-shadow: 0 0 2px #0002; }
+.fields input::placeholder, .fields textarea::placeholder { color: #767d82; opacity: 1; }
+.fields select:has(option[value=""]:checked) { color: #767d82; }
+.fields select option { color: #050505; }
+.fields input[aria-invalid="true"],
+.fields select[aria-invalid="true"],
+.fields textarea[aria-invalid="true"] {
+  border-color: #9c2940;
+  background-color: #fffafb;
+}
 .fields textarea { min-height: 100px; resize: vertical; }
 .attachment { margin-top: 22px; font-size: 14px; }
-.attachment label { display: block; margin-bottom: 30px; }
+.attachment label { display: block; font: var(--type-smallBold); color: #122b52; margin-bottom: 12px; }
 .fileControl { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 60px; padding: 10px 0; border-bottom: 2px solid #aaa; }
 .fileName { min-width: 0; overflow-wrap: anywhere; font-size: 13px; }
 .chooseFile { flex-shrink: 0; padding: 12px 20px; border: 1px solid #e8d5ad; border-radius: 999px; background: #dcebea; color: #050505; font-size: 13px; }
 .fileControl input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 .fileControl:focus-within { outline: 3px solid #d59b20; outline-offset: 4px; }
-.consent { display: flex; align-items: flex-start; gap: 12px; margin-top: 26px; color: #444;   cursor: pointer; }
+.consent { display: flex; align-items: flex-start; gap: 12px; margin-top: 26px; color: #444; cursor: pointer; }
 .consent input { flex-shrink: 0; width: 16px; height: 16px; margin-top: 2px; accent-color: #219e99; }
+.consent input[aria-invalid="true"] { outline: 2px solid #9c2940; outline-offset: 2px; }
 .fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
-.send { min-height: 44px; margin-top: 30px; padding: 12px 22px; border: 1px solid #dccca9; border-radius: 999px; background: #219e99; color: #fff;   cursor: pointer; }
+.send { min-height: 44px; margin-top: 30px; padding: 12px 22px; border: 1px solid #dccca9; border-radius: 999px; background: #219e99; color: #fff; cursor: pointer; }
 .send:disabled { cursor: progress; opacity: 0.75; }
 .error, .notice { margin: 0 0 24px; padding: 12px 16px; border-radius: 10px; }
 .error { border: 1px solid #d9a5ae; background: #fff5f6; color: #87263b; }
 .notice { border: 1px solid #9bc4bf; background: #eef8f5; color: #205c58; }
-.fieldError { margin: 6px 0 0; color: #87263b; }
+.fieldError { margin: 6px 0 0; color: #87263b; font-weight: 500; }
 .counter { margin: 6px 0 0; color: #5d5f57; text-align: end; }
-.note { margin: 12px 0 0; color: #666;   }
+.note { margin: 12px 0 0; color: #666; }
 .getStarted:focus-visible, .form :focus-visible { outline: 3px solid #d59b20; outline-offset: 4px; }
 .srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 @media (max-width: 1023px) {
@@ -76,6 +91,7 @@
 .enquiry h2 { font: var(--type-section); letter-spacing: 0; }
 .enquiryEyebrow { font: var(--type-label); letter-spacing: 0; }
 .enquiryIntro { font: var(--type-small); letter-spacing: 0; }
+.label { font: var(--type-smallBold); letter-spacing: 0; }
 .fields input, .fields select, .fields textarea { font: var(--type-body); letter-spacing: 0; }
 .consent { font: var(--type-caption); letter-spacing: 0; }
 .note { font: var(--type-caption); letter-spacing: 0; }
@@ -94,6 +110,8 @@
 .send:hover:not(:disabled) { background: #1c8c88; }
 .fields input:hover, .fields select:hover, .fields textarea:hover { border-color: #a9a9a9; }
 .fields input:focus, .fields select:focus, .fields textarea:focus { border-color: #219e99; box-shadow: 0 0 0 3px #219e9926; }
+.fields input[aria-invalid="true"]:hover, .fields select[aria-invalid="true"]:hover, .fields textarea[aria-invalid="true"]:hover { border-color: #87263b; }
+.fields input[aria-invalid="true"]:focus, .fields select[aria-invalid="true"]:focus, .fields textarea[aria-invalid="true"]:focus { border-color: #9c2940; box-shadow: 0 0 0 3px #9c294026; }
 
 /* Taller than the viewport, so it finishes on the way in rather than part-way
    through its cover range. */

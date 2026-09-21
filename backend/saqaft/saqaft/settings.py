@@ -14,6 +14,9 @@ import sys
 import tempfile
 from pathlib import Path
 
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+
 from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -35,6 +38,10 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv(
 # Application definition
 
 INSTALLED_APPS = [
+    # Unfold must precede django.contrib.admin so its admin templates win.
+    'unfold',
+    'unfold.contrib.filters',
+    'unfold.contrib.forms',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -89,7 +96,7 @@ ROOT_URLCONF = 'saqaft.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -187,3 +194,94 @@ EMAIL_USE_TLS = config(
 ).lower() == "tls"
 
 DEFAULT_FROM_EMAIL = config("MAIL_FROM_ADDRESS", default="noreply@sakafat.local")
+CONTACT_NOTIFICATION_EMAIL = config("CONTACT_NOTIFICATION_EMAIL", default=config("MAIL_FROM_ADDRESS", default="admin@sakafat.local"))
+
+# Django Unfold replaces the default admin UI. Colours follow the site's teal
+# brand accent (#007d7e) used across the frontend programme cards.
+UNFOLD = {
+    "SITE_TITLE": "Sakafat Global Admin",
+    "SITE_HEADER": "Sakafat Global",
+    "SITE_SUBHEADER": "Content administration",
+    "SITE_SYMBOL": "language",
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "COLORS": {
+        "primary": {
+            "50": "238 251 251",
+            "100": "208 245 245",
+            "200": "166 235 236",
+            "300": "109 217 220",
+            "400": "52 190 195",
+            "500": "20 161 168",
+            "600": "0 125 126",
+            "700": "6 101 104",
+            "800": "11 81 84",
+            "900": "14 67 70",
+            "950": "3 42 45",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": _("Content"),
+                "separator": False,
+                "items": [
+                    {
+                        "title": _("Programmes"),
+                        "icon": "diversity_3",
+                        "link": reverse_lazy("admin:Programme_programme_changelist"),
+                    },
+                    {
+                        "title": _("Episodes"),
+                        "icon": "podcasts",
+                        "link": reverse_lazy("admin:Episode_episode_changelist"),
+                    },
+                    {
+                        "title": _("Episode categories"),
+                        "icon": "category",
+                        "link": reverse_lazy("admin:Episode_episodecategory_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Enquiries"),
+                "separator": True,
+                "items": [
+                    {
+                        "title": _("Contact messages"),
+                        "icon": "mail",
+                        "link": reverse_lazy("admin:Contact_contact_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("People & access"),
+                "separator": True,
+                "items": [
+                    {
+                        "title": _("Users"),
+                        "icon": "person",
+                        "link": reverse_lazy("admin:auth_user_changelist"),
+                    },
+                    {
+                        "title": _("Groups"),
+                        "icon": "group",
+                        "link": reverse_lazy("admin:auth_group_changelist"),
+                    },
+                    {
+                        "title": _("Signup OTPs"),
+                        "icon": "pin",
+                        "link": reverse_lazy("admin:User_otpverification_changelist"),
+                    },
+                    {
+                        "title": _("Password reset OTPs"),
+                        "icon": "lock_reset",
+                        "link": reverse_lazy("admin:User_passwordresetotp_changelist"),
+                    },
+                ],
+            },
+        ],
+    },
+}
