@@ -27,12 +27,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
+
+# In production under HTTPS (Nginx/Passenger reverse proxy), CSRF verification requires
+# the scheme and domain in CSRF_TRUSTED_ORIGINS, e.g. https://sakafat.com,https://api.sakafat.com
+CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
+
+# When running behind a reverse proxy (Nginx or Phusion Passenger) terminating TLS,
+# this informs Django that the request was transmitted over HTTPS.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Application definition
@@ -163,9 +171,6 @@ if "test" in sys.argv:
 
 
 
-SECRET_KEY = config("SECRET_KEY")
-
-DEBUG = config("DEBUG", cast=bool)
 
 
 DATABASES = {

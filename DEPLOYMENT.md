@@ -70,6 +70,9 @@ DB_PASSWORD=your-secure-db-password
 DB_HOST=127.0.0.1
 DB_PORT=5432
 
+# CSRF Protection (Required for Django 4+ admin POST over HTTPS)
+CSRF_TRUSTED_ORIGINS=https://yourdomain.com,https://api.yourdomain.com
+
 # Production Email (SMTP)
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 MAIL_MAILER=smtp
@@ -80,6 +83,7 @@ MAIL_PASSWORD=your-sendgrid-api-key
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=noreply@yourdomain.com
 MAIL_FROM_NAME="Sakafat Global"
+CONTACT_NOTIFICATION_EMAIL=info@yourdomain.com
 
 # CORS (Frontend proxies server-side; keep empty or specify frontend domain)
 CORS_ALLOWED_ORIGINS=https://yourdomain.com

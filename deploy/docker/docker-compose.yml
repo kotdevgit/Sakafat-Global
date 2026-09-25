@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-sakafat_production}
+      POSTGRES_USER: ${DB_USER:-sakafat_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-sakafat_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-sakafat_user} -d ${DB_NAME:-sakafat_production}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - ../../backend/saqaft/.env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - django_media:/app/media
+      - django_static:/app/staticfiles
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             gunicorn --workers 3 --bind 0.0.0.0:8000 saqaft.wsgi:application"
+
+  frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - ../../frontend/.env.production
+    environment:
+      DJANGO_API_BASE_URL: http://backend:8000/api/
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
+  django_media:
+  django_static:

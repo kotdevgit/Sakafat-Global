@@ -1,0 +1,33 @@
+# ==============================================================================
+# Sakafat Global — Systemd Service for Django Backend (Gunicorn)
+# ==============================================================================
+# Place at: /etc/systemd/system/sakafat-backend.service
+# Enable & Start:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable sakafat-backend
+#   sudo systemctl start sakafat-backend
+# Check status:
+#   sudo systemctl status sakafat-backend
+# ==============================================================================
+
+[Unit]
+Description=Sakafat Global Django Backend (Gunicorn)
+After=network.target postgresql.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/sakafat/backend/saqaft
+EnvironmentFile=/var/www/sakafat/backend/saqaft/.env
+ExecStart=/var/www/sakafat/backend/saqaft/.venv/bin/gunicorn \
+    --workers 3 \
+    --bind 127.0.0.1:8000 \
+    --access-logfile /var/log/sakafat-gunicorn-access.log \
+    --error-logfile /var/log/sakafat-gunicorn-error.log \
+    saqaft.wsgi:application
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

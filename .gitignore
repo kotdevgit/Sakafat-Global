@@ -38,6 +38,7 @@ next-env.d.ts
 # Environment files (keep the safe template)
 .env*
 !.env.example
+!.env*.example
 # The same names without the leading dot. Next.js does not read these, so such a
 # file is always a mistake — and an unignored mistake one typo from a real
 # secret. Listed by name rather than as env*, which would also swallow source

@@ -88,6 +88,7 @@ DJANGO_API_BASE_URL=http://127.0.0.1:8000/api/
 SECRET_KEY=generate-a-strong-random-64-character-key
 DEBUG=False
 ALLOWED_HOSTS=sakafat.com,api.sakafat.com,127.0.0.1,localhost
+CSRF_TRUSTED_ORIGINS=https://sakafat.com,https://api.sakafat.com
 
 DB_NAME=YOUR_CPANEL_USER_sakafat
 DB_USER=YOUR_CPANEL_USER_dbuser
@@ -104,6 +105,7 @@ MAIL_PASSWORD=your-mail-password
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=noreply@sakafat.com
 MAIL_FROM_NAME="Sakafat Global"
+CONTACT_NOTIFICATION_EMAIL=info@sakafat.com
 
 CORS_ALLOWED_ORIGINS=https://sakafat.com
 ```
