@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 import sys
 import tempfile
+import os
 from pathlib import Path
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -31,6 +33,12 @@ SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 3600
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
@@ -75,6 +83,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if os.environ.get("VERCEL"):
+    # Vercel runs Django as a function, so there is no Nginx process for admin
+    # CSS. WhiteNoise serves the installed app assets directly from finders.
+    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+    WHITENOISE_USE_FINDERS = True
 
 from datetime import timedelta
 SIMPLE_JWT = {
@@ -163,6 +177,14 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Vercel functions have ephemeral filesystems. Keep uploaded media in Blob when
+# a store is connected; local development continues to use the filesystem.
+if os.environ.get("BLOB_READ_WRITE_TOKEN"):
+    STORAGES = {
+        "default": {"BACKEND": "saqaft.storage.VercelBlobStorage"},
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    }
+
 # Migrations that seed artwork write real files, and the test runner applies them to
 # the test database too. Without this, every test run would litter the real media
 # folder with duplicates.
@@ -173,16 +195,30 @@ if "test" in sys.argv:
 
 
 
-DATABASES = {
-    "default": {
+# Marketplace Postgres integrations provide a URL. Retain the existing DB_*
+# settings for the current local and VPS deployments.
+if database_url := os.environ.get("DATABASE_URL"):
+    parsed = urlsplit(database_url)
+    if parsed.scheme not in ("postgres", "postgresql"):
+        raise ValueError("DATABASE_URL must be a PostgreSQL URL")
+    DATABASES = {"default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": unquote(parsed.path.lstrip("/")),
+        "USER": unquote(parsed.username or ""),
+        "PASSWORD": unquote(parsed.password or ""),
+        "HOST": parsed.hostname or "",
+        "PORT": parsed.port or 5432,
+        "OPTIONS": {key: values[-1] for key, values in parse_qs(parsed.query).items()},
+    }}
+else:
+    DATABASES = {"default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": config("DB_NAME"),
         "USER": config("DB_USER"),
         "PASSWORD": config("DB_PASSWORD"),
         "HOST": config("DB_HOST"),
         "PORT": config("DB_PORT"),
-    }
-}
+    }}
 
 
 EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
